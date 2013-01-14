@@ -1,0 +1,11 @@
+target/
+.DS_Store
+tags
+.gradle/
+.idea/
+.settings/
+.project
+.classpath
+in.vim
+lightwork.iml
+*.swp
