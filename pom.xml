@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>barakawei</groupId>
-  <artifactId>lightwork</artifactId>
+  <artifactId>miwork</artifactId>
   <version>1.0</version>
   <packaging>war</packaging>
 
@@ -68,7 +68,7 @@
         <directory>src/test/resources</directory>
       </testResource>
     </testResources>
-    <finalName>lightwork</finalName>  
+    <finalName>miwork</finalName>
     <plugins>  
       <plugin>
 
