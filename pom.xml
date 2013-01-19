@@ -79,9 +79,9 @@
 
         <configuration>
 
-          <source>1.6</source>
+          <source>${jdk.version}</source>
 
-          <target>1.6</target>
+          <target>${jdk.version}</target>
 
           <encoding>utf-8</encoding>
 
@@ -126,6 +126,12 @@
 
   <!-- 依赖项定义 -->
   <dependencies>
+
+      <dependency>
+          <groupId>commons-collections</groupId>
+          <artifactId>commons-collections</artifactId>
+          <version>3.2.1</version>
+      </dependency>
 
     <!-- activiti -->
     <dependency>

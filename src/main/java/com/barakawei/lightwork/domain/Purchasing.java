@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,6 +16,9 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 @Entity
 public class Purchasing {
+
+    public static final String FLOW = "purchasing-flow";
+
 	@Id
 	@GeneratedValue(generator = "system_uuid")
 	@GenericGenerator(name = "system_uuid", strategy = "uuid")
@@ -40,6 +44,15 @@ public class Purchasing {
     //订单数量
     private String orderCount;
 
+    //状态
+    private Boolean ongoing;
+
+    //面料实际缩率
+    private String actualShrinkage;
+
+    //拉链缩率
+    private String zipperShrinkage;
+
     //供应时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -63,9 +76,52 @@ public class Purchasing {
 	private Date endTime;
 
     //采购明细
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, mappedBy = "purchasing")
+	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "purchasing")
 	List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();
 
+    //拉链明细
+    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "purchasing")
+    List<Zipper> zippers = new ArrayList<Zipper>();
+
+    //待办任务
+    @Transient
+    List<PurchasingDetail> toDoList = new ArrayList<PurchasingDetail>();
+
+    //已完成任务
+    @Transient
+    List<PurchasingDetail> completedList = new ArrayList<PurchasingDetail>();
+
+    public List<Zipper> getZippers() {
+        return zippers;
+    }
+
+    public void setZippers(List<Zipper> zippers) {
+        this.zippers = zippers;
+    }
+
+    public List<PurchasingDetail> getToDoList() {
+        return toDoList;
+    }
+
+    public void setToDoList(List<PurchasingDetail> toDoList) {
+        this.toDoList = toDoList;
+    }
+
+    public List<PurchasingDetail> getCompletedList() {
+        return completedList;
+    }
+
+    public void setCompletedList(List<PurchasingDetail> completedList) {
+        this.completedList = completedList;
+    }
+
+    public Boolean getOngoing() {
+        return ongoing;
+    }
+
+    public void setOngoing(Boolean ongoing) {
+        this.ongoing = ongoing;
+    }
     public List<PurchasingDetail> getPds() {
         return pds;
     }
@@ -160,5 +216,38 @@ public class Purchasing {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public String getActualShrinkage() {
+        return actualShrinkage;
+    }
+
+    public void setActualShrinkage(String actualShrinkage) {
+        this.actualShrinkage = actualShrinkage;
+    }
+
+    public String getZipperShrinkage() {
+        return zipperShrinkage;
+    }
+
+    public void setZipperShrinkage(String zipperShrinkage) {
+        this.zipperShrinkage = zipperShrinkage;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Purchasing p = (Purchasing) obj;
+
+        return StringUtils.equals(this.id, p.getId());
+
     }
 }

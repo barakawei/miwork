@@ -32,9 +32,12 @@
 <div class="pageContent">
 <div class="panelBar">
     <ul class="toolBar">
+        <sec:authorize ifAllGranted="role_planning">
         <li><a class="add" href="${ctx}/purchasing/add" target="navTab"><span>添加</span></a></li>
-        <li><a class="delete" href="" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
+        <li><a class="delete" href="${ctx}/purchasing/delete/{purchasing_id}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
         <li><a class="edit" href="${ctx}/purchasing/edit/{purchasing_id}" target="navTab"><span>修改</span></a></li>
+        </sec:authorize>
+        <li><a class="edit" href="${ctx}/purchasing/show/{purchasing_id}" target="navTab"><span>查看</span></a></li>
         <li class="line">line</li>
         <li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些记录吗?"><span>导出EXCEL</span></a></li>
     </ul>
@@ -76,9 +79,9 @@
     <div class="pages">
         <span>显示</span>
         <select class="combox" name="numPerPage" onchange="navTabPageBreak({numPerPage:this.value})">
-            <option <c:if test="${purchasings.size == 2}">selected</c:if> value="2" >2</option>
-            <option  <c:if test="${purchasings.size == 5}">selected</c:if> value="5">5</option>
-            <option  <c:if test="${purchasings.size == 10}">selected</c:if> value="10">10</option>
+            <option <c:if test="${purchasings.size == 20}">selected</c:if> value="20" >20</option>
+            <option  <c:if test="${purchasings.size == 50}">selected</c:if> value="50">50</option>
+            <option  <c:if test="${purchasings.size == 100}">selected</c:if> value="100">100</option>
         </select>
         <span>条，共${purchasings.totalElements}条</span>
     </div>

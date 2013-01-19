@@ -58,10 +58,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 		List<Role> roles = user.getRoles();
 		logger.info(roles.size());
 		for (Role role : roles) {
-			List<Privilege> privileges = role.getPrivileges();
-			for (Privilege res : privileges) {
-				authSet.add(new SimpleGrantedAuthority(res.getName()));
-			}
+			//List<Privilege> privileges = role.getPrivileges();
+			//for (Privilege res : privileges) {
+				authSet.add(new SimpleGrantedAuthority(role.getName()));
+			//}
 		}
 		return authSet;
 	}

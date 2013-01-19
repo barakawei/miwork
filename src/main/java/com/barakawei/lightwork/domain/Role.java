@@ -24,6 +24,17 @@ import org.hibernate.annotations.GenericGenerator;
  */
 @Entity
 public class Role {
+
+    public static final String ROLE_ADMINI= "role_admin";
+    public static final String ROLE_PURCHASING= "role_purchasing";
+    public static final String ROLE_PLANNING= "role_planning";
+    public static final String ROLE_WAREHOUSE = "role_warehouse";
+    public static final String ROLE_QUALITY= "role_quality";
+    public static final String ROLE_TECHNOLOG= "role_technolog";
+    public static final String ROLE_LEADER= "role_leader";
+    public static final String ROLE_PRODUCT = "role_product";
+
+
 	@Id
 	@GeneratedValue(generator = "system_uuid")
 	@GenericGenerator(name = "system_uuid", strategy = "uuid")
@@ -32,6 +43,8 @@ public class Role {
 	private String name;
 
 	private String type;
+
+    private String description;
 
 	private boolean enable;
 
@@ -51,7 +64,15 @@ public class Role {
 	@JsonIgnore
 	List<Organization> orgs = new ArrayList<Organization>();
 
-	/**
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
 	 * @return the id
 	 */
 	public String getId() {

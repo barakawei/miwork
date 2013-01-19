@@ -33,7 +33,7 @@ public class Goods {
 	private String composition;
 
 	//净宽/CM
-	private int width;
+	private Integer width;
 
 	//颜色
 	private String color;
@@ -126,7 +126,7 @@ public class Goods {
 	/**
 	 * @return the width
 	 */
-	public int getWidth() {
+	public Integer getWidth() {
 		return width;
 	}
 
@@ -134,7 +134,7 @@ public class Goods {
 	 * @param width
 	 *            the width to set
 	 */
-	public void setWidth(int width) {
+	public void setWidth(Integer width) {
 		this.width = width;
 	}
 

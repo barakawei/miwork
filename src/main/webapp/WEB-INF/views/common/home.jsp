@@ -6,6 +6,7 @@
 <link href="<c:url value='resources/themes/default/style.css'/>" rel="stylesheet" type="text/css" media="screen"/>
 <link href="<c:url value='resources/themes/css/core.css'/>" rel="stylesheet" type="text/css" media="screen"/>
 <link href="<c:url value='resources/themes/css/print.css'/>" rel="stylesheet" type="text/css" media="print"/>
+<link href="<c:url value='resources/css/style.css'/>" rel="stylesheet" type="text/css"/>
 <!--[if IE]>
 <link href="<c:url value='resources/themes/css/ieHack.css'/>" rel="stylesheet" type="text/css" media="screen"/>
 <![endif]-->
@@ -40,10 +41,10 @@ $(function(){
 <div id="layout">
   <div id="header">
     <div class="headerNav">
-      <a class="logo">lightwork</a>
+      <a class="logo">MiWork</a>
       <ul class="nav">
-        <li><a href="changepwd.html" target="dialog" width="600">设置</a></li>
-        <li><a href="login.html">退出</a></li>
+        <li><a href="changepwd.html" target="dialog" width="600">${SPRING_SECURITY_CONTEXT.authentication.principal.username}</a></li>
+        <li><a href="${ctx}/logout">退出</a></li>
       </ul>
     </div>
   </div>
@@ -65,8 +66,7 @@ $(function(){
         </div>
         <div class="accordionContent">
           <ul class="tree treeFolder">
-            <li><a href="${ctx}/purchasing/task" target="navTab" rel="task">待办任务</a></li>
-            <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购计划</a></li>
+            <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购</a></li>
           </ul>
         </div>
       </div>
@@ -106,7 +106,7 @@ $(function(){
 </div>
 
 
-<div id="footer">Copyright &copy; 2013 lightwork </div>
+<div id="footer">Copyright &copy; 2013 MiWork</div>
 
 </body>
 

@@ -29,4 +29,8 @@ public interface PurchasingService {
 	
 	Page<Purchasing> findPurchasings(SearchForm sf);
 
+    void complete(Purchasing purchasing);
+
+    Purchasing findTaskByCurrentUser(String id);
+
 }

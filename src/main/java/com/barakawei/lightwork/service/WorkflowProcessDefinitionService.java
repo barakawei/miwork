@@ -87,11 +87,8 @@ public class WorkflowProcessDefinitionService {
 			 */
 			if (ArrayUtils.isNotEmpty(processKey)) {
 				if (ArrayUtils.contains(processKey, loopProcessKey)) {
-					logger.debug("hit module of {}", processKey);
 					deploySingleProcess(resourceLoader, loopProcessKey);
 				} else {
-					logger.debug("module: {} not equals process key: {}, ignore and continue find next.", loopProcessKey,
-							processKey);
 				}
 			} else {
 				/*
@@ -106,7 +103,6 @@ public class WorkflowProcessDefinitionService {
 	 * 部署单个流程定义
 	 * @param resourceLoader	{@link ResourceLoader}
 	 * @param processKey		模块名称
-	 * @param subModule			流程定义名称
 	 * @throws IOException		找不到zip文件时
 	 */
 	public void deploySingleProcess(ResourceLoader resourceLoader, String processKey) throws IOException {
@@ -134,7 +130,6 @@ public class WorkflowProcessDefinitionService {
 	}
 
 	/**
-	 * 重新部署所有流程定义，调用：{@link #deployFromClasspath()}完成功能
 	 * @throws Exception
 	 * @see #deployFromClasspath
 	 */

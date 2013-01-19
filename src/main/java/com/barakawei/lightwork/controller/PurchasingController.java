@@ -1,5 +1,6 @@
 package com.barakawei.lightwork.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,11 +8,17 @@ import java.util.Map;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpSession;
 
+import com.barakawei.lightwork.domain.DataDict;
+import com.barakawei.lightwork.domain.PurchasingDetail;
 import com.barakawei.lightwork.domain.SearchForm;
+import com.barakawei.lightwork.service.DataDictService;
+import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,65 +46,91 @@ import com.barakawei.lightwork.service.PurchasingWorkflowService;
 @RequestMapping(value = "/purchasing")
 public class PurchasingController extends BaseController {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired
-  protected RuntimeService runtimeService;
+    @Autowired
+    protected RuntimeService runtimeService;
 
-  @Autowired
-  protected TaskService taskService;
-  
-  @Autowired
-  protected PurchasingWorkflowService purchasingWorkflowService;
+    @Autowired
+    protected TaskService taskService;
 
-  @Autowired
-  protected PurchasingService purchasingService;
+    @Autowired
+    protected PurchasingWorkflowService purchasingWorkflowService;
 
-  @RequestMapping(value = "/add", method = RequestMethod.GET)
-  public String add(){
+    @Autowired
+    protected PurchasingService purchasingService;
 
-      return "purchasing/add";
-  }
+    @Autowired
+    protected PurchasingDetailService purchasingDetailService;
 
-  @RequestMapping(value = "/create", method = RequestMethod.POST)
-  public ModelAndView create(Purchasing purchasing) {
-      purchasingService.createPurchasing(purchasing);
-      return this.ajaxDoneSuccess("添加成功");
-  }
+    @Autowired
+    protected DataDictService dataDictService;
 
-  @RequestMapping(value = "/list", method = {RequestMethod.GET,RequestMethod.POST})
-  public ModelAndView list(SearchForm sf){
-      ModelAndView mav = new ModelAndView("purchasing/list");
-      Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
-      mav.addObject("purchasings",purchasings);
-      mav.addObject("searchForm",sf);
-      return mav;
-  }
 
-  @RequestMapping(value = "/task")
-  public ModelAndView task(SearchForm sf) {
-    ModelAndView mav = new ModelAndView("purchasing/task");
-    String userId = "2";
-    Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
-    mav.addObject("purchasings",purchasings);
-    mav.addObject("searchForm",sf);
-    return mav;
-  }
+    @RequestMapping(value = "/add", method = RequestMethod.GET)
+    public String add() {
 
-    @RequestMapping(value = "/edit/{id}",method = RequestMethod.GET)
-    public ModelAndView edit(@PathVariable("id") String id) {
-        ModelAndView mav = new ModelAndView("purchasing/edit");
-        Purchasing purchasing = purchasingService.findPurchasingById(id);
-        mav.addObject("purchasing",purchasing);
+        return "purchasing/add";
+    }
+
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public ModelAndView create(Purchasing purchasing) {
+        purchasingService.createPurchasing(purchasing);
+        return this.ajaxDoneSuccess("添加成功");
+    }
+
+    @RequestMapping(value = "/list", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView list(SearchForm sf) {
+        ModelAndView mav = new ModelAndView("purchasing/list");
+        Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
+        mav.addObject("purchasings", purchasings);
+        mav.addObject("searchForm", sf);
         return mav;
     }
 
-    @RequestMapping(value = "/update",method = RequestMethod.POST)
+
+    @RequestMapping(value = "/task")
+    public ModelAndView task(SearchForm sf) {
+        ModelAndView mav = new ModelAndView("purchasing/task");
+        String userId = "2";
+        Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
+        mav.addObject("purchasings", purchasings);
+        mav.addObject("searchForm", sf);
+        return mav;
+    }
+
+    @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
+    public ModelAndView edit(@PathVariable("id") String id) {
+        ModelAndView mav = new ModelAndView("purchasing/edit");
+        Purchasing purchasing = purchasingService.findPurchasingById(id);
+        mav.addObject("purchasing", purchasing);
+        return mav;
+    }
+
+    @RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
+    public ModelAndView show(@PathVariable("id") String id) {
+        ModelAndView mav = new ModelAndView("purchasing/show");
+        mav.addObject("purchasing", purchasingService.findTaskByCurrentUser(id));
+        return mav;
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ModelAndView update(Purchasing purchasing) {
         purchasingService.updatePurchasing(purchasing);
         return this.ajaxDoneSuccess("修改成功");
     }
 
+    @RequestMapping(value = "completePurchasing", method = {RequestMethod.POST})
+    public ModelAndView completePurchasing(Purchasing purchasing) {
+        purchasingService.complete(purchasing);
+        return this.ajaxDoneSuccess("修改成功");
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
+    public ModelAndView delete(@PathVariable("id") String id) {
+        purchasingService.deletePurchasingById(id);
+        return this.ajaxDoneSuccess("删除成功");
+    }
 //	/**
 //	 * 读取运行中的流程实例
 //	 * @return
@@ -159,22 +192,5 @@ public class PurchasingController extends BaseController {
 //    return leave;
 //  }
 //
-//	/**
-//	 * 完成任务
-//	 * @param id
-//	 * @return
-//	 */
-//  @RequestMapping(value = "complete/{id}", method = { RequestMethod.POST, RequestMethod.GET })
-//  @ResponseBody
-//  public String complete(@PathVariable("id") String taskId, Variable var) {
-//    try {
-//      Map<String, Object> variables = var.getVariableMap();
-//      taskService.complete(taskId, variables);
-//      return "success";
-//    } catch (Exception e) {
-//      logger.error("error on complete task {}, variables={}", new Object[] { taskId, var.getVariableMap(), e });
-//      return "error";
-//    }
-//  }
 
 }
