@@ -3,6 +3,7 @@ package com.barakawei.lightwork.service.impl;
 import com.barakawei.lightwork.dao.*;
 import com.barakawei.lightwork.domain.*;
 import com.barakawei.lightwork.service.DataDictService;
+import com.barakawei.lightwork.service.WorkflowProcessDefinitionService;
 import com.barakawei.lightwork.util.UserContextUtil;
 import org.activiti.engine.*;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.barakawei.lightwork.service.PurchasingService;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -60,9 +62,20 @@ public class PurchasingServiceImpl implements PurchasingService {
     @Autowired
     private PurchasingDetailDao purchasingDetailDao;
 
+    @Autowired
+    protected WorkflowProcessDefinitionService wpdService;
+
+    @Override
+    public List<Purchasing> findAll() {
+        Sort s = new Sort(Sort.Direction.DESC,"startTime");
+        return purchasingDao.findAll(s);
+    }
 
     @Override
     public void createPurchasing(Purchasing purchasing) {
+        if(CollectionUtils.isEmpty(purchasing.getPds())){
+            return;
+        }
         purchasing.setPlanningUser(UserContextUtil.getCurrentUser());
         purchasing.setStartTime(new Date());
         purchasing.setOngoing(true);
@@ -91,7 +104,8 @@ public class PurchasingServiceImpl implements PurchasingService {
      */
     @Override
     public void updatePurchasing(Purchasing purchasing) {
-        List<PurchasingDetail> pds = purchasingDao.findOne(purchasing.getId()).getPds();
+        Purchasing p =purchasingDao.findOne(purchasing.getId());
+        List<PurchasingDetail> pds = p.getPds();
         List<PurchasingDetail> newPds = purchasing.getPds();
         for (PurchasingDetail pd : pds) {
             if (!newPds.contains(pd)) {
@@ -100,10 +114,24 @@ public class PurchasingServiceImpl implements PurchasingService {
         }
         for (PurchasingDetail pd : newPds) {
             if (!pds.contains(pd)) {
-                pd.setPurchasing(purchasing);
+                pd.setPurchasing(p);
+                purchasingDetailDao.save(pd);
+                String businessKey = pd.getId();
+                identityService.setAuthenticatedUserId(p.getPlanningUser().getId());
+                ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(Purchasing.FLOW, businessKey);
+                pd.setProcessInstanceId(processInstance.getId());
+                purchasingDetailDao.save(pd);
             }
         }
-        purchasingDao.save(purchasing);
+        p.setOrderNumber(purchasing.getOrderNumber());
+        p.setOrderName(purchasing.getOrderName());
+        p.setOrderCount(purchasing.getOrderCount());
+        p.setSerialNumber(purchasing.getSerialNumber());
+        p.setApplyTime(purchasing.getApplyTime());
+        p.setConfirmTime(purchasing.getConfirmTime());
+        p.setDischargeRecognition(purchasing.getDischargeRecognition());
+        purchasingDao.save(p);
+
 
     }
 
@@ -167,6 +195,9 @@ public class PurchasingServiceImpl implements PurchasingService {
 
         Purchasing pp =  this.findPurchasingById(purchasing.getId());
         boolean end = true;
+        if(CollectionUtils.isEmpty(pp.getPds())){
+            end = false;
+        }
         for(PurchasingDetail pd:pp.getPds()){
             if(null == pd.getEndTime()){
                 end = false;
@@ -235,7 +266,7 @@ public class PurchasingServiceImpl implements PurchasingService {
                     variables.put("review", pd.getReview() == null ? false : pd.getReview());
                     variables.put("hasShrinkage", _pd.getHasShrinkage());
                     variables.put("qualityTime", new Date());
-                    variables.put("qualityRemark", "");
+                    variables.put("qualityRemark",_pd.getQualityRemark());
                     taskService.complete(_pd.getTaskId(), variables);
                 }
             }
@@ -269,12 +300,21 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     }
 
+    private void claim(){
+        String role = UserContextUtil.getCurrentRole().getName();
+        List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskCandidateGroup(role).active().orderByTaskPriority().desc()
+                .orderByTaskCreateTime().desc().list();
+        for (Task _task : tasks) {
+            taskService.claim(_task.getId(), UserContextUtil.getCurrentUser().getId());
+        }
+    }
 
     @Override
     public Purchasing findTaskByCurrentUser(String id) {
-        String role = UserContextUtil.getCurrentRole().getName();
+        this.claim();
+        User user = UserContextUtil.getCurrentUser();
         Purchasing purchasing = purchasingDao.findOne(id);
-        List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskCandidateGroup(role).active().orderByTaskPriority().desc()
+        List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskAssignee(user.getId()).active().orderByTaskPriority().desc()
                 .orderByTaskCreateTime().desc().list();
         List<PurchasingDetail> toDoList = new ArrayList<PurchasingDetail>();
         for (Task _task : tasks) {
@@ -286,15 +326,42 @@ public class PurchasingServiceImpl implements PurchasingService {
             if (null != pd && purchasing.equals(pd.getPurchasing())) {
                 pd.setTask(_task);
                 pd.setTaskId(_task.getId());
+                if(_task.getAssignee() == null){
+                    pd.setCurrentUserName("未签收");
+                }else {
+                    pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
+                }
                 toDoList.add(pd);
             }
         }
         purchasing.setToDoList(toDoList);
-        Collection<PurchasingDetail> completedList = CollectionUtils.subtract(purchasing.getPds(), toDoList);
-        purchasing.setCompletedList((List<PurchasingDetail>) completedList);
+        Collection<PurchasingDetail> otherList = CollectionUtils.subtract(purchasing.getPds(), toDoList);
+        List<PurchasingDetail> completed= new ArrayList<PurchasingDetail>();
+        List<PurchasingDetail> pending= new ArrayList<PurchasingDetail>();
+
+        for(PurchasingDetail _pd : otherList){
+           if(_pd.getEndTime() != null){
+               completed.add(_pd);
+           }else{
+               pending.add(_pd);
+           }
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(_pd.getProcessInstanceId()).active().singleResult();
+            if(null == pi){
+                _pd.setCurrentUserName("");
+                continue;
+            }
+            _pd.setTask(wpdService.getCurrentTask(pi));
+            Task _task = _pd.getTask();
+            if(_task.getAssignee() == null){
+                _pd.setCurrentUserName("未签收");
+            }else {
+                _pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
+            }
+        }
         purchasing.getPds().clear();
         purchasing.getPds().addAll(toDoList);
-        purchasing.getPds().addAll(completedList);
+        purchasing.getPds().addAll(pending);
+        purchasing.getPds().addAll(completed);
         return purchasing;
     }
 

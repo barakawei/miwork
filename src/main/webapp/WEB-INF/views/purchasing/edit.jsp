@@ -55,14 +55,14 @@
                     <dl>
                         <dt>计划人</dt>
                         <dd>
-                            aaaa
+                            ${purchasing.planningUser.name}
                         </dd>
                     </dl>
 
                     <dl>
                         <dt>排料确认</dt>
                         <dd>
-                            aaaa
+                            <input type="text" name=" dischargeRecognition" maxlength="50" value="${purchasing.dischargeRecognition}"/>
                         </dd>
                     </dl>
 

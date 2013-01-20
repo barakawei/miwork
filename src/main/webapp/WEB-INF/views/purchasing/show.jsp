@@ -88,16 +88,19 @@
                         <table class="list nowrap" width="100%" >
                             <thead>
                             <tr>
+                                <th colspan="2">流程信息</th>
                                 <th colspan="2">实际入库信息</th>
                                 <sec:authorize ifAnyGranted="role_leader,role_quality">
                                 <th colspan="1">审批信息</th>
                                 </sec:authorize>
-                                <th colspan="2">质检信息</th>
+                                <th colspan="3">质检信息</th>
                                 <th colspan="2">预入库信息</th>
                                 <th colspan="1">采购信息</th>
                                 <th colspan="12">货物信息</th>
                             </tr>
                             <tr>
+                                <th>当前节点</th>
+                                <th>当前处理人</th>
                                 <th>实际库数量</th>
                                 <th>实际入库时间</th>
                                 <sec:authorize ifAnyGranted="role_leader,role_quality">
@@ -105,6 +108,7 @@
                                 </sec:authorize>
                                 <th>质检结果</th>
                                 <th>缩率</th>
+                                <th>质检信息</th>
                                 <th>预入库数量</th>
                                 <th>预入库时间</th>
                                 <th>预计到货时间</th>
@@ -126,6 +130,10 @@
                             <tbody>
                             <c:forEach items="${purchasing.pds}" var="pd" varStatus="status">
                                 <tr class="unitBox">
+                                    <!-- 当前节点-->
+                                    <td>${pd.task.name == null ?"结束":pd.task.name}</td>
+                                    <!-- 当前处理人-->
+                                    <td>${pd.currentUserName}</td>
                                     <!-- 实际入库数量-->
                                     <td>
                                     <c:if test="${pd.task.taskDefinitionKey == 'warehouseEntryActual'}">
@@ -159,7 +167,7 @@
                                     <td>
                                         <c:if test="${pd.task.taskDefinitionKey == 'leaderAudit'}">
                                             <sec:authorize ifAllGranted="role_leader">
-                                            <textarea name="pds[${status.index}].reason" cols="80" class="required" rows="2"></textarea>
+                                            <textarea name="pds[${status.index}].reason" cols="20" class="required" rows="2"></textarea>
                                             </sec:authorize>
                                         </c:if>
 
@@ -204,6 +212,19 @@
                                             ${pd.shrinkage}
                                         </c:if>
                                     </td>
+
+                                    <!-- 质检信息-->
+                                    <td>
+                                        <c:if test="${pd.task.taskDefinitionKey == 'quality'}">
+                                            <sec:authorize ifAllGranted="role_quality">
+                                                <textarea name="pds[${status.index}].qualityRemark" cols="20" rows="2"></textarea>
+                                            </sec:authorize>
+                                        </c:if>
+                                        <c:if test="${pd.task.taskDefinitionKey != 'quality'}">
+                                            ${pd.qualityRemark}
+                                        </c:if>
+                                    </td>
+
                                     <!-- 预入库数量-->
                                     <td>
                                         <c:if test="${pd.task.taskDefinitionKey == 'warehouseEntryPlan'}">
@@ -373,6 +394,7 @@
         </div>
         <div class="formBar">
             <ul>
+                <sec:authorize ifNotGranted="role_planning">
                 <li>
                     <div class="buttonActive">
                         <div class="buttonContent">
@@ -380,6 +402,7 @@
                         </div>
                     </div>
                 </li>
+                </sec:authorize>
                 <li>
                     <div class="button">
                         <div class="buttonContent">

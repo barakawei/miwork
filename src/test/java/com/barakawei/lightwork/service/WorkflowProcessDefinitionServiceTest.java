@@ -16,11 +16,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-@RunWith(SpringJUnit4ClassRunner.class)  
-@Transactional  
+@RunWith(SpringJUnit4ClassRunner.class)
+@Transactional
 @TransactionConfiguration(transactionManager="transactionManager", defaultRollback=false)
-@ContextConfiguration(locations={"classpath:applicationContext.xml"})  
-public class WorkflowProcessDefinitionServiceTest{  
+@ContextConfiguration(locations={"classpath:applicationContext.xml"})
+public class WorkflowProcessDefinitionServiceTest{
 
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -36,19 +36,19 @@ public class WorkflowProcessDefinitionServiceTest{
   @Autowired
   protected WorkflowProcessDefinitionService wpdService;
 
-  @Before  
-  public void prepareTestData() {  
+  @Before
+  public void prepareTestData() {
     logger.info("before");
-  }  
+  }
 
-  @Test  
-  public void testDeploySingleProcess() throws Exception{  
+  @Test
+  public void testDeploySingleProcess() throws Exception{
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
         wpdService.deploySingleProcess(resourceLoader,"purchasing");
-  }  
+  }
 
-  @After  
-  public void after() {  
+  @After
+  public void after() {
     logger.info("after");
-  }  
+  }
 }

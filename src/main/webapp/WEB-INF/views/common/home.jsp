@@ -31,7 +31,9 @@ $(function(){
       initEnv();
     }
   });
+
 });
+
 
 </script>
 
@@ -90,14 +92,85 @@ $(function(){
             </ul>
             <div class="navTab-panel tabsPageContent layoutBox">
                 <div class="page unitBox">
-                    <div class="accountInfo">
-                        <div class="alertInfo">
-                        </div>
-                        <div class="right">
-                        </div>
-                    </div>
+                    <h2 class="contentTitle">工作一览</h2>
 
-                    <div class="pageFormContent" layoutH="80" style="margin-right:230px">
+                    <div class="pageContent sortDrag" selector="h1" layoutH="42">
+
+                        <c:if test="${purchasings.size() >0}">
+                        <div class="panel">
+                            <h1>待办工作</h1>
+                            <div>
+                                <table class="list" width="98%">
+                                    <thead>
+                                    <tr>
+                                        <th>工作流程</th>
+                                        <th>编号</th>
+                                        <th>名称</th>
+                                        <th>开始时间</th>
+                                        <th>待办任务数</th>
+                                        <th>当前进度</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <c:forEach items="${purchasings}" var="p">
+                                    <tr target="purchasing_id" rel="${p.id}">
+                                        <td>采购</td>
+                                        <td>
+                                        <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab"><span>${p.orderNumber}</span></a>
+                                        </td>
+                                        <td>${p.orderName}</td>
+                                        <td>
+                                          <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
+                                        </td>
+                                        <td>${p.toDoList.size()}</td>
+                                        <td>${p.progress}%</td>
+                                    </tr>
+                                    </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
+                            </c:if>
+
+                        <c:if test="${otherPurchasings.size() >0}">
+                        <div class="panel" >
+                            <h1>进度跟踪</h1>
+                            <div>
+                                <table class="list" width="98%">
+                                    <thead>
+                                    <tr>
+                                        <th>工作流程</th>
+                                        <th>编号</th>
+                                        <th>名称</th>
+                                        <th>开始时间</th>
+                                        <th>总任务数</th>
+                                        <th>完成任务数</th>
+                                        <th>当前进度</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <c:forEach items="${otherPurchasings}" var="p">
+                                        <tr target="purchasing_id" rel="${p.id}">
+                                            <td>采购</td>
+                                            <td>
+                                                <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab"><span>${p.orderNumber}</span></a>
+                                            </td>
+                                            <td>${p.orderName}</td>
+                                            <td>
+                                                <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
+                                            </td>
+                                            <td>${p.pds.size()}</td>
+                                            <td>${p.completedList.size()}</td>
+                                            <td>${p.progress}%</td>
+                                        </tr>
+                                    </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                       </c:if>
                     </div>
                 </div>
             </div>

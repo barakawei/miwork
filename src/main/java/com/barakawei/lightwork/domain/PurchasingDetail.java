@@ -60,8 +60,15 @@ public class PurchasingDetail {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date expectedArrivalTime;
 
+    //当前处理人
+    @Transient
+    private String currentUserName;
+
     // 是否合格
     private Boolean qualified;
+
+    //质检信息
+    private String qualityRemark;
 
     //缩率
     private String shrinkage;
@@ -110,6 +117,9 @@ public class PurchasingDetail {
 
     // -- 临时属性 --//
 
+    @Transient
+    private Integer progress;
+
     // 流程任务
     @Transient
     private Task task;
@@ -132,6 +142,30 @@ public class PurchasingDetail {
     // 流程定义
     @Transient
     private ProcessDefinition processDefinition;
+
+    public String getCurrentUserName() {
+        return currentUserName;
+    }
+
+    public void setCurrentUserName(String currentUserName) {
+        this.currentUserName = currentUserName;
+    }
+
+    public String getQualityRemark() {
+        return qualityRemark;
+    }
+
+    public void setQualityRemark(String qualityRemark) {
+        this.qualityRemark = qualityRemark;
+    }
+
+    public Integer getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
+    }
 
     public Boolean getHasShrinkage() {
         return StringUtils.isNotBlank(this.shrinkage);

@@ -76,7 +76,7 @@ public class PurchasingController extends BaseController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ModelAndView create(Purchasing purchasing) {
         purchasingService.createPurchasing(purchasing);
-        return this.ajaxDoneSuccess("添加成功");
+        return this.ajaxDoneClose("添加成功");
     }
 
     @RequestMapping(value = "/list", method = {RequestMethod.GET, RequestMethod.POST})

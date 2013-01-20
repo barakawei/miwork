@@ -46,14 +46,15 @@
                     <dl>
                         <dt>计划人</dt>
                         <dd>
-                            aaaa
+                            ${SPRING_SECURITY_CONTEXT.authentication.principal.username}
                         </dd>
                     </dl>
 
                     <dl>
                         <dt>排料确认</dt>
                         <dd>
-                            aaaa
+                            <input type="text" name=" dischargeRecognition" maxlength="50" value="${purchasing.dischargeRecognition}"/>
+
                         </dd>
                     </dl>
 

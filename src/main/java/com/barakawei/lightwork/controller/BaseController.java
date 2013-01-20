@@ -20,9 +20,20 @@ public abstract class BaseController {
 		return mav;
 	}
 
+    protected ModelAndView ajaxClose(int statusCode, String message) {
+        ModelAndView mav = new ModelAndView("common/ajaxClose");
+        mav.addObject("statusCode", statusCode);
+        mav.addObject("message", message);
+        return mav;
+    }
+
 	protected ModelAndView ajaxDoneSuccess(String message) {
 		return ajaxDone(200, message);
 	}
+
+    protected ModelAndView ajaxDoneClose(String message) {
+        return ajaxClose(200, message);
+    }
 
 	protected ModelAndView ajaxDoneError(String message) {
 		return ajaxDone(200, message);

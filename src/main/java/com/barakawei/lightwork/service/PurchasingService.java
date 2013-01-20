@@ -7,6 +7,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.barakawei.lightwork.domain.Purchasing;
+
+import java.util.List;
+
 /**
  * @author qianxiaowei
  * @date 2012-11-25
@@ -32,5 +35,7 @@ public interface PurchasingService {
     void complete(Purchasing purchasing);
 
     Purchasing findTaskByCurrentUser(String id);
+
+    List<Purchasing> findAll();
 
 }

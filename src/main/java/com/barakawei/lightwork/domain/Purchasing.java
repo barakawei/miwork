@@ -53,6 +53,10 @@ public class Purchasing {
     //拉链缩率
     private String zipperShrinkage;
 
+    //进度
+    @Transient
+    private Integer progress;
+
     //供应时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -91,6 +95,23 @@ public class Purchasing {
     @Transient
     List<PurchasingDetail> completedList = new ArrayList<PurchasingDetail>();
 
+    public Integer getProgress() {
+        int complete = 0;
+        for(PurchasingDetail pd : this.pds){
+            if(null != pd.getEndTime()){
+               complete ++ ;
+            }
+        }
+        if(this.pds.size() > 0){
+            return complete *100 / this.pds.size();
+        }
+        return 100;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
+    }
+
     public List<Zipper> getZippers() {
         return zippers;
     }
@@ -108,7 +129,13 @@ public class Purchasing {
     }
 
     public List<PurchasingDetail> getCompletedList() {
-        return completedList;
+        List<PurchasingDetail> completed = new ArrayList<PurchasingDetail>();
+        for(PurchasingDetail pd : this.pds){
+            if(null != pd.getEndTime()){
+                completed.add(pd);
+            }
+        }
+        return completed;
     }
 
     public void setCompletedList(List<PurchasingDetail> completedList) {

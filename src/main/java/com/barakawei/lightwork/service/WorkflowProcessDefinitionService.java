@@ -2,13 +2,18 @@ package com.barakawei.lightwork.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.zip.ZipInputStream;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,121 +25,148 @@ import org.springframework.stereotype.Service;
 
 /**
  * 工作流中流程以及流程实例相关Service
- * 
- * @author barakawei
  *
+ * @author barakawei
  */
 @Service
 public class WorkflowProcessDefinitionService {
 
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	protected RuntimeService runtimeService;
+    @Autowired
+    protected RuntimeService runtimeService;
 
-	@Autowired
-	protected RepositoryService repositoryService;
+    @Autowired
+    protected RepositoryService repositoryService;
 
-	@Autowired
-	protected HistoryService historyService;
+    @Autowired
+    protected HistoryService historyService;
 
-	/**
-	 * 根据流程实例ID查询流程定义对象{@link ProcessDefinition}
-	 * @param processInstanceId	流程实例ID
-	 * @return	流程定义对象{@link ProcessDefinition}
-	 */
-	public ProcessDefinition findProcessDefinitionByPid(String processInstanceId) {
-		HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-				.processInstanceId(processInstanceId).singleResult();
-		String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
-		ProcessDefinition processDefinition = findProcessDefinition(processDefinitionId);
-		return processDefinition;
-	}
 
-	/**
-	 * 根据流程定义ID查询流程定义对象{@link ProcessDefinition}
-	 * @param processDefinitionId	流程定义对象ID
-	 * @return	流程定义对象{@link ProcessDefinition}
-	 */
-	public ProcessDefinition findProcessDefinition(String processDefinitionId) {
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-				.processDefinitionId(processDefinitionId).singleResult();
-		return processDefinition;
-	}
+    @Autowired
+    protected TaskService taskService;
 
-	/**
-	 * 部署classpath下面的流程定义
-	 * <p>从属性配置文件中获取属性<b>workflow.modules</b>扫描**deployments**</p>
-	 * <p>然后从每个**deployments/${module}**查找在属性配置文件中的属性**workflow.module.keys.${submodule}**
-	 * <p>配置实例：
-	 * <pre>
-	 *	#workflow for deploy
-	 *	workflow.modules=budget,erp,oa
-	 *	workflow.module.keys.budget=budget
-	 *	workflow.module.keys.erp=acceptInsurance,billing,effectInsurance,endorsement,payment
-	 *	workflow.module.keys.oa=caruse,leave,officalstamp,officesupply,out,overtime
-	 *	</pre></p>
-	 * @param processKey	流程定义KEY
-	 * @throws Exception
-	 */
-	public void deployFromClasspath(String... processKey) throws Exception {
-		ResourceLoader resourceLoader = new DefaultResourceLoader();
-		String[] processKeys = { "leave", "leave-dynamic-from", "leave-formkey", "dispatch" };
-		for (String loopProcessKey : processKeys) {
+    /**
+     * 根据流程实例ID查询流程定义对象{@link ProcessDefinition}
+     *
+     * @param processInstanceId 流程实例ID
+     * @return 流程定义对象{@link ProcessDefinition}
+     */
+    public ProcessDefinition findProcessDefinitionByPid(String processInstanceId) {
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId).singleResult();
+        String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
+        ProcessDefinition processDefinition = findProcessDefinition(processDefinitionId);
+        return processDefinition;
+    }
+
+    /**
+     * 根据流程定义ID查询流程定义对象{@link ProcessDefinition}
+     *
+     * @param processDefinitionId 流程定义对象ID
+     * @return 流程定义对象{@link ProcessDefinition}
+     */
+    public ProcessDefinition findProcessDefinition(String processDefinitionId) {
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId).singleResult();
+        return processDefinition;
+    }
+
+    /**
+     * 部署classpath下面的流程定义
+     * <p>从属性配置文件中获取属性<b>workflow.modules</b>扫描**deployments**</p>
+     * <p>然后从每个**deployments/${module}**查找在属性配置文件中的属性**workflow.module.keys.${submodule}**
+     * <p>配置实例：
+     * <pre>
+     * 	#workflow for deploy
+     * 	workflow.modules=budget,erp,oa
+     * 	workflow.module.keys.budget=budget
+     * 	workflow.module.keys.erp=acceptInsurance,billing,effectInsurance,endorsement,payment
+     * 	workflow.module.keys.oa=caruse,leave,officalstamp,officesupply,out,overtime
+     * 	</pre></p>
+     *
+     * @param processKey 流程定义KEY
+     * @throws Exception
+     */
+    public void deployFromClasspath(String... processKey) throws Exception {
+        ResourceLoader resourceLoader = new DefaultResourceLoader();
+        String[] processKeys = {"leave", "leave-dynamic-from", "leave-formkey", "dispatch"};
+        for (String loopProcessKey : processKeys) {
 
 			/*
-			 * 需要过滤指定流程
+             * 需要过滤指定流程
 			 */
-			if (ArrayUtils.isNotEmpty(processKey)) {
-				if (ArrayUtils.contains(processKey, loopProcessKey)) {
-					deploySingleProcess(resourceLoader, loopProcessKey);
-				} else {
-				}
-			} else {
+            if (ArrayUtils.isNotEmpty(processKey)) {
+                if (ArrayUtils.contains(processKey, loopProcessKey)) {
+                    deploySingleProcess(resourceLoader, loopProcessKey);
+                } else {
+                }
+            } else {
 				/*
 				 * 所有流程
 				 */
-				deploySingleProcess(resourceLoader, loopProcessKey);
-			}
-		}
-	}
+                deploySingleProcess(resourceLoader, loopProcessKey);
+            }
+        }
+    }
 
-	/**
-	 * 部署单个流程定义
-	 * @param resourceLoader	{@link ResourceLoader}
-	 * @param processKey		模块名称
-	 * @throws IOException		找不到zip文件时
-	 */
-	public void deploySingleProcess(ResourceLoader resourceLoader, String processKey) throws IOException {
-		String classpathResourceUrl = "classpath:/deployments/" + processKey + ".zip";
-		logger.debug("read workflow from: {}", classpathResourceUrl);
-		Resource resource = resourceLoader.getResource(classpathResourceUrl);
-		InputStream inputStream = resource.getInputStream();
-		if (inputStream == null) {
-			logger.warn("ignore deploy workflow module: {}", classpathResourceUrl);
-		} else {
-			logger.debug("finded workflow module: {}, deploy it!", classpathResourceUrl);
-			ZipInputStream zis = new ZipInputStream(inputStream);
-			repositoryService.createDeployment().addZipInputStream(zis).deploy();
-		}
-	}
+    /**
+     * 部署单个流程定义
+     *
+     * @param resourceLoader {@link ResourceLoader}
+     * @param processKey     模块名称
+     * @throws IOException 找不到zip文件时
+     */
+    public void deploySingleProcess(ResourceLoader resourceLoader, String processKey) throws IOException {
+        String classpathResourceUrl = "classpath:/deployments/" + processKey + ".zip";
+        logger.debug("read workflow from: {}", classpathResourceUrl);
+        Resource resource = resourceLoader.getResource(classpathResourceUrl);
+        InputStream inputStream = resource.getInputStream();
+        if (inputStream == null) {
+            logger.warn("ignore deploy workflow module: {}", classpathResourceUrl);
+        } else {
+            logger.debug("finded workflow module: {}, deploy it!", classpathResourceUrl);
+            ZipInputStream zis = new ZipInputStream(inputStream);
+            repositoryService.createDeployment().addZipInputStream(zis).deploy();
+        }
+    }
 
-	/**
-	 * 重新部署单个流程定义
-	 * @param processKey	流程定义KEY
-	 * @throws Exception
-	 * @see #deployFromClasspath
-	 */
-	public void redeploy(String... processKey) throws Exception {
-		this.deployFromClasspath(processKey);
-	}
+    /**
+     * 重新部署单个流程定义
+     *
+     * @param processKey 流程定义KEY
+     * @throws Exception
+     * @see #deployFromClasspath
+     */
+    public void redeploy(String... processKey) throws Exception {
+        this.deployFromClasspath(processKey);
+    }
 
-	/**
-	 * @throws Exception
-	 * @see #deployFromClasspath
-	 */
-	public void deployAllFromClasspath() throws Exception {
-		this.deployFromClasspath();
-	}
+    /**
+     * @throws Exception
+     * @see #deployFromClasspath
+     */
+    public void deployAllFromClasspath() throws Exception {
+        this.deployFromClasspath();
+    }
+
+    /**
+     * //	 * 获取当前节点信息
+     * //	 * @param processInstance
+     * //	 * @return
+     * //
+     */
+    public Task getCurrentTask(ProcessInstance processInstance) {
+        Task currentTask = null;
+        String activitiId = null;
+        try {
+            activitiId = (String) PropertyUtils.getProperty(processInstance, "activityId");
+        } catch (Exception e) {
+        }
+        currentTask = taskService.createTaskQuery().processInstanceId(processInstance.getId()).taskDefinitionKey(activitiId)
+                .singleResult();
+
+        return currentTask;
+    }
 
 }
