@@ -23,7 +23,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@TransactionConfiguration(transactionManager="transactionManager", defaultRollback=false)
+@TransactionConfiguration(transactionManager="transactionManager", defaultRollback=true)
 @ContextConfiguration(locations={"classpath:applicationContext.xml"})
 public class PurchasingWorkflowServiceTest {
     protected Logger logger = LoggerFactory.getLogger(getClass());

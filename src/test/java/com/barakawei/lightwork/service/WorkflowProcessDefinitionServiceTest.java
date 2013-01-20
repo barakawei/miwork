@@ -18,7 +18,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@TransactionConfiguration(transactionManager="transactionManager", defaultRollback=false)
+@TransactionConfiguration(transactionManager="transactionManager", defaultRollback=true)
 @ContextConfiguration(locations={"classpath:applicationContext.xml"})
 public class WorkflowProcessDefinitionServiceTest{
 
