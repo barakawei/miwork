@@ -43,7 +43,7 @@ $(function(){
 <div id="layout">
   <div id="header">
     <div class="headerNav">
-      <a class="logo">MiWork</a>
+      <a class="">MiWork</a>
       <ul class="nav">
         <li><a href="changepwd.html" target="dialog" width="600">${SPRING_SECURITY_CONTEXT.authentication.principal.username}</a></li>
         <li><a href="${ctx}/logout">退出</a></li>
