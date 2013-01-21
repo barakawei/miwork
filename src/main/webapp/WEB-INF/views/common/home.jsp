@@ -1,3 +1,4 @@
+<%@ page import="com.barakawei.lightwork.util.UserContextUtil" %>
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@ include file="taglib.jsp"%>
 <!doctype html>
@@ -36,16 +37,19 @@ $(function(){
 
 
 </script>
-
-<title></title>
+<%
+    String name = UserContextUtil.getCurrentUser().getName();
+%>
+<title>MiWork</title>
 </head>
 <body scroll="no">
 <div id="layout">
+
   <div id="header">
     <div class="headerNav">
-      <a class="">MiWork</a>
+      <a style="text-decoration:none;font-size:20px;color: #f5f5f5;margin-left: 20px;line-height: 45px;">MiWork</a>
       <ul class="nav">
-        <li><a href="changepwd.html" target="dialog" width="600">${SPRING_SECURITY_CONTEXT.authentication.principal.username}</a></li>
+        <li><a href="#"><%=name%></a></li>
         <li><a href="${ctx}/logout">退出</a></li>
       </ul>
     </div>
@@ -68,7 +72,12 @@ $(function(){
         </div>
         <div class="accordionContent">
           <ul class="tree treeFolder">
-            <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购</a></li>
+            <sec:authorize ifNotGranted="role_admin">
+            <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购管理</a></li>
+            </sec:authorize>
+                <sec:authorize ifAllGranted="role_admin">
+              <li><a href="${ctx}/user/list" target="navTab" rel="userList">用户管理</a></li>
+                </sec:authorize>
           </ul>
         </div>
       </div>
@@ -179,7 +188,7 @@ $(function(){
 </div>
 
 
-<div id="footer">Copyright &copy; 2013 MiWork</div>
+<div id="footer">Copyright &copy; 2013 MiWork All Rights Reserved.</div>
 
 </body>
 

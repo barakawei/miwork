@@ -1,3 +1,4 @@
+<%@ page import="com.barakawei.lightwork.util.UserContextUtil" %>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ include file="../common/taglib.jsp" %>
 <h2 class="contentTitle">采购计划</h2>
@@ -46,7 +47,10 @@
                     <dl>
                         <dt>计划人</dt>
                         <dd>
-                            ${SPRING_SECURITY_CONTEXT.authentication.principal.username}
+                            <%
+                                String name = UserContextUtil.getCurrentUser().getName();
+                            %>
+                            <%=name%>
                         </dd>
                     </dl>
 
@@ -126,14 +130,14 @@
                 <li>
                     <div class="buttonActive">
                         <div class="buttonContent">
-                            <button type="submit">保存</button>
+                            <button type="submit">添加</button>
                         </div>
                     </div>
                 </li>
                 <li>
                     <div class="button">
                         <div class="buttonContent">
-                            <button class="close" type="button">关闭</button>
+                            <button class="close" type="button">取消</button>
                         </div>
                     </div>
                 </li>

@@ -40,6 +40,10 @@ public class User {
 
 	private boolean enable;
 
+    private String phone;
+
+    private String telephone;
+
 	@Column(name = "create_date")
 	private Date createDate;
 
@@ -63,6 +67,22 @@ public class User {
 
     public void setPurchasingDetails(List<PurchasingDetail> purchasingDetails) {
         this.purchasingDetails = purchasingDetails;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     /**

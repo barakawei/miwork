@@ -2,6 +2,8 @@ package com.barakawei.lightwork.service;
 
 import java.util.List;
 
+import com.barakawei.lightwork.domain.SearchForm;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ public interface UserService {
 	void changePassword(String account, String password);
 
 	// @PreFilter("filterObject.account == principal.username")
-	List<User> findUsers();
+	Page<User> findUsers(SearchForm sf);
 
 	void synAllUserAndRoleToActiviti();
 

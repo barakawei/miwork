@@ -1,7 +1,11 @@
 package com.barakawei.lightwork.service.impl;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.barakawei.lightwork.domain.Purchasing;
+import com.barakawei.lightwork.domain.SearchForm;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.UserQuery;
@@ -10,6 +14,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -19,6 +27,11 @@ import com.barakawei.lightwork.dao.UserDao;
 import com.barakawei.lightwork.domain.Role;
 import com.barakawei.lightwork.domain.User;
 import com.barakawei.lightwork.service.UserService;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 /**
  * @author qianxiaowei
@@ -106,6 +119,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void createUser(User user, boolean synToActiviti) {
+        user.setCreateDate(new Date());
+        user.setEnable(true);
 		userDao.save(user);
 		// 同步数据到Activiti Identify模块
 		if (synToActiviti) {
@@ -216,9 +231,29 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> findUsers() {
-		return userDao.findAll();
+	public Page<User> findUsers(SearchForm sf) {
+        Pageable pageable = new PageRequest(sf.getPageNum(), sf.getNumPerPage());
+        return userDao.findAll(getWhereClause(sf), pageable);
 	}
+
+    private Specification<User> getWhereClause(final SearchForm sf) {
+        return new Specification<User>() {
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                Map<String, String> search = sf.getSearchMap();
+                for (String key : search.keySet()) {
+                    String value = search.get(key);
+                    if (StringUtils.isNotBlank(value)) {
+                        predicate.getExpressions().add(cb.like(root.<String>get(key), "%" + value + "%"));
+
+                    }
+                }
+                query.where(predicate);
+                return null;
+            }
+        };
+    }
 	
 	@Override
 	public void synAllUserAndRoleToActiviti() {

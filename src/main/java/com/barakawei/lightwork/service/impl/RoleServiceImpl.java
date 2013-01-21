@@ -58,13 +58,18 @@ public class RoleServiceImpl implements RoleService {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.fnst.cspif.iloan.service.RoleService#deleteRoleById(java.lang.Integer
-	 * )
-	 */
+    @Override
+    public List<Role> findAll() {
+        return roleDao.findAll();
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see
+         * com.fnst.cspif.iloan.service.RoleService#deleteRoleById(java.lang.Integer
+         * )
+         */
 	@Override
 	public void deleteRoleById(String id) {
 		roleDao.delete(id);

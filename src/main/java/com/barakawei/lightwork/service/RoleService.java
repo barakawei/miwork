@@ -27,4 +27,7 @@ public interface RoleService {
 	@Transactional
 	Page<Role> findRoles(Pageable pageable);
 
+    @Transactional
+    List<Role> findAll();
+
 }
