@@ -26,7 +26,7 @@ public class PurchasingExcelParseUtil {
         List<Goods> rows= null;
         AnnotatedPoiFileParser<Goods> annotationExcelParser = new AnnotatedPoiFileParser<Goods>();
         try {
-            rows = annotationExcelParser.readExcelFile(tempFile, "Sheet1 - 1", Goods.class);
+            rows = annotationExcelParser.readExcelFile(tempFile, "Sheet1", Goods.class);
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (InstantiationException e) {
