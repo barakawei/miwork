@@ -5,6 +5,9 @@ import com.barakawei.lightwork.domain.Goods;
 import com.barakawei.lightwork.domain.Purchasing;
 import com.barakawei.lightwork.domain.PurchasingDetail;
 import com.barakawei.lightwork.domain.User;
+import nl.bstoi.poiparser.core.ReadPoiParserException;
+import nl.bstoi.poiparser.core.RequiredFieldPoiParserException;
+import nl.bstoi.poiparser.core.strategy.annotation.AnnotatedPoiFileParser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +20,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-@TransactionConfiguration(transactionManager="transactionManager", defaultRollback=true)
-@ContextConfiguration(locations={"classpath:applicationContext.xml"})
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
 public class PurchasingWorkflowServiceTest {
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,12 +45,37 @@ public class PurchasingWorkflowServiceTest {
     public void prepareTestData() {
         logger.info("before");
     }
+
     @Test
-    public void testSync(){
+    public void testSync() {
         userService.synAllUserAndRoleToActiviti();
     }
+
     @Test
-    public void testStartWorkflow(){
+    public void testPoi() {
+        // Initialize the AnnotatedPoiFileParser
+        AnnotatedPoiFileParser<Goods> annotationExcelParser = new AnnotatedPoiFileParser<Goods>();
+// Load excel fil
+        File excelFile = new File("/Users/baraka/Downloads/plan.xls");
+// Read the excel, with sheet name "Sheet3"
+        List<Goods> testRows = null;
+        try {
+            testRows = annotationExcelParser.readExcelFile(excelFile, "Sheet1 - 1", Goods.class);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (RequiredFieldPoiParserException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ReadPoiParserException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("11");
+    }
+
+    @Test
+    public void testStartWorkflow() {
 //        User user = userService.findUserById("1");
 //        List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();
 //        Purchasing purchasing = new Purchasing();

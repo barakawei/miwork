@@ -15,7 +15,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -219,5 +218,4 @@ public class User {
 	public void setOrg(Organization org) {
 		this.org = org;
 	}
-
 }

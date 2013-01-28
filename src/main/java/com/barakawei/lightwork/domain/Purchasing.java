@@ -3,11 +3,11 @@ package com.barakawei.lightwork.domain;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -19,15 +19,15 @@ public class Purchasing {
 
     public static final String FLOW = "purchasing-flow";
 
-	@Id
-	@GeneratedValue(generator = "system_uuid")
-	@GenericGenerator(name = "system_uuid", strategy = "uuid")
-	private String id;
+    @Id
+    @GeneratedValue(generator = "system_uuid")
+    @GenericGenerator(name = "system_uuid", strategy = "uuid")
+    private String id;
 
     //计划人
-    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ManyToOne(cascade = {CascadeType.REFRESH})
     @JoinColumn(name = "planning_user_id")
-	private User planningUser;
+    private User planningUser;
 
     //排料确认
     private String dischargeRecognition;
@@ -53,9 +53,18 @@ public class Purchasing {
     //拉链缩率
     private String zipperShrinkage;
 
+    //单位
+    private String company;
+
+    //款号
+    private String typeNumber;
+
     //进度
     @Transient
     private Integer progress;
+
+    @Transient
+    private String type;
 
     //供应时间
     @Temporal(TemporalType.TIMESTAMP)
@@ -64,48 +73,63 @@ public class Purchasing {
 
 
     //确认时间
-    @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date confirmTime;
 
 
     //开始时间
-	@Temporal(TemporalType.TIMESTAMP)
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-	private Date startTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date startTime;
 
     //结束时间
-	@Temporal(TemporalType.TIMESTAMP)
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-	private Date endTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date endTime;
 
     //采购明细
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "purchasing")
-	List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, mappedBy = "purchasing")
+    List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();
 
     //拉链明细
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "purchasing")
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, mappedBy = "purchasing")
     List<Zipper> zippers = new ArrayList<Zipper>();
 
     //待办任务
     @Transient
     List<PurchasingDetail> toDoList = new ArrayList<PurchasingDetail>();
 
+    @Transient
+    int pending;
+
+    @Transient
+    int complete;
+
     //已完成任务
     @Transient
     List<PurchasingDetail> completedList = new ArrayList<PurchasingDetail>();
 
     public Integer getProgress() {
-        int complete = 0;
-        for(PurchasingDetail pd : this.pds){
-            if(null != pd.getEndTime()){
-               complete ++ ;
-            }
+        if (this.pds.size() > 0) {
+            return complete * 100 / this.pds.size();
         }
-        if(this.pds.size() > 0){
-            return complete *100 / this.pds.size();
-        }
+        System.out.println(complete);
         return 100;
+    }
+
+    public int getPending() {
+        return pending;
+    }
+
+    public void setPending(int pending) {
+        this.pending = pending;
+    }
+
+    public int getComplete() {
+        return complete;
+    }
+
+    public void setComplete(int complete) {
+        this.complete = complete;
     }
 
     public void setProgress(Integer progress) {
@@ -130,8 +154,8 @@ public class Purchasing {
 
     public List<PurchasingDetail> getCompletedList() {
         List<PurchasingDetail> completed = new ArrayList<PurchasingDetail>();
-        for(PurchasingDetail pd : this.pds){
-            if(null != pd.getEndTime()){
+        for (PurchasingDetail pd : this.pds) {
+            if (null != pd.getEndTime()) {
                 completed.add(pd);
             }
         }
@@ -149,6 +173,7 @@ public class Purchasing {
     public void setOngoing(Boolean ongoing) {
         this.ongoing = ongoing;
     }
+
     public List<PurchasingDetail> getPds() {
         return pds;
     }
@@ -261,6 +286,78 @@ public class Purchasing {
         this.zipperShrinkage = zipperShrinkage;
     }
 
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getTypeNumber() {
+        return typeNumber;
+    }
+
+    public void setTypeNumber(String typeNumber) {
+        this.typeNumber = typeNumber;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void convertFromExcel(List<Goods> goodses) {
+        for (int i = 0; i < goodses.size(); i++) {
+            if (i == 0) {
+                this.orderName = goodses.get(i).getSpecification();
+                continue;
+            }
+            if (i == 1) {
+                this.orderNumber = goodses.get(i).getSpecification();
+                this.serialNumber = goodses.get(i).getWidth();
+                this.typeNumber = goodses.get(i).getColor();
+                continue;
+            }
+            if (i == 2) {
+                this.orderCount= goodses.get(i).getSpecification();
+                continue;
+            }
+            String firstColumn = goodses.get(i).getName();
+            if(null != firstColumn && firstColumn.contains("面辅料供应时间") && i >= 4){
+                this.applyTime = new Date(goodses.get(i).getSpecification());
+                break;
+            }
+            if (null!=firstColumn && !firstColumn.contains("面辅料供应时间") && i >= 4) {
+                if (goodses.get(i).getName() != null &&
+                        goodses.get(i).getSpecification() == null &&
+                        goodses.get(i).getColor() == null &&
+                        goodses.get(i).getComposition() == null &&
+                        goodses.get(i).getConsume() == null &&
+                        goodses.get(i).getUnit() == null &&
+                        goodses.get(i).getLoss() == null &&
+                        goodses.get(i).getPurchasingCount() == null &&
+                        goodses.get(i).getType() == null) {
+                    type = goodses.get(i).getName();
+                    continue;
+                }
+
+                Goods goods = new Goods();
+                PurchasingDetail pd = new PurchasingDetail();
+                BeanUtils.copyProperties(goodses.get(i),goods);
+                goods.setType(type);
+                pd.setGoods(goods);
+                pd.setPlanPurchasingCount(goods.getPurchasingCount());
+                pd.setOrderCount(goods.getOrderCount());
+                this.getPds().add(pd);
+            }
+
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -278,3 +375,4 @@ public class Purchasing {
 
     }
 }
+

@@ -1,19 +1,20 @@
 package com.barakawei.lightwork.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.criteria.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.barakawei.lightwork.domain.DataDict;
-import com.barakawei.lightwork.domain.PurchasingDetail;
-import com.barakawei.lightwork.domain.SearchForm;
+import com.barakawei.lightwork.domain.*;
 import com.barakawei.lightwork.service.DataDictService;
 import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
+import com.barakawei.lightwork.util.PurchasingExcelParseUtil;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
@@ -31,10 +32,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.barakawei.lightwork.domain.Purchasing;
 import com.barakawei.lightwork.service.PurchasingWorkflowService;
 
 /**
@@ -67,6 +69,21 @@ public class PurchasingController extends BaseController {
     protected DataDictService dataDictService;
 
 
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public ModelAndView upload(MultipartFile file) {
+        List<Goods> goodses = PurchasingExcelParseUtil.upload(file);
+        Purchasing purchasing = new Purchasing();
+        purchasing.convertFromExcel(goodses);
+        purchasingService.createPurchasing(purchasing);
+        return this.ajaxDoneClose("导入成功");
+    }
+
+
+    @RequestMapping(value = "/upload", method = RequestMethod.GET)
+    public  String upload() {
+        return "purchasing/upload";
+    }
+
     @RequestMapping(value = "/add", method = RequestMethod.GET)
     public String add() {
 
@@ -92,7 +109,6 @@ public class PurchasingController extends BaseController {
     @RequestMapping(value = "/task")
     public ModelAndView task(SearchForm sf) {
         ModelAndView mav = new ModelAndView("purchasing/task");
-        String userId = "2";
         Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
         mav.addObject("purchasings", purchasings);
         mav.addObject("searchForm", sf);

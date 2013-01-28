@@ -6,30 +6,30 @@
       onsubmit="return validateCallback(this, navTabAjaxDone)">
     <input type="hidden" name="id" value="${purchasing.id}">
 
-    <div class="pageContent pds">
+    <div class="pageContent pds" id="data">
         <div class="pageFormContent" layoutH="97">
             <div class="panel collapse" style="margin:0">
-                <h1>内容</h1>
+                <h1>订单信息</h1>
 
                 <div>
                     <dl>
-                        <dt>订单名称</dt>
+                        <dt>单位</dt>
                         <dd>
-                            <input type="text" name="orderName" maxlength="50" class="required"
+                            <input type="text" name="orderName" maxlength="50" size="40" class=""
                                    value="${purchasing.orderName}"/>
                         </dd>
                     </dl>
                     <dl>
                         <dt>订单编号</dt>
                         <dd>
-                            <input type="text" name="orderNumber" maxlength="50" class="required"
+                            <input type="text" name="orderNumber" maxlength="50" size="40" class=""
                                    value="${purchasing.orderNumber}"/>
                         </dd>
                     </dl>
                     <dl>
                         <dt>序列号</dt>
                         <dd>
-                            <input type="text" name="serialNumber" maxlength="50" class="required"
+                            <input type="text" name="serialNumber" maxlength="50" size="40" class=""
                                    value="${purchasing.serialNumber}"/>
                         </dd>
                     </dl>
@@ -37,7 +37,7 @@
                     <dl>
                         <dt>数量</dt>
                         <dd>
-                            <input type="text" name="orderCount" maxlength="50" class="required"
+                            <input type="text" name="orderCount" maxlength="100" size="40" class=""
                                    value="${purchasing.orderCount}"/>
                         </dd>
                     </dl>
@@ -59,6 +59,8 @@
                         </dd>
                     </dl>
 
+
+                    <!--
                     <dl>
                         <dt>排料确认</dt>
                         <dd>
@@ -75,6 +77,7 @@
                             <a class="inputDateButton" href="javascript:;">选择</a>
                         </dd>
                     </dl>
+                    -->
 
                 </div>
             </div>
@@ -93,8 +96,8 @@
                         <table class="list nowrap itemDetail" addButton="新建条目" width="100%">
                             <thead>
                             <tr>
-                                <th type="text" name="pds[#index#].goods.name" size="20" fieldClass="required">名称</th>
-                                <th type="text" name="pds[#index#].goods.type" size="12" fieldClass="required">类型</th>
+                                <th type="text" name="pds[#index#].goods.name" size="20" fieldClass="">名称</th>
+                                <th type="text" name="pds[#index#].goods.type" size="12" fieldClass="">类型</th>
                                 <th type="text" name="pds[#index#].goods.specification" size="20">型号规格</th>
                                 <th type="text" name="pds[#index#].goods.composition" size="8">面辅料成分</th>
                                 <th type="text" name="pds[#index#].goods.width" size="6" defaultVal="0"
@@ -104,18 +107,14 @@
                                     fieldClass="digits">单量
                                 </th>
                                 <th type="text" name="pds[#index#].goods.color" size="6">颜色</th>
-                                <th type="text" name="pds[#index#].goods.unit" size="3" fieldClass="required">单位</th>
-                                <th type="text" name="pds[#index#].planPurchasingCount" defaultVal="0.0" size="8"
-                                    fieldClass="number required">采购计划
-                                </th>
-                                <th type="text" name="pds[#index#].warehouseCount" defaultVal="0.0" size="8"
-                                    fieldClass="number">库存
-                                </th>
-                                <th type="text" name="pds[#index#].actualPurchasingCount" defaultVal="0.0" size="8"
-                                    fieldClass="number required">实需采购
-                                </th>
+                                <th type="text" name="pds[#index#].goods.consume" size="6">预排单耗</th>
+                                <th type="text" name="pds[#index#].goods.unit" size="3" fieldClass="">单位</th>
+                                <th type="text" name="pds[#index#].goods.loss" size="6">损耗1*%</th>
                                 <th type="text" name="pds[#index#].specialRequirements" size="20" fieldClass="">
                                     面辅料特殊要求
+                                </th>
+                                <th type="text" name="pds[#index#].planPurchasingCount" defaultVal="0.0" size="8"
+                                    fieldClass="number ">采购计划
                                 </th>
 
                                 <th type="del" width="60">操作</th>
@@ -125,9 +124,9 @@
                             <tbody>
                             <c:forEach items="${purchasing.pds}" var="pd" varStatus="status">
                                 <tr class="unitBox">
-                                    <td><input type="text" class="required" name="pds[${status.index}].goods.name"
+                                    <td><input type="text" class="" name="pds[${status.index}].goods.name"
                                                size="20" value="${pd.goods.name}"></td>
-                                    <td><input type="text" class="required" name="pds[${status.index}].goods.type"
+                                    <td><input type="text" class="" name="pds[${status.index}].goods.type"
                                                size="12" value="${pd.goods.type}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.specification" size="20"
                                                value="${pd.goods.specification}"></td>
@@ -139,18 +138,21 @@
                                                size="6" value="${pd.orderCount}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.color" size="6"
                                                value="${pd.goods.color}"></td>
-                                    <td><input type="text" class="required" name="pds[${status.index}].goods.unit"
+                                    <td><input type="text" name="pds[${status.index}].goods.consume" size="6"
+                                               value="${pd.goods.consume}"></td>
+                                    <td><input type="text" class="" name="pds[${status.index}].goods.unit"
                                                size="3" value="${pd.goods.unit}"></td>
-                                    <td><input type="text" class="number required"
-                                               name="pds[${status.index}].planPurchasingCount" size="8"
-                                               value="${pd.planPurchasingCount}"></td>
-                                    <td><input type="text" class="number" name="pds[${status.index}].warehouseCount"
-                                               size="8" value="${pd.warehouseCount}"></td>
-                                    <td><input type="text" class="number required"
-                                               name="pds[${status.index}].actualPurchasingCount" size="8"
-                                               value="${pd.actualPurchasingCount}"></td>
+                                    <td><input type="text" class="" name="pds[${status.index}].goods.loss"
+                                               size="3" value="${pd.goods.loss}"></td>
                                     <td><input type="text" name="pds[${status.index}].specialRequirements" size="20"
                                                value="${pd.specialRequirements}"></td>
+
+                                    <td><input type="text" class="number "
+                                               name="pds[${status.index}].planPurchasingCount" size="8"
+                                               value="${pd.planPurchasingCount}"></td>
+
+
+
                                     <td><a href="javascript:void(0)" class="btnDel ">删除</a></td>
                                     <td style="display: none">
                                         <input type="hidden" name="pds[${status.index}].goods.id"

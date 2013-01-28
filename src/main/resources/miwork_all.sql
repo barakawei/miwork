@@ -930,14 +930,14 @@ LOCK TABLES `user` WRITE;
 
 INSERT INTO `user` (`id`, `account`, `create_date`, `email`, `enable`, `name`, `password`, `org_id`)
 VALUES
-	('1','q1',NULL,NULL,1,'管理员','1',NULL),
-	('2','q2',NULL,NULL,1,'计划员','1',NULL),
-	('3','q3',NULL,NULL,1,'采购员','1',NULL),
-	('4','q4',NULL,NULL,1,'库管员','1',NULL),
-	('5','q5',NULL,NULL,1,'质检员','1',NULL),
-	('6','q6',NULL,NULL,1,'技术员','1',NULL),
-	('7','q7',NULL,NULL,1,'领导','1',NULL),
-	('8','q8',NULL,NULL,1,'生产员','1',NULL);
+	('1','admin',NULL,NULL,1,'管理员','1',NULL),
+	('2','jihua',NULL,NULL,1,'计划员','1',NULL),
+	('3','caigou',NULL,NULL,1,'采购员','1',NULL),
+	('4','keguan',NULL,NULL,1,'库管员','1',NULL),
+	('5','zhjian',NULL,NULL,1,'质检员','1',NULL),
+	('6','jishu',NULL,NULL,1,'技术员','1',NULL),
+	('7','lingdao',NULL,NULL,1,'领导','1',NULL),
+	('8','shengchan',NULL,NULL,1,'生产员','1',NULL);
 
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;

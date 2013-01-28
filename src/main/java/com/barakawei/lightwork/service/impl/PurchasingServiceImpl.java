@@ -160,13 +160,13 @@ public class PurchasingServiceImpl implements PurchasingService {
         if (StringUtils.equals(Role.ROLE_TECHNOLOG, role)) {
             _p.setActualShrinkage(purchasing.getActualShrinkage());
             _p.setZipperShrinkage(purchasing.getZipperShrinkage());
-            purchasingDao.save(_p);
-            List<Zipper> _zippers = purchasingDao.findOne(purchasing.getId()).getZippers();
+            List<Zipper> _zippers = _p.getZippers();
             List<Zipper> zippers = purchasing.getZippers();
             if (CollectionUtils.isNotEmpty(zippers)) {
                 for (Zipper _z : _zippers) {
                     if (!zippers.contains(_z)) {
                         zipperDao.delete(_z);
+                        _p.getZippers().remove(_z);
                     }
                 }
                 for (Zipper _zipper : zippers) {
@@ -175,6 +175,7 @@ public class PurchasingServiceImpl implements PurchasingService {
                     dataDictService.saveDataDictByZipper(_zipper);
                 }
             }
+            purchasingDao.save(_p);
 
         } else if (StringUtils.equals(Role.ROLE_PRODUCT, role)) {
             List<Zipper> zippers = purchasing.getZippers();
@@ -189,110 +190,90 @@ public class PurchasingServiceImpl implements PurchasingService {
 
         for (PurchasingDetail _pd : purchasing.getPds()) {
             PurchasingDetail pd = purchasingDetailDao.findOne(_pd.getId());
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).active().singleResult();
+            pd.setTask(wpdService.getCurrentTask(pi));
             Assert.notNull(pd, "error");
             this.completeByRole(role, pd, _pd,purchasing);
         }
 
-        Purchasing pp =  this.findPurchasingById(purchasing.getId());
         boolean end = true;
-        if(CollectionUtils.isEmpty(pp.getPds())){
+        if(CollectionUtils.isEmpty(_p.getPds())){
             end = false;
         }
-        for(PurchasingDetail pd:pp.getPds()){
+        for(PurchasingDetail pd:_p.getPds()){
             if(null == pd.getEndTime()){
                 end = false;
                 break;
             }
         }
         if(end){
-            pp.setEndTime(new Date());
-            pp.setOngoing(false);
-            purchasingDao.save(pp);
+            _p.setEndTime(new Date());
+            _p.setOngoing(false);
+            purchasingDao.save(_p);
         }
 
     }
 
     private void completeByRole(String role, PurchasingDetail pd, PurchasingDetail _pd,Purchasing p) {
         if (StringUtils.equals(role, Role.ROLE_PURCHASING)) {
+            pd.setExpectedArrivalTime(_pd.getExpectedArrivalTime());
+            pd.setActualPurchasingCount(_pd.getActualPurchasingCount());
+            pd.setWarehouseCount(_pd.getWarehouseCount());
+            purchasingDetailDao.save(pd);
             if (null != _pd.getExpectedArrivalTime()) {
-                pd.setExpectedArrivalTime(_pd.getExpectedArrivalTime());
-                purchasingDetailDao.save(pd);
-                if (StringUtils.isNotBlank(_pd.getTaskId())) {
-                    Map<String, Object> variables = new HashMap<String, Object>();
-                    variables.put("expectedArrivalTime", _pd.getExpectedArrivalTime());
-                    variables.put("purchasingDealTime", new Date());
-                    variables.put("purchasingRemark", "");
-                    taskService.complete(_pd.getTaskId(), variables);
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"purchasing")) {
+                    taskService.complete(_pd.getTaskId());
                 }
             }
         } else if (StringUtils.equals(role, Role.ROLE_WAREHOUSE)) {
+            pd.setWarehouseCount(_pd.getWarehouseCount());
+            pd.setPlanEntryTime(_pd.getPlanEntryTime());
+            pd.setPlanEntryCount(_pd.getPlanEntryCount());
+            purchasingDetailDao.save(pd);
             if (null != _pd.getPlanEntryTime() && null != _pd.getPlanEntryCount()) {
-                pd.setPlanEntryTime(_pd.getPlanEntryTime());
-                pd.setPlanEntryCount(_pd.getPlanEntryCount());
-                purchasingDetailDao.save(pd);
-                if (StringUtils.isNotBlank(_pd.getTaskId())) {
-                    Map<String, Object> variables = new HashMap<String, Object>();
-                    variables.put("planEntryTime", _pd.getPlanEntryTime());
-                    variables.put("planEntryCount", _pd.getPlanEntryCount());
-                    variables.put("planWarehouseDealTime", new Date());
-                    variables.put("planWarehouseRemark", "");
-                    taskService.complete(_pd.getTaskId(), variables);
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"warehouseEntryPlan")) {
+                    taskService.complete(_pd.getTaskId());
                 }
-            }
-            if(null != _pd.getActualEntryCount() && null!=_pd.getActualEntryTime()){
-                pd.setActualEntryTime(_pd.getActualEntryTime());
-                pd.setActualEntryCount(_pd.getActualEntryCount());
-                pd.setEndTime(new Date());
-                purchasingDetailDao.save(pd);
-                if (StringUtils.isNotBlank(_pd.getTaskId())) {
-                    Map<String, Object> variables = new HashMap<String, Object>();
-                    variables.put("actualEntryTime", _pd.getActualEntryTime());
-                    variables.put("actualEntryCount", _pd.getActualEntryCount());
-                    variables.put("actualWarehouseDealTime", new Date());
-                    variables.put("actualWarehouseRemark", "");
-                    taskService.complete(_pd.getTaskId(), variables);
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"warehouseEntryActual")) {
+                    pd.setActualEntryTime(_pd.getPlanEntryTime());
+                    pd.setActualEntryCount(_pd.getPlanEntryCount());
+                    pd.setEndTime(new Date());
+                    purchasingDetailDao.save(pd);
+                    taskService.complete(_pd.getTaskId());
                 }
-
             }
         } else if (StringUtils.equals(role, Role.ROLE_QUALITY)) {
-            if (null != _pd.getQualified()) {
                 pd.setQualified(_pd.getQualified());
                 pd.setShrinkage(_pd.getShrinkage());
                 purchasingDetailDao.save(pd);
-                if (StringUtils.isNotBlank(_pd.getTaskId())) {
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"quality")) {
                     Map<String, Object> variables = new HashMap<String, Object>();
                     variables.put("qualified", _pd.getQualified());
                     variables.put("shrinkage", _pd.getShrinkage());
                     variables.put("review", pd.getReview() == null ? false : pd.getReview());
                     variables.put("hasShrinkage", _pd.getHasShrinkage());
-                    variables.put("qualityTime", new Date());
-                    variables.put("qualityRemark",_pd.getQualityRemark());
                     taskService.complete(_pd.getTaskId(), variables);
                 }
-            }
         } else if (StringUtils.equals(role, Role.ROLE_LEADER)) {
             if (StringUtils.isNotBlank(_pd.getReason())) {
                 pd.setReview(true);
                 pd.setReason(_pd.getReason());
                 purchasingDetailDao.save(pd);
-                if (StringUtils.isNotBlank(_pd.getTaskId())) {
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"leaderAudit")) {
                     Map<String, Object> variables = new HashMap<String, Object>();
                     variables.put("review", pd.getReview());
-                    variables.put("reason", _pd.getReason());
-                    variables.put("reviewTime", new Date());
                     taskService.complete(_pd.getTaskId(), variables);
                 }
             }
         } else if (StringUtils.equals(role, Role.ROLE_TECHNOLOG)) {
-            if (StringUtils.isNotBlank(_pd.getTaskId()) && CollectionUtils.isNotEmpty(p.getZippers())) {
-                Map<String, Object> variables = new HashMap<String, Object>();
-                variables.put("technologTime", new Date());
-                taskService.complete(_pd.getTaskId(), variables);
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"tech")) {
+                taskService.complete(_pd.getTaskId());
             }
         } else if (StringUtils.equals(role, Role.ROLE_PRODUCT)) {
-            if (StringUtils.isNotBlank(_pd.getTaskId()) && CollectionUtils.isNotEmpty(p.getZippers())) {
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"product")) {
                 Map<String, Object> variables = new HashMap<String, Object>();
-                variables.put("productTime", new Date());
+                variables.put("qualified",true);
+                variables.put("hasShrinkage", false);
                 taskService.complete(_pd.getTaskId(), variables);
             }
 
@@ -312,56 +293,33 @@ public class PurchasingServiceImpl implements PurchasingService {
     @Override
     public Purchasing findTaskByCurrentUser(String id) {
         this.claim();
-        User user = UserContextUtil.getCurrentUser();
         Purchasing purchasing = purchasingDao.findOne(id);
-        List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskAssignee(user.getId()).active().orderByTaskPriority().desc()
-                .orderByTaskCreateTime().desc().list();
-        List<PurchasingDetail> toDoList = new ArrayList<PurchasingDetail>();
-        for (Task _task : tasks) {
-            String processInstanceId = _task.getProcessInstanceId();
-            ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).active()
-                    .singleResult();
-            String businessKey = processInstance.getBusinessKey();
-            PurchasingDetail pd = purchasingDetailDao.findOne(businessKey);
-            if (null != pd && purchasing.equals(pd.getPurchasing())) {
-                pd.setTask(_task);
-                pd.setTaskId(_task.getId());
-                if(_task.getAssignee() == null){
-                    pd.setCurrentUserName("未签收");
-                }else {
-                    pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
-                }
-                toDoList.add(pd);
+        int complete = 0;
+        int pending = 0;
+        for(PurchasingDetail pd:purchasing.getPds()){
+            if(pd.getEndTime() != null){
+                complete ++;
+            }else{
+                pending ++;
             }
-        }
-        purchasing.setToDoList(toDoList);
-        Collection<PurchasingDetail> otherList = CollectionUtils.subtract(purchasing.getPds(), toDoList);
-        List<PurchasingDetail> completed= new ArrayList<PurchasingDetail>();
-        List<PurchasingDetail> pending= new ArrayList<PurchasingDetail>();
-
-        for(PurchasingDetail _pd : otherList){
-           if(_pd.getEndTime() != null){
-               completed.add(_pd);
-           }else{
-               pending.add(_pd);
-           }
-            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(_pd.getProcessInstanceId()).active().singleResult();
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).active().singleResult();
             if(null == pi){
-                _pd.setCurrentUserName("");
+                pd.setCurrentUserName("");
                 continue;
             }
-            _pd.setTask(wpdService.getCurrentTask(pi));
-            Task _task = _pd.getTask();
+            pd.setTask(wpdService.getCurrentTask(pi));
+            Task _task = pd.getTask();
             if(_task.getAssignee() == null){
-                _pd.setCurrentUserName("未签收");
+                pd.setCurrentUserName("未签收");
             }else {
-                _pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
+                pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
             }
+            pd.setTaskId(_task.getId());
+
+
         }
-        purchasing.getPds().clear();
-        purchasing.getPds().addAll(toDoList);
-        purchasing.getPds().addAll(pending);
-        purchasing.getPds().addAll(completed);
+        purchasing.setPending(pending);
+        purchasing.setComplete(complete);
         return purchasing;
     }
 

@@ -2,6 +2,7 @@ package com.barakawei.lightwork.domain;
 
 import javax.persistence.*;
 
+import nl.bstoi.poiparser.api.strategy.annotations.Cell;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
@@ -21,38 +22,70 @@ public class Goods {
 	private String id;
 
     //货物名称
+    @Cell(columnNumber = 0)
 	private String name;
 
     //货物类型
     private String type;
 
 	//型号规格
+    @Cell(columnNumber = 1)
 	private String specification;
 
 	// 面辅料成分
+    @Cell(columnNumber = 2)
 	private String composition;
 
 	//净宽/CM
-	private Integer width;
+    @Cell(columnNumber = 3)
+	private String width;
+
+    //单量
+    @Cell(columnNumber = 4)
+    private String orderCount;
 
 	//颜色
+    @Cell(columnNumber = 5)
 	private String color;
 
+	//预排单耗
+    @Cell(columnNumber = 6)
+	private String consume;
+
 	//单位
+    @Cell(columnNumber = 7)
 	private String unit;
 
+    //损耗1*%
+    @Cell(columnNumber = 8)
+    private String loss;
+
+    //采购计划
+    @Cell(columnNumber = 10)
+    private String purchasingCount;
+
 	//特殊信息
+    @Cell(columnNumber = 9)
 	private String description;
+
 
     @OneToMany(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY, mappedBy = "goods")
     List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();
 
-    public List<PurchasingDetail> getPds() {
-        return pds;
+    public String getId() {
+        return id;
     }
 
-    public void setPds(List<PurchasingDetail> pds) {
-        this.pds = pds;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
@@ -63,124 +96,91 @@ public class Goods {
         this.type = type;
     }
 
-    /**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
+    public String getSpecification() {
+        return specification;
+    }
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    public String getComposition() {
+        return composition;
+    }
 
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setComposition(String composition) {
+        this.composition = composition;
+    }
 
-	/**
-	 * @return the specification
-	 */
-	public String getSpecification() {
-		return specification;
-	}
+    public String getWidth() {
+        return width;
+    }
 
-	/**
-	 * @param specification
-	 *            the specification to set
-	 */
-	public void setSpecification(String specification) {
-		this.specification = specification;
-	}
+    public void setWidth(String width) {
+        this.width = width;
+    }
 
-	/**
-	 * @return the composition
-	 */
-	public String getComposition() {
-		return composition;
-	}
+    public String getOrderCount() {
+        return orderCount;
+    }
 
-	/**
-	 * @param composition
-	 *            the composition to set
-	 */
-	public void setComposition(String composition) {
-		this.composition = composition;
-	}
+    public void setOrderCount(String orderCount) {
+        this.orderCount = orderCount;
+    }
 
-	/**
-	 * @return the width
-	 */
-	public Integer getWidth() {
-		return width;
-	}
+    public String getColor() {
+        return color;
+    }
 
-	/**
-	 * @param width
-	 *            the width to set
-	 */
-	public void setWidth(Integer width) {
-		this.width = width;
-	}
+    public void setColor(String color) {
+        this.color = color;
+    }
 
-	/**
-	 * @return the color
-	 */
-	public String getColor() {
-		return color;
-	}
+    public String getConsume() {
+        return consume;
+    }
 
-	/**
-	 * @param color
-	 *            the color to set
-	 */
-	public void setColor(String color) {
-		this.color = color;
-	}
+    public void setConsume(String consume) {
+        this.consume = consume;
+    }
 
-	/**
-	 * @return the unit
-	 */
-	public String getUnit() {
-		return unit;
-	}
+    public String getUnit() {
+        return unit;
+    }
 
-	/**
-	 * @param unit
-	 *            the unit to set
-	 */
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
 
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
+    public String getLoss() {
+        return loss;
+    }
 
-	/**
-	 * @param description
-	 *            the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setLoss(String loss) {
+        this.loss = loss;
+    }
 
+    public String getPurchasingCount() {
+        return purchasingCount;
+    }
+
+    public void setPurchasingCount(String purchasingCount) {
+        this.purchasingCount = purchasingCount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<PurchasingDetail> getPds() {
+        return pds;
+    }
+
+    public void setPds(List<PurchasingDetail> pds) {
+        this.pds = pds;
+    }
 }

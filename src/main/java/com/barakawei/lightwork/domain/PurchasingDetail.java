@@ -88,19 +88,19 @@ public class PurchasingDetail {
 
 
     // 采购计划数量
-    private Float planPurchasingCount;
+    private String planPurchasingCount;
 
     // 库存数量
-    private Float warehouseCount;
+    private String warehouseCount;
 
     // 实需采购数量
-    private Float actualPurchasingCount;
+    private String actualPurchasingCount;
 
     // 预入库数量
-    private Float planEntryCount;
+    private String planEntryCount;
 
     // 实际入库数量
-    private Float actualEntryCount;
+    private String actualEntryCount;
 
     //面辅料特殊要求
     private String specialRequirements;
@@ -346,70 +346,70 @@ public class PurchasingDetail {
     /**
      * @return the planPurchasingCount
      */
-    public Float getPlanPurchasingCount() {
+    public String getPlanPurchasingCount() {
         return planPurchasingCount;
     }
 
     /**
      * @param planPurchasingCount the planPurchasingCount to set
      */
-    public void setPlanPurchasingCount(Float planPurchasingCount) {
+    public void setPlanPurchasingCount(String planPurchasingCount) {
         this.planPurchasingCount = planPurchasingCount;
     }
 
     /**
      * @return the warehouseCount
      */
-    public Float getWarehouseCount() {
+    public String getWarehouseCount() {
         return warehouseCount;
     }
 
     /**
      * @param warehouseCount the warehouseCount to set
      */
-    public void setWarehouseCount(Float warehouseCount) {
+    public void setWarehouseCount(String warehouseCount) {
         this.warehouseCount = warehouseCount;
     }
 
     /**
      * @return the actualPurchasingCount
      */
-    public Float getActualPurchasingCount() {
+    public String getActualPurchasingCount() {
         return actualPurchasingCount;
     }
 
     /**
      * @param actualPurchasingCount the actualPurchasingCount to set
      */
-    public void setActualPurchasingCount(Float actualPurchasingCount) {
+    public void setActualPurchasingCount(String actualPurchasingCount) {
         this.actualPurchasingCount = actualPurchasingCount;
     }
 
     /**
      * @return the planEntryCount
      */
-    public Float getPlanEntryCount() {
+    public String getPlanEntryCount() {
         return planEntryCount;
     }
 
     /**
      * @param planEntryCount the planEntryCount to set
      */
-    public void setPlanEntryCount(Float planEntryCount) {
+    public void setPlanEntryCount(String planEntryCount) {
         this.planEntryCount = planEntryCount;
     }
 
     /**
      * @return the actualEntryCount
      */
-    public Float getActualEntryCount() {
+    public String getActualEntryCount() {
         return actualEntryCount;
     }
 
     /**
      * @param actualEntryCount the actualEntryCount to set
      */
-    public void setActualEntryCount(Float actualEntryCount) {
+    public void setActualEntryCount(String actualEntryCount) {
         this.actualEntryCount = actualEntryCount;
     }
 

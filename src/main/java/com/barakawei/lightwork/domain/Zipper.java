@@ -1,5 +1,6 @@
 package com.barakawei.lightwork.domain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -117,5 +118,21 @@ public class Zipper {
         this.number = number;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Zipper p = (Zipper) obj;
+
+        return StringUtils.equals(this.id, p.getId());
+
+    }
 
 }

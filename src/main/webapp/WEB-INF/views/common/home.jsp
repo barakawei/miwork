@@ -32,8 +32,63 @@ $(function(){
       initEnv();
     }
   });
+// 创建一个Socket实例
+    var socket = new WebSocket('ws://localhost:8080/miwork/ws/message.ws');
 
+// 打开Socket
+    socket.onopen = function(event) {
+
+// 发送一个初始化消息
+        socket.send('I am the client and I\'m listening!');
+
+// 监听消息
+        socket.onmessage = function(event) {
+            console.log('Client received a message',event);
+        };
+
+// 监听Socket的关闭
+        socket.onclose = function(event) {
+            console.log('Client notified socket has closed',event);
+        };
+
+// 关闭Socket....
+//socket.close()
+    };
+
+    $("#textMessage").live("click",function(){
+            socket.send(22222222);
+
+    });
+
+
+    //notify();
 });
+
+var notify = function() {
+    if (window.webkitNotifications) {
+        if (window.webkitNotifications.checkPermission() == 0) {
+            var notification_test = window.webkitNotifications.createNotification("http://images.cnblogs.com/cnblogs_com/flyingzl/268702/r_1.jpg", '标题', '内容'+new Date().getTime());
+            notification_test.display = function() {}
+            notification_test.onerror = function() {}
+            notification_test.onclose = function() {}
+            notification_test.onclick = function() {this.cancel();}
+
+            notification_test.replaceId = 'Meteoric';
+
+            notification_test.show();
+
+            var tempPopup = window.webkitNotifications.createHTMLNotification(["http://www.baidu.com/", "http://www.soso.com"][Math.random() >= 0.5 ? 0 : 1]);
+            tempPopup.replaceId = "Meteoric_cry";
+            tempPopup.show();
+        } else {
+            window.webkitNotifications.requestPermission(notify);
+        }
+    }
+};
+
+
+
+
 
 
 </script>
@@ -76,7 +131,7 @@ $(function(){
             <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购管理</a></li>
             </sec:authorize>
                 <sec:authorize ifAllGranted="role_admin">
-              <li><a href="${ctx}/user/list" target="navTab" rel="userList">用户管理</a></li>
+              <li><a href="${ctx}/user/list" target="navTab" id="btn" rel="userList">用户管理</a></li>
                 </sec:authorize>
           </ul>
         </div>
@@ -105,6 +160,7 @@ $(function(){
 
                     <div class="pageContent sortDrag" selector="h1" layoutH="42">
 
+
                         <c:if test="${purchasings.size() >0}">
                         <div class="panel">
                             <h1>待办工作</h1>
@@ -126,13 +182,13 @@ $(function(){
                                     <tr target="purchasing_id" rel="${p.id}">
                                         <td>采购</td>
                                         <td>
-                                        <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab"><span>${p.orderNumber}</span></a>
+                                        <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab" rel="pd"><span>${p.orderNumber}</span></a>
                                         </td>
                                         <td>${p.orderName}</td>
                                         <td>
                                           <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
                                         </td>
-                                        <td>${p.toDoList.size()}</td>
+                                        <td>${p.pending}</td>
                                         <td>${p.progress}%</td>
                                     </tr>
                                     </c:forEach>
@@ -164,14 +220,14 @@ $(function(){
                                         <tr target="purchasing_id" rel="${p.id}">
                                             <td>采购</td>
                                             <td>
-                                                <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab"><span>${p.orderNumber}</span></a>
+                                                <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab" rel="pd" ><span>${p.orderNumber}</span></a>
                                             </td>
                                             <td>${p.orderName}</td>
                                             <td>
                                                 <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
                                             </td>
                                             <td>${p.pds.size()}</td>
-                                            <td>${p.completedList.size()}</td>
+                                            <td>${p.complete}</td>
                                             <td>${p.progress}%</td>
                                         </tr>
                                     </c:forEach>

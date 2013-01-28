@@ -1,13 +1,14 @@
 package com.barakawei.lightwork.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.barakawei.lightwork.domain.Purchasing;
 import com.barakawei.lightwork.domain.PurchasingDetail;
 import com.barakawei.lightwork.service.PurchasingService;
+import com.barakawei.lightwork.util.UserContextUtil;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.task.Task;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,9 @@ public class LoginController {
     private UserService userService;
 
     @Autowired
+    protected TaskService taskService;
+
+    @Autowired
     protected PurchasingService purchasingService;
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
@@ -33,15 +37,34 @@ public class LoginController {
         List<Purchasing> purc = purchasingService.findAll();
         List<Purchasing> data = new ArrayList<Purchasing>();
         List<Purchasing> others = new ArrayList<Purchasing>();
+        User user = UserContextUtil.getCurrentUser();
+        Set<String> piSet = new HashSet<String>();
+        List<Task> todoList = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
+        for (Task task : todoList) {
+            String pi = task.getProcessInstanceId();
+            piSet.add(pi);
+        }
+
         for (Purchasing _p : purc) {
-            Purchasing p = purchasingService.findTaskByCurrentUser(_p.getId());
-            if (p.getOngoing()) {
-                if (CollectionUtils.isNotEmpty(p.getToDoList())) {
-                    _p.setToDoList(p.getToDoList());
+            int pending = 0;
+            int complete= 0;
+            if (_p.getOngoing()) {
+                for (PurchasingDetail _pd : _p.getPds()) {
+                    if(_pd.getEndTime() != null){
+                        complete ++;
+                    }
+                    if (piSet.contains(_pd.getProcessInstanceId())) {
+                        pending++;
+                    }
+                }
+                _p.setPending(pending);
+                _p.setComplete(complete);
+                if (_p.getPending() > 0) {
                     data.add(_p);
                 } else {
                     others.add(_p);
                 }
+
             }
         }
         mav.addObject("purchasings", data);
