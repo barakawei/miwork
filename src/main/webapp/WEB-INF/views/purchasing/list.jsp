@@ -53,6 +53,11 @@
     <th width="50">数量</th>
     <th width="50">面辅料供应时间</th>
     <th width="50">计划人</th>
+    <th width="50">采购预排</th>
+    <th width="50">计划日期</th>
+    <th width="50">排料确认</th>
+    <th width="50">核准</th>
+    <th width="50">确认日期</th>
     <th width="50">开始时间</th>
     <th width="50">结束时间</th>
 
@@ -69,7 +74,12 @@
         <td>
             <fmt:formatDate value="${purchasing.applyTime}" pattern="yyyy-MM-dd HH:mm"/>
         </td>
-        <td>${purchasing.planningUser.name}</td>
+        <td>${purchasing.planningUserName}</td>
+        <td>${purchasing.planDischarge}</td>
+        <td> <fmt:formatDate value="${purchasing.planDate}" pattern="yyyy-MM-dd HH:mm"/></td>
+        <td>${purchasing.dischargeRecognition}</td>
+        <td>${purchasing.confirmName}</td>
+        <td> <fmt:formatDate value="${purchasing.confirmDate}" pattern="yyyy-MM-dd HH:mm"/></td>
         <td>
             <fmt:formatDate value="${purchasing.startTime}" pattern="yyyy-MM-dd HH:mm"/>
         </td>

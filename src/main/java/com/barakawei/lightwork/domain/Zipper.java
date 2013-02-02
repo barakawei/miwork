@@ -1,9 +1,12 @@
 package com.barakawei.lightwork.domain;
 
+import com.barakawei.lightwork.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.type.TypeReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,14 +40,39 @@ public class Zipper {
     //名称
     private  String name;
 
-    //尺寸
+    //数量
     private String size;
 
-    //数量
+    //套数
     private Integer number;
 
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    private String model;
+
     //型号
-    private  String model;
+    @Column(name="zipper_count", columnDefinition = "text")
+    private String zipperCount;
+
+    @Transient
+    private List<Model> zipperCountList = new ArrayList<Model>();
+
+    public List<String> getCount() {
+        return count;
+    }
+
+    public void setCount(List<String> count) {
+        this.count = count;
+    }
+
+    @Transient
+    private List<String> count = new ArrayList<String>();
 
     public Purchasing getPurchasing() {
         return purchasing;
@@ -102,20 +130,31 @@ public class Zipper {
         this.size = size;
     }
 
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
     public Integer getNumber() {
         return number;
     }
 
     public void setNumber(Integer number) {
         this.number = number;
+    }
+
+    public String getZipperCount() {
+        return zipperCount;
+    }
+
+    public void setZipperCount(String zipperCount) {
+        this.zipperCount = zipperCount;
+    }
+
+    public List<Model> getZipperCountList() {
+        this.zipperCountList = JsonUtil.json2GenericObject(this.zipperCount,new TypeReference<List<Model>>() {
+        });
+        return zipperCountList;
+    }
+
+    public void setZipperCountList(List<Model> zipperCountList) {
+        this.zipperCountList = zipperCountList;
+        this.zipperCount = JsonUtil.Obj2Json(zipperCountList);
     }
 
     @Override

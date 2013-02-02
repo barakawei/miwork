@@ -1,11 +1,11 @@
 package com.barakawei.lightwork.domain;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.persistence.*;
 
+import com.barakawei.lightwork.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.type.TypeReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,6 +28,17 @@ public class Purchasing {
     @ManyToOne(cascade = {CascadeType.REFRESH})
     @JoinColumn(name = "planning_user_id")
     private User planningUser;
+
+    //计划人名字
+    private String planningUserName;
+
+    public String getPlanningUserName() {
+        return planningUserName;
+    }
+
+    public void setPlanningUserName(String planningUserName) {
+        this.planningUserName = planningUserName;
+    }
 
     //排料确认
     private String dischargeRecognition;
@@ -59,6 +70,13 @@ public class Purchasing {
     //款号
     private String typeNumber;
 
+    //各个尺寸套数
+    @Column(name="count_detail", columnDefinition = "text")
+    private String countDetail;
+
+    @Transient
+    private List<Model> countDetailList = new ArrayList<Model>();
+
     //进度
     @Transient
     private Integer progress;
@@ -75,6 +93,49 @@ public class Purchasing {
     //确认时间
     private Date confirmTime;
 
+    //采购预排
+    private String planDischarge;
+
+    //计划日期
+    private Date planDate;
+
+    //核准
+    private String confirmName;
+
+    //确认日期
+    private Date confirmDate;
+
+    public String getPlanDischarge() {
+        return planDischarge;
+    }
+
+    public void setPlanDischarge(String planDischarge) {
+        this.planDischarge = planDischarge;
+    }
+
+    public Date getPlanDate() {
+        return planDate;
+    }
+
+    public void setPlanDate(Date planDate) {
+        this.planDate = planDate;
+    }
+
+    public String getConfirmName() {
+        return confirmName;
+    }
+
+    public void setConfirmName(String confirmName) {
+        this.confirmName = confirmName;
+    }
+
+    public Date getConfirmDate() {
+        return confirmDate;
+    }
+
+    public void setConfirmDate(Date confirmDate) {
+        this.confirmDate = confirmDate;
+    }
 
     //开始时间
     @Temporal(TemporalType.TIMESTAMP)
@@ -103,6 +164,25 @@ public class Purchasing {
 
     @Transient
     int complete;
+
+    public String getCountDetail() {
+        return countDetail;
+    }
+
+    public void setCountDetail(String countDetail) {
+        this.countDetail = countDetail;
+    }
+
+    public List<Model> getCountDetailList() {
+        this.countDetailList = JsonUtil.json2GenericObject(this.countDetail,new TypeReference<List<Model>>(){
+        });
+        return countDetailList;
+    }
+
+    public void setCountDetailList(List<Model> countDetailList) {
+        this.countDetailList = countDetailList;
+        this.countDetail = JsonUtil.Obj2Json(countDetailList);
+    }
 
     //已完成任务
     @Transient
@@ -329,6 +409,18 @@ public class Purchasing {
             String firstColumn = goodses.get(i).getName();
             if(null != firstColumn && firstColumn.contains("面辅料供应时间") && i >= 4){
                 this.applyTime = new Date(goodses.get(i).getSpecification());
+                continue;
+            }
+            if(null != firstColumn && firstColumn.contains("计划") && i >= 4){
+                this.planningUserName = goodses.get(i).getSpecification();
+                this.planDischarge = goodses.get(i).getWidth();
+                this.planDate =new Date(goodses.get(i).getColor());
+                continue;
+            }
+            if(null != firstColumn && firstColumn.contains("排料确认") && i >= 4){
+                this.dischargeRecognition= goodses.get(i).getSpecification();
+                this.confirmName= goodses.get(i).getWidth();
+                this.confirmDate=new Date(goodses.get(i).getColor());
                 break;
             }
             if (null!=firstColumn && !firstColumn.contains("面辅料供应时间") && i >= 4) {

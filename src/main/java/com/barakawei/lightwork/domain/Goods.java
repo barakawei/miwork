@@ -68,6 +68,113 @@ public class Goods {
     @Cell(columnNumber = 9)
 	private String description;
 
+    //原单价
+    @Cell(columnNumber = 13)
+    private String oriPrice;
+
+    //采购单价
+    @Cell(columnNumber = 14)
+    private String price;
+
+    //需追加
+    @Cell(columnNumber = 19)
+    private String needAdd;
+
+    //排料规格
+    @Cell(columnNumber = 20)
+    private String dischargeSpec;
+
+    //实际门幅
+    @Cell(columnNumber = 21)
+    private String actualWidth;
+
+    //实排单耗
+    @Cell(columnNumber = 22)
+    private String actualConsume;
+
+    //实际损耗
+    @Cell(columnNumber = 23)
+    private String actualLoss;
+
+    //核定用料
+    @Cell(columnNumber = 24)
+    private String confirmUse;
+
+    //实际使用
+    @Cell(columnNumber = 25)
+    private String actualUse;
+
+    public String getOriPrice() {
+        return oriPrice;
+    }
+
+    public void setOriPrice(String oriPrice) {
+        this.oriPrice = oriPrice;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getNeedAdd() {
+        return needAdd;
+    }
+
+    public void setNeedAdd(String needAdd) {
+        this.needAdd = needAdd;
+    }
+
+    public String getDischargeSpec() {
+        return dischargeSpec;
+    }
+
+    public void setDischargeSpec(String dischargeSpec) {
+        this.dischargeSpec = dischargeSpec;
+    }
+
+    public String getActualWidth() {
+        return actualWidth;
+    }
+
+    public void setActualWidth(String actualWidth) {
+        this.actualWidth = actualWidth;
+    }
+
+    public String getActualConsume() {
+        return actualConsume;
+    }
+
+    public void setActualConsume(String actualConsume) {
+        this.actualConsume = actualConsume;
+    }
+
+    public String getActualLoss() {
+        return actualLoss;
+    }
+
+    public void setActualLoss(String actualLoss) {
+        this.actualLoss = actualLoss;
+    }
+
+    public String getConfirmUse() {
+        return confirmUse;
+    }
+
+    public void setConfirmUse(String confirmUse) {
+        this.confirmUse = confirmUse;
+    }
+
+    public String getActualUse() {
+        return actualUse;
+    }
+
+    public void setActualUse(String actualUse) {
+        this.actualUse = actualUse;
+    }
 
     @OneToMany(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY, mappedBy = "goods")
     List<PurchasingDetail> pds = new ArrayList<PurchasingDetail>();

@@ -67,13 +67,13 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     @Override
     public List<Purchasing> findAll() {
-        Sort s = new Sort(Sort.Direction.DESC,"startTime");
+        Sort s = new Sort(Sort.Direction.DESC, "startTime");
         return purchasingDao.findAll(s);
     }
 
     @Override
     public void createPurchasing(Purchasing purchasing) {
-        if(CollectionUtils.isEmpty(purchasing.getPds())){
+        if (CollectionUtils.isEmpty(purchasing.getPds())) {
             return;
         }
         purchasing.setPlanningUser(UserContextUtil.getCurrentUser());
@@ -104,7 +104,7 @@ public class PurchasingServiceImpl implements PurchasingService {
      */
     @Override
     public void updatePurchasing(Purchasing purchasing) {
-        Purchasing p =purchasingDao.findOne(purchasing.getId());
+        Purchasing p = purchasingDao.findOne(purchasing.getId());
         List<PurchasingDetail> pds = p.getPds();
         List<PurchasingDetail> newPds = purchasing.getPds();
         for (PurchasingDetail pd : pds) {
@@ -156,19 +156,21 @@ public class PurchasingServiceImpl implements PurchasingService {
     @Override
     public void complete(Purchasing purchasing) {
         String role = UserContextUtil.getCurrentRole().getName();
-        Purchasing _p =  this.findPurchasingById(purchasing.getId());
+        Purchasing _p = this.findPurchasingById(purchasing.getId());
         if (StringUtils.equals(Role.ROLE_TECHNOLOG, role)) {
             _p.setActualShrinkage(purchasing.getActualShrinkage());
             _p.setZipperShrinkage(purchasing.getZipperShrinkage());
             List<Zipper> _zippers = _p.getZippers();
             List<Zipper> zippers = purchasing.getZippers();
             if (CollectionUtils.isNotEmpty(zippers)) {
+                List<Zipper> remove = new ArrayList<Zipper>();
                 for (Zipper _z : _zippers) {
                     if (!zippers.contains(_z)) {
                         zipperDao.delete(_z);
-                        _p.getZippers().remove(_z);
+                        remove.add(_z);
                     }
                 }
+                _zippers.removeAll(remove);
                 for (Zipper _zipper : zippers) {
                     _zipper.setPurchasing(purchasing);
                     zipperDao.save(_zipper);
@@ -180,11 +182,8 @@ public class PurchasingServiceImpl implements PurchasingService {
         } else if (StringUtils.equals(Role.ROLE_PRODUCT, role)) {
             List<Zipper> zippers = purchasing.getZippers();
             if (CollectionUtils.isNotEmpty(zippers)) {
-                for (Zipper _z : zippers) {
-                    Zipper z = zipperDao.findOne(_z.getId());
-                    z.setNumber(_z.getNumber());
-                    zipperDao.save(z);
-                }
+                _p.setCountDetail(purchasing.getCountDetail());
+                purchasingDao.save(_p);
             }
         }
 
@@ -193,20 +192,20 @@ public class PurchasingServiceImpl implements PurchasingService {
             ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).active().singleResult();
             pd.setTask(wpdService.getCurrentTask(pi));
             Assert.notNull(pd, "error");
-            this.completeByRole(role, pd, _pd,purchasing);
+            this.completeByRole(role, pd, _pd, purchasing);
         }
 
         boolean end = true;
-        if(CollectionUtils.isEmpty(_p.getPds())){
+        if (CollectionUtils.isEmpty(_p.getPds())) {
             end = false;
         }
-        for(PurchasingDetail pd:_p.getPds()){
-            if(null == pd.getEndTime()){
+        for (PurchasingDetail pd : _p.getPds()) {
+            if (null == pd.getEndTime()) {
                 end = false;
                 break;
             }
         }
-        if(end){
+        if (end) {
             _p.setEndTime(new Date());
             _p.setOngoing(false);
             purchasingDao.save(_p);
@@ -214,14 +213,14 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     }
 
-    private void completeByRole(String role, PurchasingDetail pd, PurchasingDetail _pd,Purchasing p) {
+    private void completeByRole(String role, PurchasingDetail pd, PurchasingDetail _pd, Purchasing p) {
         if (StringUtils.equals(role, Role.ROLE_PURCHASING)) {
             pd.setExpectedArrivalTime(_pd.getExpectedArrivalTime());
             pd.setActualPurchasingCount(_pd.getActualPurchasingCount());
             pd.setWarehouseCount(_pd.getWarehouseCount());
             purchasingDetailDao.save(pd);
             if (null != _pd.getExpectedArrivalTime()) {
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"purchasing")) {
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "purchasing")) {
                     taskService.complete(_pd.getTaskId());
                 }
             }
@@ -231,10 +230,10 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setPlanEntryCount(_pd.getPlanEntryCount());
             purchasingDetailDao.save(pd);
             if (null != _pd.getPlanEntryTime() && null != _pd.getPlanEntryCount()) {
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"warehouseEntryPlan")) {
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryPlan")) {
                     taskService.complete(_pd.getTaskId());
                 }
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"warehouseEntryActual")) {
+                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryActual")) {
                     pd.setActualEntryTime(_pd.getPlanEntryTime());
                     pd.setActualEntryCount(_pd.getPlanEntryCount());
                     pd.setEndTime(new Date());
@@ -243,36 +242,34 @@ public class PurchasingServiceImpl implements PurchasingService {
                 }
             }
         } else if (StringUtils.equals(role, Role.ROLE_QUALITY)) {
-                pd.setQualified(_pd.getQualified());
-                pd.setShrinkage(_pd.getShrinkage());
-                purchasingDetailDao.save(pd);
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"quality")) {
-                    Map<String, Object> variables = new HashMap<String, Object>();
-                    variables.put("qualified", _pd.getQualified());
-                    variables.put("shrinkage", _pd.getShrinkage());
-                    variables.put("review", pd.getReview() == null ? false : pd.getReview());
-                    variables.put("hasShrinkage", _pd.getHasShrinkage());
-                    taskService.complete(_pd.getTaskId(), variables);
-                }
+            pd.setQualified(_pd.getQualified());
+            pd.setShrinkage(_pd.getShrinkage());
+            purchasingDetailDao.save(pd);
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "quality")) {
+                Map<String, Object> variables = new HashMap<String, Object>();
+                variables.put("qualified", _pd.getQualified());
+                variables.put("shrinkage", _pd.getShrinkage());
+                variables.put("review", pd.getReview() == null ? false : pd.getReview());
+                variables.put("hasShrinkage", _pd.getHasShrinkage());
+                taskService.complete(_pd.getTaskId(), variables);
+            }
         } else if (StringUtils.equals(role, Role.ROLE_LEADER)) {
-            if (StringUtils.isNotBlank(_pd.getReason())) {
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "leaderAudit")) {
                 pd.setReview(true);
                 pd.setReason(_pd.getReason());
                 purchasingDetailDao.save(pd);
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"leaderAudit")) {
-                    Map<String, Object> variables = new HashMap<String, Object>();
-                    variables.put("review", pd.getReview());
-                    taskService.complete(_pd.getTaskId(), variables);
-                }
+                Map<String, Object> variables = new HashMap<String, Object>();
+                variables.put("review", pd.getReview());
+                taskService.complete(_pd.getTaskId(), variables);
             }
         } else if (StringUtils.equals(role, Role.ROLE_TECHNOLOG)) {
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"tech")) {
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "tech")) {
                 taskService.complete(_pd.getTaskId());
             }
         } else if (StringUtils.equals(role, Role.ROLE_PRODUCT)) {
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(),"product")) {
+            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "product")) {
                 Map<String, Object> variables = new HashMap<String, Object>();
-                variables.put("qualified",true);
+                variables.put("qualified", true);
                 variables.put("hasShrinkage", false);
                 taskService.complete(_pd.getTaskId(), variables);
             }
@@ -281,7 +278,7 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     }
 
-    private void claim(){
+    private void claim() {
         String role = UserContextUtil.getCurrentRole().getName();
         List<Task> tasks = taskService.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskCandidateGroup(role).active().orderByTaskPriority().desc()
                 .orderByTaskCreateTime().desc().list();
@@ -296,28 +293,29 @@ public class PurchasingServiceImpl implements PurchasingService {
         Purchasing purchasing = purchasingDao.findOne(id);
         int complete = 0;
         int pending = 0;
-        for(PurchasingDetail pd:purchasing.getPds()){
-            if(pd.getEndTime() != null){
-                complete ++;
-            }else{
-                pending ++;
+        for (PurchasingDetail pd : purchasing.getPds()) {
+            if (pd.getEndTime() != null) {
+                complete++;
+            } else {
+                pending++;
             }
             ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).active().singleResult();
-            if(null == pi){
+            if (null == pi) {
                 pd.setCurrentUserName("");
                 continue;
             }
             pd.setTask(wpdService.getCurrentTask(pi));
             Task _task = pd.getTask();
-            if(_task.getAssignee() == null){
+            if (_task.getAssignee() == null) {
                 pd.setCurrentUserName("未签收");
-            }else {
+            } else {
                 pd.setCurrentUserName(userDao.findOne(_task.getAssignee()).getName());
             }
             pd.setTaskId(_task.getId());
 
 
         }
+        purchasing.getCountDetailList();
         purchasing.setPending(pending);
         purchasing.setComplete(complete);
         return purchasing;

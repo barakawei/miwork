@@ -15,7 +15,7 @@
     <spring-data-jpa.version>1.2.0.RELEASE</spring-data-jpa.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <ehcache.version>2.6.2</ehcache.version>
-    <jackson.version>1.9.11</jackson.version>
+    <jackson.version>1.9.12</jackson.version>
     <spymemcached.version>2.8.1</spymemcached.version>
     <guava.version>12.0</guava.version>
     <commons-lang3.version>3.1</commons-lang3.version>

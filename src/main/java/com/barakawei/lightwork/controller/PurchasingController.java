@@ -1,41 +1,26 @@
 package com.barakawei.lightwork.controller;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.criteria.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.barakawei.lightwork.dao.ZipperDao;
 import com.barakawei.lightwork.domain.*;
 import com.barakawei.lightwork.service.DataDictService;
 import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
-import com.barakawei.lightwork.util.PurchasingExcelParseUtil;
-import org.activiti.engine.ActivitiException;
+import com.barakawei.lightwork.util.ExcelParseUtil;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.barakawei.lightwork.service.PurchasingWorkflowService;
 
@@ -68,10 +53,13 @@ public class PurchasingController extends BaseController {
     @Autowired
     protected DataDictService dataDictService;
 
+    @Autowired
+    protected ZipperDao zipperDao;
+
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ModelAndView upload(MultipartFile file) {
-        List<Goods> goodses = PurchasingExcelParseUtil.upload(file);
+        List<Goods> goodses = ExcelParseUtil.upload(file);
         Purchasing purchasing = new Purchasing();
         purchasing.convertFromExcel(goodses);
         purchasingService.createPurchasing(purchasing);
@@ -79,9 +67,30 @@ public class PurchasingController extends BaseController {
     }
 
 
+    @RequestMapping(value = "/uploadZipper/{id}", method = RequestMethod.POST)
+    public ModelAndView uploadZipper(MultipartFile file,@PathVariable("id") String id) {
+        Purchasing purchasing = purchasingService.findPurchasingById(id);
+        List<ZipperExcel> data = ExcelParseUtil.parseZipper(file);
+        List<Zipper> zippers = new ArrayList<Zipper>();
+        ZipperExcel.convertFromExcel(purchasing,zippers,data);
+        zipperDao.deleteAll();
+        for (Zipper _zipper : zippers) {
+            zipperDao.save(_zipper);
+            dataDictService.saveDataDictByZipper(_zipper);
+        }
+        return this.ajaxDoneClose("导入成功");
+    }
+
     @RequestMapping(value = "/upload", method = RequestMethod.GET)
     public  String upload() {
         return "purchasing/upload";
+    }
+
+    @RequestMapping(value = "/upload/{id}", method = RequestMethod.GET)
+    public  ModelAndView uploadZipper(@PathVariable("id") String id) {
+        ModelAndView mav = new ModelAndView("purchasing/uploadZipper");
+        mav.addObject("purchasingId",id);
+        return mav;
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.GET)

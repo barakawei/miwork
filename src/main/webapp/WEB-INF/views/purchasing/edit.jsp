@@ -35,6 +35,14 @@
                     </dl>
 
                     <dl>
+                        <dt>款号</dt>
+                        <dd>
+                            <input type="text" name="typeNumber" maxlength="50" size="40" class=""
+                                   value="${purchasing.typeNumber}"/>
+                        </dd>
+                    </dl>
+
+                    <dl>
                         <dt>数量</dt>
                         <dd>
                             <input type="text" name="orderCount" maxlength="100" size="40" class=""
@@ -55,29 +63,53 @@
                     <dl>
                         <dt>计划人</dt>
                         <dd>
-                            ${purchasing.planningUser.name}
-                        </dd>
-                    </dl>
-
-
-                    <!--
-                    <dl>
-                        <dt>排料确认</dt>
-                        <dd>
-                            <input type="text" name=" dischargeRecognition" maxlength="50" value="${purchasing.dischargeRecognition}"/>
+                            <input type="text" name="planningUserName" maxlength="100" size="40" class=""
+                                   value="${purchasing.planningUserName}"/>
                         </dd>
                     </dl>
 
                     <dl>
-                        <dt>日期</dt>
+                        <dt>采购预排</dt>
                         <dd>
-                            <input type="text" name="confirmTime" class="date" dateFmt="yyyy-MM-dd HH:mm"
+                            <input type="text" name="planDischarge" maxlength="100" size="40" class=""
+                                   value="${purchasing.planDischarge}"/>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>计划日期</dt>
+                        <dd>
+                            <input type="text" name="planDate" class="date" dateFmt="yyyy-MM-dd HH:mm"
                                    readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.confirmTime}' type='both'/>">
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.planDate}' type='both'/>">
                             <a class="inputDateButton" href="javascript:;">选择</a>
                         </dd>
                     </dl>
-                    -->
+
+
+                    <dl>
+                        <dt>排料确认</dt>
+                        <dd>
+                            <input type="text" name="dischargeRecognition" size="40" maxlength="50" value="${purchasing.dischargeRecognition}"/>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>核准</dt>
+                        <dd>
+                            <input type="text" name="confirmName" size="40" maxlength="50" value="${purchasing.confirmName}"/>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>确认日期</dt>
+                        <dd>
+                            <input type="text" name="confirmDate" class="date" dateFmt="yyyy-MM-dd HH:mm"
+                                   readonly="true"
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.confirmDate}' type='both'/>">
+                            <a class="inputDateButton" href="javascript:;">选择</a>
+                        </dd>
+                    </dl>
 
                 </div>
             </div>
