@@ -178,7 +178,7 @@ public class ZipperExcel {
         List<Model> models = new ArrayList<Model>();
         for (int i = 0; i < zes.size(); i++) {
             ZipperExcel ze = zes.get(i);
-            if (i == 0) {
+            if(StringUtils.equals(ze.getType(),"selected")){
                 modelName.add(ze.getModel_145());
                 modelName.add(ze.getModel_150());
                 modelName.add(ze.getModel_155());
