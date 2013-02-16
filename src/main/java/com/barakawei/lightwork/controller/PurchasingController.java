@@ -2,18 +2,14 @@ package com.barakawei.lightwork.controller;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import com.barakawei.lightwork.dao.ZipperDao;
 import com.barakawei.lightwork.domain.*;
 import com.barakawei.lightwork.service.DataDictService;
 import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
-import com.barakawei.lightwork.util.DownloadHelper;
 import com.barakawei.lightwork.util.ExcelParseUtil;
-import com.sun.deploy.net.HttpResponse;
 import net.sf.jxls.transformer.XLSTransformer;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
@@ -31,7 +27,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
