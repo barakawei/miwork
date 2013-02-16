@@ -1,14 +1,12 @@
 package com.barakawei.lightwork.util;
 
 import com.barakawei.lightwork.domain.Goods;
-import com.barakawei.lightwork.domain.Zipper;
 import com.barakawei.lightwork.domain.ZipperExcel;
 import nl.bstoi.poiparser.core.ReadPoiParserException;
 import nl.bstoi.poiparser.core.RequiredFieldPoiParserException;
 import nl.bstoi.poiparser.core.strategy.annotation.AnnotatedPoiFileParser;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;

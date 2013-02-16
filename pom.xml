@@ -41,14 +41,21 @@
 
   </properties>
   <repositories>
-    <repository>
-      <id>Activiti</id>
-      <url>https://maven.alfresco.com/nexus/content/groups/public</url>
-    </repository>
+
     <repository>
       <id>Codehaus</id>
       <url>http://repository.codehaus.org</url>
     </repository>
+
+      <repository>
+          <id>center</id>
+          <url>http://repo2.maven.org/maven2</url>
+      </repository>
+
+      <repository>
+          <id>Activiti</id>
+          <url>https://maven.alfresco.com/nexus/content/groups/public</url>
+      </repository>
   </repositories>
 
 
@@ -128,6 +135,12 @@
 
   <!-- 依赖项定义 -->
   <dependencies>
+
+      <dependency>
+          <groupId>net.sf.jxls</groupId>
+          <artifactId>jxls-core</artifactId>
+          <version>1.0.1</version>
+      </dependency>
 
       <dependency>
           <groupId>org.apache.commons</groupId>

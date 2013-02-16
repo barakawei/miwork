@@ -21,14 +21,22 @@
     	 它会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter 两个bean,
     	   是spring MVC为@Controllers分发请求所必须的
      -->   
-    <mvc:annotation-driven/>
-    
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="com.barakawei.lightwork.util.DownloadHttpMessageConverter" />
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
     <!-- 配置js，css等静态文件直接映射到对应的文件夹，不被DispatcherServlet处理 -->
 	<mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/>
 	<mvc:resources mapping="/templates/**" location="/WEB-INF/templates/"/>
-	    
+
+
+
     <!-- jsp页面解析器，当Controller返回XXX字符串时，先通过拦截器，然后该类就会在/WEB-INF/views/目录下，查找XXX.jsp文件-->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
     	<property name="prefix" value="/WEB-INF/views/"></property>
     	<property name="suffix" value=".jsp"></property>
     </bean>

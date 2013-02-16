@@ -55,7 +55,7 @@ public class PurchasingDetail {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date endTime;
 
-    // 预计到货时间
+    // 计划入库时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date expectedArrivalTime;

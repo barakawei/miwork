@@ -32,6 +32,20 @@ $(function(){
       initEnv();
     }
   });
+
+    $("a[target=download]").live("click",function(){
+        var obj = $("#data tr.selected");
+        if(obj.length < 1){
+            alertMsg.error('请先选中一条采购计划！');
+            return false;
+        }
+        var id = obj.attr("rel");
+        var url = "${ctx}/purchasing/download/"+id;
+        $("#downloadForm").attr("action",url);
+        $("#downloadForm").submit();
+    });
+
+
 // 创建一个Socket实例
     var socket = new WebSocket('ws://localhost:8080/miwork/ws/message.ws');
 

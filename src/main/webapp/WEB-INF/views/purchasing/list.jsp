@@ -5,6 +5,8 @@
     <input type="hidden" name="numPerPage" value="${purchasings.size}" />
 </form>
 
+<form id="downloadForm" name = "downloadForm" method="post" action="">
+</form>
 
 <div class="pageHeader">
     <form onsubmit="return navTabSearch(this);" action="${ctx}/purchasing/list" method="post">
@@ -32,13 +34,14 @@
 <div class="pageContent">
 <div class="panelBar">
     <ul class="toolBar">
-        <sec:authorize ifAllGranted="role_planning">
-        <li><a class="add" href="${ctx}/purchasing/add" target="navTab"><span>添加</span></a></li>
-            <li><a class="icon" href="${ctx}/purchasing/upload" target="navTab" rel="upload"><span>从EXCEL导入</span></a></li>
-        <li><a class="delete" href="${ctx}/purchasing/delete/{purchasing_id}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-        <li><a class="edit" href="${ctx}/purchasing/edit/{purchasing_id}" target="navTab"><span>修改</span></a></li>
-        </sec:authorize>
+        <li><a class="icon" href="javascript:void(0)" target="download"><span>导出EXCEL</span></a></li>
         <li><a class="edit" href="${ctx}/purchasing/show/{purchasing_id}" target="navTab" rel="pd"><span>货物详情</span></a></li>
+        <sec:authorize ifAllGranted="role_planning">
+            <li><a class="add" href="${ctx}/purchasing/add" target="navTab"><span>添加</span></a></li>
+            <li><a class="icon" href="${ctx}/purchasing/upload" target="navTab" rel="upload"><span>从EXCEL导入</span></a></li>
+            <li><a class="edit" href="${ctx}/purchasing/edit/{purchasing_id}" target="navTab"><span>修改</span></a></li>
+            <li><a class="delete" href="${ctx}/purchasing/delete/{purchasing_id}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
+        </sec:authorize>
         <li class="line">line</li>
     </ul>
 </div>

@@ -4,8 +4,10 @@ import javax.persistence.*;
 
 import nl.bstoi.poiparser.api.strategy.annotations.Cell;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -60,13 +62,19 @@ public class Goods {
     @Cell(columnNumber = 8)
     private String loss;
 
+    //面辅料特殊要求
+    @Cell(columnNumber = 9)
+    private String description;
+
     //采购计划
     @Cell(columnNumber = 10)
     private String purchasingCount;
 
-	//特殊信息
-    @Cell(columnNumber = 9)
-	private String description;
+    //库存
+    private String warehouseCount;
+
+    //实需采购
+    private String actualPurchasingCount;
 
     //原单价
     @Cell(columnNumber = 13)
@@ -75,6 +83,23 @@ public class Goods {
     //采购单价
     @Cell(columnNumber = 14)
     private String price;
+
+    // 计划入库时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date expectedArrivalTime;
+
+    //预入库时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date planEntryTime;
+
+    // 预入库数量
+    private String planEntryCount;
+
+    //实测缩率：经%/纬%
+    private String shrinkage;
+
 
     //需追加
     @Cell(columnNumber = 19)
@@ -103,6 +128,54 @@ public class Goods {
     //实际使用
     @Cell(columnNumber = 25)
     private String actualUse;
+
+    public String getWarehouseCount() {
+        return warehouseCount;
+    }
+
+    public void setWarehouseCount(String warehouseCount) {
+        this.warehouseCount = warehouseCount;
+    }
+
+    public String getActualPurchasingCount() {
+        return actualPurchasingCount;
+    }
+
+    public void setActualPurchasingCount(String actualPurchasingCount) {
+        this.actualPurchasingCount = actualPurchasingCount;
+    }
+
+    public Date getExpectedArrivalTime() {
+        return expectedArrivalTime;
+    }
+
+    public void setExpectedArrivalTime(Date expectedArrivalTime) {
+        this.expectedArrivalTime = expectedArrivalTime;
+    }
+
+    public Date getPlanEntryTime() {
+        return planEntryTime;
+    }
+
+    public void setPlanEntryTime(Date planEntryTime) {
+        this.planEntryTime = planEntryTime;
+    }
+
+    public String getPlanEntryCount() {
+        return planEntryCount;
+    }
+
+    public void setPlanEntryCount(String planEntryCount) {
+        this.planEntryCount = planEntryCount;
+    }
+
+    public String getShrinkage() {
+        return shrinkage;
+    }
+
+    public void setShrinkage(String shrinkage) {
+        this.shrinkage = shrinkage;
+    }
 
     public String getOriPrice() {
         return oriPrice;

@@ -84,25 +84,31 @@ public class Purchasing {
     @Transient
     private String type;
 
-    //供应时间
+    //面辅料供应时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date applyTime;
 
 
     //确认时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date confirmTime;
 
     //采购预排
     private String planDischarge;
 
     //计划日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date planDate;
 
     //核准
     private String confirmName;
 
     //确认日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date confirmDate;
 
     public String getPlanDischarge() {

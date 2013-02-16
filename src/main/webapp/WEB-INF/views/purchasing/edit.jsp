@@ -192,6 +192,8 @@
                                         <input type="hidden" name="pds[${status.index}].id" value="${pd.id}">
                                         <input type="hidden" name="pds[${status.index}].purchasing.id"
                                                value="${purchasing.id}">
+                                        <input type="hidden" name="pds[${status.index}].processInstanceId"
+                                               value="${pd.processInstanceId}">
                                     </td>
                                 </tr>
                             </c:forEach>

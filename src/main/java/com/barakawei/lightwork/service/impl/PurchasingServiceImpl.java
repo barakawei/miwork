@@ -121,6 +121,9 @@ public class PurchasingServiceImpl implements PurchasingService {
                 ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(Purchasing.FLOW, businessKey);
                 pd.setProcessInstanceId(processInstance.getId());
                 purchasingDetailDao.save(pd);
+            }else{
+                pd.setPurchasing(p);
+                purchasingDetailDao.save(pd);
             }
         }
         p.setOrderNumber(purchasing.getOrderNumber());
@@ -189,8 +192,10 @@ public class PurchasingServiceImpl implements PurchasingService {
 
         for (PurchasingDetail _pd : purchasing.getPds()) {
             PurchasingDetail pd = purchasingDetailDao.findOne(_pd.getId());
-            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).active().singleResult();
-            pd.setTask(wpdService.getCurrentTask(pi));
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(pd.getProcessInstanceId()).singleResult();
+            if(null != pi){
+                pd.setTask(wpdService.getCurrentTask(pi));
+            }
             Assert.notNull(pd, "error");
             this.completeByRole(role, pd, _pd, purchasing);
         }
@@ -220,7 +225,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setWarehouseCount(_pd.getWarehouseCount());
             purchasingDetailDao.save(pd);
             if (null != _pd.getExpectedArrivalTime()) {
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "purchasing")) {
+                if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "purchasing")) {
                     taskService.complete(_pd.getTaskId());
                 }
             }
@@ -230,10 +235,10 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setPlanEntryCount(_pd.getPlanEntryCount());
             purchasingDetailDao.save(pd);
             if (null != _pd.getPlanEntryTime() && null != _pd.getPlanEntryCount()) {
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryPlan")) {
+                if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryPlan")) {
                     taskService.complete(_pd.getTaskId());
                 }
-                if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryActual")) {
+                if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "warehouseEntryActual")) {
                     pd.setActualEntryTime(_pd.getPlanEntryTime());
                     pd.setActualEntryCount(_pd.getPlanEntryCount());
                     pd.setEndTime(new Date());
@@ -245,7 +250,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setQualified(_pd.getQualified());
             pd.setShrinkage(_pd.getShrinkage());
             purchasingDetailDao.save(pd);
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "quality")) {
+            if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "quality")) {
                 Map<String, Object> variables = new HashMap<String, Object>();
                 variables.put("qualified", _pd.getQualified());
                 variables.put("shrinkage", _pd.getShrinkage());
@@ -254,7 +259,7 @@ public class PurchasingServiceImpl implements PurchasingService {
                 taskService.complete(_pd.getTaskId(), variables);
             }
         } else if (StringUtils.equals(role, Role.ROLE_LEADER)) {
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "leaderAudit")) {
+            if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "leaderAudit")) {
                 pd.setReview(true);
                 pd.setReason(_pd.getReason());
                 purchasingDetailDao.save(pd);
@@ -263,11 +268,11 @@ public class PurchasingServiceImpl implements PurchasingService {
                 taskService.complete(_pd.getTaskId(), variables);
             }
         } else if (StringUtils.equals(role, Role.ROLE_TECHNOLOG)) {
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "tech")) {
+            if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "tech")) {
                 taskService.complete(_pd.getTaskId());
             }
         } else if (StringUtils.equals(role, Role.ROLE_PRODUCT)) {
-            if (StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "product")) {
+            if (pd.getTask() != null && StringUtils.equals(pd.getTask().getTaskDefinitionKey(), "product")) {
                 Map<String, Object> variables = new HashMap<String, Object>();
                 variables.put("qualified", true);
                 variables.put("hasShrinkage", false);
