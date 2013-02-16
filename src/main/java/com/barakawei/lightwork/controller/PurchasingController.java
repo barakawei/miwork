@@ -110,6 +110,9 @@ public class PurchasingController extends BaseController {
         String zipperType = "";
         ZipperGroups zg = null;
         ZipperGroups zipper = new ZipperGroups();
+        if(countDetailList == null){
+            countDetailList =new ArrayList<Model>();
+        }
         for(Model _m : countDetailList){
             if(!StringUtils.equals(zipperType,_m.getPosition())){
                 zipperType = _m.getPosition();
