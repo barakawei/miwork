@@ -28,6 +28,7 @@
     %>
 
 <script type="text/javascript">
+var taskCount = 0;
 $(function(){
   DWZ.init("<c:url value='resources/dwz.frag.xml'/>", {
     loginUrl:"login_dialog.html", loginTitle:"登录",	// 弹出登录对话框
@@ -57,7 +58,6 @@ $(function(){
     var socket = new WebSocket('ws://216.24.205.115:8080/miwork/ws/message.ws');
 
     var show = true;
-    var taskCount = 0;
 
 // 打开Socket
     socket.onopen = function(event) {
@@ -72,7 +72,8 @@ $(function(){
                 var userId = "userID"+"<%=userId%>";
                 var count = json[userId];
                 if(count > taskCount){
-                    notify(count);
+                    taskCount = count;
+                    notify();
                 }
                 taskCount = count;
             console.log(msg);
@@ -89,10 +90,10 @@ $(function(){
     //notify();
 });
 
-var notify = function(count) {
+var notify = function() {
     if (window.webkitNotifications) {
         if (window.webkitNotifications.checkPermission() == 0) {
-            var notification_test = window.webkitNotifications.createNotification("", '任务提醒', "你有 "+count+"个待办任务。");
+            var notification_test = window.webkitNotifications.createNotification("", '任务提醒', "你有 "+taskCount+"个待办任务。");
             notification_test.display = function() {}
             notification_test.onerror = function() {}
             notification_test.onclose = function() {}
@@ -100,7 +101,7 @@ var notify = function(count) {
             notification_test.replaceId = 'Meteoric';
             notification_test.show();
         } else {
-            window.webkitNotifications.requestPermission(notify(count));
+            window.webkitNotifications.requestPermission(notify);
         }
     }
 };
