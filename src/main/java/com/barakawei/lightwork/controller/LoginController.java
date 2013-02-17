@@ -74,15 +74,11 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String login() {
-
-        System.out.println("--------login443");
-
         return "login";
     }
 
     @RequestMapping(value = "/denied", method = RequestMethod.GET)
     public String denied() {
-        System.out.println("--------denied");
         return "denied";
     }
 

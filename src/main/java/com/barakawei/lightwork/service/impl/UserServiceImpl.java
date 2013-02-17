@@ -236,6 +236,13 @@ public class UserServiceImpl implements UserService {
         return userDao.findAll(getWhereClause(sf), pageable);
 	}
 
+    @Override
+    public List<User> findAll() {
+        return userDao.findAll();
+    }
+
+
+
     private Specification<User> getWhereClause(final SearchForm sf) {
         return new Specification<User>() {
             @Override

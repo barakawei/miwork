@@ -1,12 +1,18 @@
 package com.barakawei.lightwork.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import com.barakawei.lightwork.domain.Purchasing;
 import com.barakawei.lightwork.domain.Role;
+import com.barakawei.lightwork.domain.SearchForm;
 import com.barakawei.lightwork.domain.User;
 import com.barakawei.lightwork.service.UserService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,13 +26,37 @@ public class UserContextUtil {
 	@Autowired
 	private UserService userService;
 
+    @Autowired
+    protected TaskService taskService;
+
 	private static UserService us;
+
+    private static TaskService ts;
 
 	@PostConstruct
 	public void init() {
 		us = this.userService;
+        ts = this.taskService;
 
 	}
+
+    public static String notifyMessage(){
+        Map notify = new HashMap();
+        List<User> users = us.findAll();
+        for(User u : users){
+
+            List<Task> tasks = ts.createTaskQuery().processDefinitionKey(Purchasing.FLOW).taskCandidateGroup(u.getRoles().iterator().next().getName()).active().orderByTaskPriority().desc()
+                    .orderByTaskCreateTime().desc().list();
+            for (Task _task : tasks) {
+                ts.claim(_task.getId(), u.getId());
+            }
+
+            long  todo = ts.createTaskQuery().taskAssignee(u.getId()).active().count();
+            notify.put("userID"+u.getId(),todo);
+        }
+        String msg = JsonUtil.Obj2Json(notify);
+        return msg;
+    }
 
 	public static UserDetails getCurrentUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

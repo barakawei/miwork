@@ -20,6 +20,13 @@
 <script src="<c:url value='resources/js/jquery.bgiframe.js'/>" type="text/javascript"></script>
 <script src="${ctx}/resources/js/dwz.regional.zh.js" type="text/javascript"></script>
 
+
+
+    <%
+        String name = UserContextUtil.getCurrentUser().getName();
+        String userId = UserContextUtil.getCurrentUser().getId();
+    %>
+
 <script type="text/javascript">
 $(function(){
   DWZ.init("<c:url value='resources/dwz.frag.xml'/>", {
@@ -47,7 +54,10 @@ $(function(){
 
 
 // 创建一个Socket实例
-    var socket = new WebSocket('ws://localhost:8080/miwork/ws/message.ws');
+    var socket = new WebSocket('ws://216.24.205.115:8080/miwork/ws/message.ws');
+
+    var show = true;
+    var taskCount = 0;
 
 // 打开Socket
     socket.onopen = function(event) {
@@ -57,7 +67,15 @@ $(function(){
 
 // 监听消息
         socket.onmessage = function(event) {
-            console.log('Client received a message',event);
+            var msg = event.data;
+                var json = JSON.parse(msg);
+                var userId = "userID"+"<%=userId%>";
+                var count = json[userId];
+                if(count > taskCount){
+                    notify(count);
+                }
+                taskCount = count;
+            console.log(msg);
         };
 
 // 监听Socket的关闭
@@ -68,32 +86,19 @@ $(function(){
 // 关闭Socket....
 //socket.close()
     };
-
-    $("#textMessage").live("click",function(){
-            socket.send(22222222);
-
-    });
-
-
     //notify();
 });
 
-var notify = function() {
+var notify = function(count) {
     if (window.webkitNotifications) {
         if (window.webkitNotifications.checkPermission() == 0) {
-            var notification_test = window.webkitNotifications.createNotification("http://images.cnblogs.com/cnblogs_com/flyingzl/268702/r_1.jpg", '标题', '内容'+new Date().getTime());
+            var notification_test = window.webkitNotifications.createNotification("", '任务提醒', "你有 "+count+"个待办任务。");
             notification_test.display = function() {}
             notification_test.onerror = function() {}
             notification_test.onclose = function() {}
             notification_test.onclick = function() {this.cancel();}
-
             notification_test.replaceId = 'Meteoric';
-
             notification_test.show();
-
-            var tempPopup = window.webkitNotifications.createHTMLNotification(["http://www.baidu.com/", "http://www.soso.com"][Math.random() >= 0.5 ? 0 : 1]);
-            tempPopup.replaceId = "Meteoric_cry";
-            tempPopup.show();
         } else {
             window.webkitNotifications.requestPermission(notify);
         }
@@ -106,9 +111,7 @@ var notify = function() {
 
 
 </script>
-<%
-    String name = UserContextUtil.getCurrentUser().getName();
-%>
+
 <title>MiWork</title>
 </head>
 <body scroll="no">

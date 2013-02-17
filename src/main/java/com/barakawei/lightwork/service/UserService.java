@@ -36,4 +36,6 @@ public interface UserService {
 
 	void synAllUserAndRoleToActiviti();
 
+    List<User> findAll();
+
 }

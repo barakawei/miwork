@@ -50,7 +50,7 @@ public class User {
 	@JoinColumn(name = "org_id")
 	private Organization org;
 
-	@ManyToMany(cascade = { CascadeType.REFRESH })
+	@ManyToMany(cascade = { CascadeType.REFRESH },fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role", inverseJoinColumns = @JoinColumn(name = "role_id"), joinColumns = @JoinColumn(name = "user_id"))
 	List<Role> roles = new ArrayList<Role>();
 	

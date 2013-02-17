@@ -67,6 +67,7 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     @Override
     public List<Purchasing> findAll() {
+        this.claim();
         Sort s = new Sort(Sort.Direction.DESC, "startTime");
         return purchasingDao.findAll(s);
     }
@@ -143,6 +144,17 @@ public class PurchasingServiceImpl implements PurchasingService {
      */
     @Override
     public void deletePurchasingById(String id) {
+        Purchasing p = purchasingDao.findOne(id);
+        List<PurchasingDetail> pds = p.getPds();
+        for(PurchasingDetail pd : pds){
+            List<Task> tasks = taskService.createTaskQuery().processInstanceId(pd.getProcessInstanceId()).list();
+            Set tid = new HashSet();
+            for(Task t:tasks){
+                tid.add(t.getId());
+            }
+            runtimeService.deleteProcessInstance(pd.getProcessInstanceId(),"del");
+            taskService.deleteTasks(tid);
+        }
         purchasingDao.delete(id);
 
     }
@@ -294,7 +306,6 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     @Override
     public Purchasing findTaskByCurrentUser(String id) {
-        this.claim();
         Purchasing purchasing = purchasingDao.findOne(id);
         int complete = 0;
         int pending = 0;
