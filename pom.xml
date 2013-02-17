@@ -137,6 +137,13 @@
   <dependencies>
 
       <dependency>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-catalina</artifactId>
+          <version>7.0.35</version>
+          <scope>provided</scope>
+      </dependency>
+
+      <dependency>
           <groupId>net.sf.jxls</groupId>
           <artifactId>jxls-core</artifactId>
           <version>1.0.1</version>
