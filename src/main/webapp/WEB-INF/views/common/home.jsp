@@ -100,7 +100,7 @@ var notify = function(count) {
             notification_test.replaceId = 'Meteoric';
             notification_test.show();
         } else {
-            window.webkitNotifications.requestPermission(notify);
+            window.webkitNotifications.requestPermission(notify(count));
         }
     }
 };
