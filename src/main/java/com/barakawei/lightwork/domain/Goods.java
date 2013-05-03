@@ -3,9 +3,11 @@ package com.barakawei.lightwork.domain;
 import javax.persistence.*;
 
 import nl.bstoi.poiparser.api.strategy.annotations.Cell;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
  */
 @Entity
 public class Goods {
+
+    public static DecimalFormat df = new DecimalFormat("0.00");
 
 	@Id
 	@GeneratedValue(generator = "system_uuid")
@@ -67,13 +71,15 @@ public class Goods {
     private String description;
 
     //采购计划
-    @Cell(columnNumber = 10)
+    //@Cell(columnNumber = 10)
     private String purchasingCount;
 
     //库存
+    @Cell(columnNumber = 11)
     private String warehouseCount;
 
     //实需采购
+    //@Cell(columnNumber = 12)
     private String actualPurchasingCount;
 
     //原单价
@@ -85,25 +91,33 @@ public class Goods {
     private String price;
 
     // 计划入库时间
+    @Cell(columnNumber = 15)
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date expectedArrivalTime;
 
     //预入库时间
+    @Cell(columnNumber = 16)
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date planEntryTime;
 
     // 预入库数量
+    @Cell(columnNumber = 17)
     private String planEntryCount;
 
     //实测缩率：经%/纬%
+    @Cell(columnNumber = 18)
     private String shrinkage;
 
 
     //需追加
-    @Cell(columnNumber = 19)
+    //@Cell(columnNumber = 19)
     private String needAdd;
+
+    public void setNeedAdd(String needAdd) {
+        this.needAdd = needAdd;
+    }
 
     //排料规格
     @Cell(columnNumber = 20)
@@ -114,7 +128,7 @@ public class Goods {
     private String actualWidth;
 
     //实排单耗
-    @Cell(columnNumber = 22)
+    //@Cell(columnNumber = 22)
     private String actualConsume;
 
     //实际损耗
@@ -122,12 +136,41 @@ public class Goods {
     private String actualLoss;
 
     //核定用料
-    @Cell(columnNumber = 24)
+    //@Cell(columnNumber = 24)
     private String confirmUse;
 
     //实际使用
     @Cell(columnNumber = 25)
     private String actualUse;
+
+    //超用料
+    //@Cell(columnNumber = 26)
+    private String exceedUse;
+
+    public String getExceedUse() {
+        float  v =0;
+        float actualUse = 0;
+        float confirmUse =0;
+        try{
+            if(StringUtils.isNotBlank(this.getActualUse())){
+                actualUse = Float.valueOf(this.getActualUse());
+            }
+            if(StringUtils.isNotBlank(this.getConfirmUse())){
+                confirmUse = Float.valueOf(this.getConfirmUse());
+            }
+         v = actualUse-confirmUse;
+        }catch (Exception e){
+            return "0.00";
+        }
+        if(v==0){
+            return "0.00";
+        }
+        return df.format(v);
+    }
+
+    public void setExceedUse(String exceedUse) {
+        this.exceedUse = exceedUse;
+    }
 
     public String getWarehouseCount() {
         return warehouseCount;
@@ -194,11 +237,29 @@ public class Goods {
     }
 
     public String getNeedAdd() {
-        return needAdd;
-    }
+        float  v =0;
+        float confirmUse = 0;
+        float planEntryCount = 0;
+        float warehouseCount = 0;
+        try{
+        if(StringUtils.isNotBlank(this.getConfirmUse())){
+            confirmUse = Float.valueOf(this.getConfirmUse());
+        }
 
-    public void setNeedAdd(String needAdd) {
-        this.needAdd = needAdd;
+        if(StringUtils.isNotBlank(this.getPlanEntryCount())){
+            planEntryCount = Float.valueOf(this.getPlanEntryCount());
+        }
+        if(StringUtils.isNotBlank(this.getWarehouseCount())){
+            warehouseCount = Float.valueOf(this.getWarehouseCount());
+        }
+         v = confirmUse-planEntryCount-warehouseCount;
+        }catch (Exception e){
+            return "0.00";
+        }
+        if(v==0){
+            return "0.00";
+        }
+        return df.format(v);
     }
 
     public String getDischargeSpec() {
@@ -234,7 +295,28 @@ public class Goods {
     }
 
     public String getConfirmUse() {
-        return confirmUse;
+        float v =0;
+        float orderCount = 0;
+        float actualConsume = 0;
+        float actualLoss = 0;
+        try{
+            if(StringUtils.isNotBlank(this.getOrderCount())){
+                orderCount = Float.valueOf(this.getOrderCount());
+            }
+            if(StringUtils.isNotBlank(this.getActualConsume())){
+                actualConsume = Float.valueOf(this.getActualConsume());
+            }
+            if(StringUtils.isNotBlank(this.getActualLoss())){
+                actualLoss = Float.valueOf(this.getActualLoss());
+            }
+            v = orderCount*actualConsume*actualLoss;
+        }catch (Exception e){
+            return "0.00";
+        }
+        if(v==0){
+            return "0.00";
+        }
+            return df.format(v);
     }
 
     public void setConfirmUse(String confirmUse) {

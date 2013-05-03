@@ -1,5 +1,6 @@
 package com.barakawei.lightwork.domain;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -26,6 +27,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 public class PurchasingDetail {
+
+    public static DecimalFormat df = new DecimalFormat("0.00");
 
     @Id
     @GeneratedValue(generator = "system_uuid")
@@ -57,7 +60,7 @@ public class PurchasingDetail {
 
     // 计划入库时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date expectedArrivalTime;
 
     //当前处理人
@@ -107,12 +110,12 @@ public class PurchasingDetail {
 
     //预入库时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date planEntryTime;
 
     //实际入库时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date actualEntryTime;
 
     // -- 临时属性 --//
@@ -347,7 +350,32 @@ public class PurchasingDetail {
      * @return the planPurchasingCount
      */
     public String getPlanPurchasingCount() {
-        return planPurchasingCount;
+
+        float v;
+        float count;
+        float consume=0;
+        float loss = 0;
+        try{
+            if(StringUtils.isBlank(this.getGoods().getOrderCount())){
+                count = 1;
+            }else{
+                count = Float.valueOf(this.getGoods().getOrderCount());
+            }
+            if(StringUtils.isNotBlank(this.getGoods().getConsume())){
+                consume = Float.valueOf(this.getGoods().getConsume());
+            }
+            if(StringUtils.isNotBlank(this.getGoods().getLoss())){
+                loss = Float.valueOf(this.getGoods().getLoss());
+            }
+            v = count*consume*loss;
+        }catch (Exception e){
+            return "0.00";
+
+        }
+        if(v==0){
+            return "0.00";
+        }
+        return df.format(v);
     }
 
     /**
@@ -375,7 +403,24 @@ public class PurchasingDetail {
      * @return the actualPurchasingCount
      */
     public String getActualPurchasingCount() {
-        return actualPurchasingCount;
+        float v = 0;
+        float planPurchasingCount = 0;
+        float warehouseCount = 0;
+        try{
+            if(StringUtils.isNotBlank(this.getPlanPurchasingCount())){
+                planPurchasingCount = Float.valueOf(this.getPlanPurchasingCount());
+            }
+            if(StringUtils.isNotBlank(this.getWarehouseCount())){
+                warehouseCount = Float.valueOf(this.getWarehouseCount());
+            }
+            v = planPurchasingCount-warehouseCount;
+        }catch (Exception e){
+            return "0.00";
+        }
+        if(v==0){
+            return "0.00";
+        }
+        return df.format(v);
     }
 
     /**

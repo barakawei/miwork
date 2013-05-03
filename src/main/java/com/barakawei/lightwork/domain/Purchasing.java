@@ -18,6 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class Purchasing {
 
     public static final String FLOW = "purchasing-flow";
+    public static final boolean canFlow  = false;
 
     @Id
     @GeneratedValue(generator = "system_uuid")
@@ -86,13 +87,13 @@ public class Purchasing {
 
     //面辅料供应时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date applyTime;
 
 
     //确认时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date confirmTime;
 
     //采购预排
@@ -100,15 +101,15 @@ public class Purchasing {
 
     //计划日期
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date planDate;
 
-    //核准
+    //排料核准
     private String confirmName;
 
     //确认日期
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date confirmDate;
 
     public String getPlanDischarge() {
@@ -145,12 +146,12 @@ public class Purchasing {
 
     //开始时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startTime;
 
     //结束时间
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
 
     //采购明细
@@ -182,6 +183,12 @@ public class Purchasing {
     public List<Model> getCountDetailList() {
         this.countDetailList = JsonUtil.json2GenericObject(this.countDetail,new TypeReference<List<Model>>(){
         });
+        if(this.countDetailList == null || this.countDetailList.isEmpty()){
+            List<Model> l = new ArrayList<Model>();
+            for(int i=0;i<12;i++){
+                l.add(new Model());
+            }
+        }
         return countDetailList;
     }
 
@@ -414,19 +421,40 @@ public class Purchasing {
             }
             String firstColumn = goodses.get(i).getName();
             if(null != firstColumn && firstColumn.contains("面辅料供应时间") && i >= 4){
-                this.applyTime = new Date(goodses.get(i).getSpecification());
+                Date date = null;
+                try{
+                    if(StringUtils.isNotBlank(goodses.get(i).getSpecification())){
+                        date = new Date(goodses.get(i).getSpecification());
+                    }
+                }catch (Exception e){
+                }
+                this.applyTime = date;
                 continue;
             }
             if(null != firstColumn && firstColumn.contains("计划") && i >= 4){
                 this.planningUserName = goodses.get(i).getSpecification();
-                this.planDischarge = goodses.get(i).getWidth();
-                this.planDate =new Date(goodses.get(i).getColor());
+                //this.planDischarge = goodses.get(i).getWidth();
+                Date date = null;
+                try{
+                    if(StringUtils.isNotBlank(goodses.get(i).getWidth())){
+                        date = new Date(goodses.get(i).getWidth());
+                    }
+                }catch(Exception e){
+                }
+                this.planDate = date;
                 continue;
             }
-            if(null != firstColumn && firstColumn.contains("排料确认") && i >= 4){
-                this.dischargeRecognition= goodses.get(i).getSpecification();
-                this.confirmName= goodses.get(i).getWidth();
-                this.confirmDate=new Date(goodses.get(i).getColor());
+            if(null != firstColumn && firstColumn.contains("排料核准") && i >= 4){
+                //this.dischargeRecognition= goodses.get(i).getSpecification();
+                this.confirmName= goodses.get(i).getSpecification();
+                Date date = null;
+                try{
+                    if(StringUtils.isNotBlank(goodses.get(i).getWidth())){
+                        date = new Date(goodses.get(i).getWidth());
+                    }
+                }catch(Exception e){
+                }
+                this.confirmDate=date;
                 break;
             }
             if (null!=firstColumn && !firstColumn.contains("面辅料供应时间") && i >= 4) {
@@ -446,6 +474,7 @@ public class Purchasing {
                 Goods goods = new Goods();
                 PurchasingDetail pd = new PurchasingDetail();
                 BeanUtils.copyProperties(goodses.get(i),goods);
+                goods.setActualConsume(goods.getConsume());
                 goods.setType(type);
                 pd.setGoods(goods);
                 pd.setPlanPurchasingCount(goods.getPurchasingCount());
@@ -471,6 +500,46 @@ public class Purchasing {
 
         return StringUtils.equals(this.id, p.getId());
 
+    }
+
+    public void sort(){
+        Map data = new LinkedHashMap();
+        for(PurchasingDetail pd:this.getPds()){
+            if(!data.containsKey(pd.getGoods().getType())){
+                List typeList = new ArrayList();
+                typeList.add(pd);
+                data.put(pd.getGoods().getType(),typeList);
+            }else {
+                ((List)data.get(pd.getGoods().getType())).add(pd);
+            }
+        }
+        List pds = new ArrayList();
+        Iterator i = data.keySet().iterator();
+        while(i.hasNext()){
+            pds.addAll((List)data.get(i.next()));
+        }
+        this.setPds(pds);
+    }
+
+
+
+    public void sortZipper(){
+        Map data = new LinkedHashMap();
+        for(Zipper z:this.getZippers()){
+            if(!data.containsKey(z.getPosition())){
+                List typeList = new ArrayList();
+                typeList.add(z);
+                data.put(z.getPosition(),typeList);
+            }else {
+                ((List)data.get(z.getPosition())).add(z);
+            }
+        }
+        List zippers = new ArrayList();
+        Iterator i = data.keySet().iterator();
+        while(i.hasNext()){
+            zippers.addAll((List) data.get(i.next()));
+        }
+        this.setZippers(zippers);
     }
 }
 

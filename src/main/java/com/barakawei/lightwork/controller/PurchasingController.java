@@ -96,7 +96,7 @@ public class PurchasingController extends BaseController {
                 goods.setPlanEntryCount(_pd.getPlanEntryCount());
                 goods.setPlanEntryTime(_pd.getPlanEntryTime());
                 goods.setShrinkage(_pd.getShrinkage());
-                goods.setOrderCount(_pd.getOrderCount());
+                goods.setOrderCount(_pd.getGoods().getOrderCount());
                 goods.setPurchasingCount(_pd.getPlanPurchasingCount());
                 goods.setDescription(_pd.getSpecialRequirements());
                 gg.getGoods().add(goods);

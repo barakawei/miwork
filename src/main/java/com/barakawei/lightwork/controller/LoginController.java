@@ -39,32 +39,34 @@ public class LoginController {
         List<Purchasing> others = new ArrayList<Purchasing>();
         User user = UserContextUtil.getCurrentUser();
         Set<String> piSet = new HashSet<String>();
-        List<Task> todoList = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
-        for (Task task : todoList) {
-            String pi = task.getProcessInstanceId();
-            piSet.add(pi);
-        }
+        if(Purchasing.canFlow){
+            List<Task> todoList = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
+            for (Task task : todoList) {
+                String pi = task.getProcessInstanceId();
+                piSet.add(pi);
+            }
 
-        for (Purchasing _p : purc) {
-            int pending = 0;
-            int complete= 0;
-            if (_p.getOngoing()) {
-                for (PurchasingDetail _pd : _p.getPds()) {
-                    if(_pd.getEndTime() != null){
-                        complete ++;
+            for (Purchasing _p : purc) {
+                int pending = 0;
+                int complete= 0;
+                if (_p.getOngoing()) {
+                    for (PurchasingDetail _pd : _p.getPds()) {
+                        if(_pd.getEndTime() != null){
+                            complete ++;
+                        }
+                        if (piSet.contains(_pd.getProcessInstanceId())) {
+                            pending++;
+                        }
                     }
-                    if (piSet.contains(_pd.getProcessInstanceId())) {
-                        pending++;
+                    _p.setPending(pending);
+                    _p.setComplete(complete);
+                    if (_p.getPending() > 0) {
+                        data.add(_p);
+                    } else {
+                        others.add(_p);
                     }
-                }
-                _p.setPending(pending);
-                _p.setComplete(complete);
-                if (_p.getPending() > 0) {
-                    data.add(_p);
-                } else {
-                    others.add(_p);
-                }
 
+                }
             }
         }
         mav.addObject("purchasings", data);

@@ -1,9 +1,33 @@
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ include file="../common/taglib.jsp" %>
 <h2 class="contentTitle">采购计划</h2>
+<script>
 
-<form action="${ctx}/purchasing/update?navTabId=list" method="post" class="pageForm required-validate"
-      onsubmit="return validateCallback(this, navTabAjaxDone)">
+    $("input").live("change",function(){
+        $(".pageForm").submit();
+    });
+
+    var intervalName;
+
+    $("#calendar button").live("click",function(){
+        intervalName = setInterval(handle,1000);
+    });
+    $("#calendar .days dd").live("click",function(){
+        intervalName = setInterval(handle,1000);
+    });
+
+    function handle(){
+        $(".pageForm").submit();
+        clearInterval(intervalName);
+    }
+    function done(json){
+
+    }
+
+</script>
+
+<form action="${ctx}/purchasing/update?navTabId=list" method="post" class="pageForm"
+      onsubmit="return validateCallback(this, done)">
     <input type="hidden" name="id" value="${purchasing.id}">
 
     <div class="pageContent pds" id="data">
@@ -54,14 +78,14 @@
                         <dt>面辅料供应时间</dt>
                         <dd>
 
-                            <input type="text" name="applyTime" class="date" dateFmt="yyyy-MM-dd HH:mm" readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.applyTime}' type='both'/>">
+                            <input type="text" name="applyTime" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.applyTime}' type='both'/>">
                             <a class="inputDateButton" href="javascript:;">选择</a>
                         </dd>
                     </dl>
 
                     <dl>
-                        <dt>计划人</dt>
+                        <dt>计划</dt>
                         <dd>
                             <input type="text" name="planningUserName" maxlength="100" size="40" class=""
                                    value="${purchasing.planningUserName}"/>
@@ -69,44 +93,29 @@
                     </dl>
 
                     <dl>
-                        <dt>采购预排</dt>
-                        <dd>
-                            <input type="text" name="planDischarge" maxlength="100" size="40" class=""
-                                   value="${purchasing.planDischarge}"/>
-                        </dd>
-                    </dl>
-
-                    <dl>
                         <dt>计划日期</dt>
                         <dd>
-                            <input type="text" name="planDate" class="date" dateFmt="yyyy-MM-dd HH:mm"
+                            <input type="text" name="planDate" class="date" dateFmt="yyyy-MM-dd"
                                    readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.planDate}' type='both'/>">
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.planDate}' type='both'/>">
                             <a class="inputDateButton" href="javascript:;">选择</a>
                         </dd>
                     </dl>
 
 
                     <dl>
-                        <dt>排料确认</dt>
-                        <dd>
-                            <input type="text" name="dischargeRecognition" size="40" maxlength="50" value="${purchasing.dischargeRecognition}"/>
-                        </dd>
-                    </dl>
-
-                    <dl>
-                        <dt>核准</dt>
+                        <dt>排料核准</dt>
                         <dd>
                             <input type="text" name="confirmName" size="40" maxlength="50" value="${purchasing.confirmName}"/>
                         </dd>
                     </dl>
 
                     <dl>
-                        <dt>确认日期</dt>
+                        <dt>核准日期</dt>
                         <dd>
-                            <input type="text" name="confirmDate" class="date" dateFmt="yyyy-MM-dd HH:mm"
+                            <input type="text" name="confirmDate" class="date" dateFmt="yyyy-MM-dd"
                                    readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${purchasing.confirmDate}' type='both'/>">
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.confirmDate}' type='both'/>">
                             <a class="inputDateButton" href="javascript:;">选择</a>
                         </dd>
                     </dl>
@@ -135,7 +144,7 @@
                                 <th type="text" name="pds[#index#].goods.width" size="6" defaultVal="0"
                                     fieldClass="digits">净宽/CM
                                 </th>
-                                <th type="text" name="pds[#index#].orderCount" size="6" defaultVal="0"
+                                <th type="text" name="pds[#index#].goods.orderCount" size="6" defaultVal="0"
                                     fieldClass="digits">单量
                                 </th>
                                 <th type="text" name="pds[#index#].goods.color" size="6">颜色</th>
@@ -145,9 +154,8 @@
                                 <th type="text" name="pds[#index#].specialRequirements" size="20" fieldClass="">
                                     面辅料特殊要求
                                 </th>
-                                <th type="text" name="pds[#index#].planPurchasingCount" defaultVal="0.0" size="8"
-                                    fieldClass="number ">采购计划
-                                </th>
+                                <th type="date" format="yyyy-MM-dd" name="pds[#index#].expectedArrivalTime" size="18">计划入库时间</th>
+                                <th type="text" name="pds[#index#].goods.actualLoss" size="6">实际损耗1*%</th>
 
                                 <th type="del" width="60">操作</th>
 
@@ -166,8 +174,8 @@
                                                value="${pd.goods.composition}"></td>
                                     <td><input type="text" class="digits" name="pds[${status.index}].goods.width"
                                                size="6" value="${pd.goods.width}"></td>
-                                    <td><input type="text" class="digits" name="pds[${status.index}].orderCount"
-                                               size="6" value="${pd.orderCount}"></td>
+                                    <td><input type="text" class="digits" name="pds[${status.index}].goods.orderCount"
+                                               size="6" value="${pd.goods.orderCount}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.color" size="6"
                                                value="${pd.goods.color}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.consume" size="6"
@@ -178,11 +186,14 @@
                                                size="3" value="${pd.goods.loss}"></td>
                                     <td><input type="text" name="pds[${status.index}].specialRequirements" size="20"
                                                value="${pd.specialRequirements}"></td>
-
-                                    <td><input type="text" class="number "
-                                               name="pds[${status.index}].planPurchasingCount" size="8"
-                                               value="${pd.planPurchasingCount}"></td>
-
+                                    <td>
+                                        <input type="text" name="pds[${status.index}].expectedArrivalTime" class="date" dateFmt="yyyy-MM-dd"
+                                               readonly="true"
+                                               value="<fmt:formatDate pattern='yyyy-MM-dd' value='${pd.expectedArrivalTime}' type='both'/>">
+                                        <a class="inputDateButton" href="javascript:;">选择</a>
+                                    </td>
+                                    <td><input type="text" class="" name="pds[${status.index}].goods.actualLoss"
+                                               size="3" value="${pd.goods.actualLoss}"></td>
 
 
                                     <td><a href="javascript:void(0)" class="btnDel ">删除</a></td>

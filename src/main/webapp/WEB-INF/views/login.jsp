@@ -16,7 +16,7 @@
   		<div class="navbar navbar-inverse navbar-fixed-top" >
   			 <div class="navbar-inner">
   			 <div class="container"> 
-  			 	<a class="brand" href="#">MiWork</a>
+  			 	<a class="brand" href="#">圣华盾</a>
   			 	<div class="nav-collapse collapse navbar-inverse-collapse">	 	
   			 	</div>			 	
   			 </div>	

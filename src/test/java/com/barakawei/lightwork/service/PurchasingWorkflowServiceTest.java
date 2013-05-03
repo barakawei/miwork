@@ -48,7 +48,7 @@ public class PurchasingWorkflowServiceTest {
 
     @Test
     public void testSync() {
-        userService.synAllUserAndRoleToActiviti();
+        //userService.synAllUserAndRoleToActiviti();
     }
 
     @Test

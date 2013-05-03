@@ -40,6 +40,7 @@ $(function(){
       initEnv();
     }
   });
+    $.ajaxSettings.global=false;
 
     $("a[target=download]").live("click",function(){
         var obj = $("#data tr.selected");
@@ -55,56 +56,56 @@ $(function(){
 
 
 // 创建一个Socket实例
-    var socket = new WebSocket('ws://216.24.205.115:8080/miwork/ws/message.ws');
+   // var socket = new WebSocket('ws://192.168.1.102:8080/miwork/ws/message.ws');
 
-    var show = true;
+    //var show = true;
 
 // 打开Socket
-    socket.onopen = function(event) {
+    //socket.onopen = function(event) {
 
 // 发送一个初始化消息
-        socket.send('I am the client and I\'m listening!');
+      //  socket.send('I am the client and I\'m listening!');
 
 // 监听消息
-        socket.onmessage = function(event) {
-            var msg = event.data;
-                var json = JSON.parse(msg);
-                var userId = "userID"+"<%=userId%>";
-                var count = json[userId];
-                if(count > taskCount){
-                    taskCount = count;
-                    notify();
-                }
-                taskCount = count;
-            console.log(msg);
-        };
+        //socket.onmessage = function(event) {
+          //  var msg = event.data;
+            //    var json = JSON.parse(msg);
+              //  var userId = "userID"+"<%=userId%>";
+               // var count = json[userId];
+                //if(count > taskCount){
+                  //  taskCount = count;
+                    //notify();
+                //}
+                //taskCount = count;
+            //console.log(msg);
+       // };
 
 // 监听Socket的关闭
-        socket.onclose = function(event) {
-            console.log('Client notified socket has closed',event);
-        };
+       // socket.onclose = function(event) {
+         //   console.log('Client notified socket has closed',event);
+       // };
 
 // 关闭Socket....
 //socket.close()
-    };
+   // };
     //notify();
 });
 
-var notify = function() {
-    if (window.webkitNotifications) {
-        if (window.webkitNotifications.checkPermission() == 0) {
-            var notification_test = window.webkitNotifications.createNotification("", '任务提醒', "你有 "+taskCount+"个待办任务。");
-            notification_test.display = function() {}
-            notification_test.onerror = function() {}
-            notification_test.onclose = function() {}
-            notification_test.onclick = function() {this.cancel();}
-            notification_test.replaceId = 'Meteoric';
-            notification_test.show();
-        } else {
-            window.webkitNotifications.requestPermission(notify);
-        }
-    }
-};
+//var notify = function() {
+    //if (window.webkitNotifications) {
+      //  if (window.webkitNotifications.checkPermission() == 0) {
+           // var notification_test = window.webkitNotifications.createNotification("", '任务提醒', "你有 "+taskCount+"个待办任务。");
+            //notification_test.display = function() {}
+            //notification_test.onerror = function() {}
+            //notification_test.onclose = function() {}
+            //notification_test.onclick = function() {this.cancel();}
+            //notification_test.replaceId = 'Meteoric';
+            //notification_test.show();
+        //} else {
+          //  window.webkitNotifications.requestPermission(notify);
+       // }
+   // }
+//};
 
 
 
@@ -113,14 +114,14 @@ var notify = function() {
 
 </script>
 
-<title>MiWork</title>
+<title>圣华盾</title>
 </head>
 <body scroll="no">
 <div id="layout">
 
   <div id="header">
     <div class="headerNav">
-      <a style="text-decoration:none;font-size:20px;color: #f5f5f5;margin-left: 20px;line-height: 45px;">MiWork</a>
+      <a style="text-decoration:none;font-size:20px;color: #f5f5f5;margin-left: 20px;line-height: 45px;">圣华盾</a>
       <ul class="nav">
         <li><a href="#"><%=name%></a></li>
         <li><a href="${ctx}/logout">退出</a></li>
@@ -146,7 +147,7 @@ var notify = function() {
         <div class="accordionContent">
           <ul class="tree treeFolder">
             <sec:authorize ifNotGranted="role_admin">
-            <li><a href="${ctx}/purchasing/list" target="navTab" rel="list">采购管理</a></li>
+            <li><a href="${ctx}/purchasing/list" target="navTab" id="list" rel="list">采购管理</a></li>
             </sec:authorize>
                 <sec:authorize ifAllGranted="role_admin">
               <li><a href="${ctx}/user/list" target="navTab" id="btn" rel="userList">用户管理</a></li>
