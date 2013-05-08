@@ -7,31 +7,41 @@
 
 <form id="downloadForm" name = "downloadForm" method="post" action="">
 </form>
+<script>
+    $(".radio").change(function(){
+        $("#searchForm").submit();
+    })
 
+</script>
 <div class="pageHeader">
-    <form onsubmit="return navTabSearch(this);" action="${ctx}/purchasing/list" method="post">
-        <div class="searchBar">
+    <form id="searchForm" onsubmit="return navTabSearch(this);" action="${ctx}/purchasing/list" method="post">
+        <div class="searchBar" style="float: left;">
 
             <table class="searchContent">
                 <tr>
                     <td>
-                        订单编号<input type="text" name="searchMap['orderNumber']" value="${searchForm.searchMap['orderNumber']}" />
+                        订单编号:<input type="text" name="searchMap['orderNumber']" value="${searchForm.searchMap['orderNumber']}" />
                     </td>
 
                     <td>
-                        单位<input type="text" name="searchMap['orderName']" value="${searchForm.searchMap['orderName']}" />
+                        单位:<input type="text" name="searchMap['orderName']" value="${searchForm.searchMap['orderName']}" />
                     </td>
                     <td>
-                        序列号<input type="text" name="searchMap['serialNumber']" value="${searchForm.searchMap['serialNumber']}" />
+                        序列号:<input type="text" name="searchMap['serialNumber']" value="${searchForm.searchMap['serialNumber']}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        订单状态:
+                        <input type="radio" class="radio" name="searchMap['ongoing']" value="1" <c:if test="${searchForm.searchMap['ongoing'] == '1'}">checked='true'</c:if> />未完成
+                        <input type="radio" class="radio" name="searchMap['ongoing']" value="0" <c:if test="${searchForm.searchMap['ongoing'] == '0'}">checked='true'</c:if> />已完成
                     </td>
                 </tr>
             </table>
-            <div class="subBar">
-                <ul>
-                    <li><div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div></li>
-                </ul>
-            </div>
+
+
         </div>
+        <div style="float:right;" class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
     </form>
 </div>
 <div class="pageContent">
@@ -42,7 +52,7 @@
         <sec:authorize ifAllGranted="role_planning">
             <li><a class="add" href="${ctx}/purchasing/add" target="navTab"><span>添加</span></a></li>
             <li><a class="icon" href="${ctx}/purchasing/upload" target="navTab" rel="upload"><span>从EXCEL导入</span></a></li>
-            <li><a class="edit" href="${ctx}/purchasing/edit/{purchasing_id}" target="navTab"><span>修改</span></a></li>
+            <li><a class="edit" href="${ctx}/purchasing/edit/{purchasing_id}" rel="edit" target="navTab"><span>修改</span></a></li>
             <li><a class="delete" href="${ctx}/purchasing/delete/{purchasing_id}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
         </sec:authorize>
         <li class="line">line</li>
@@ -63,6 +73,7 @@
     <th width="50">排料核准</th>
     <th width="50">核准日期</th>
     <th width="50">开始时间</th>
+    <th width="50">结束时间</th>
 
 </tr>
 </thead>
@@ -84,6 +95,9 @@
         <td>
             <fmt:formatDate value="${purchasing.startTime}" pattern="yyyy-MM-dd"/>
         </td>
+    <td>
+        <fmt:formatDate value="${purchasing.endTime}" pattern="yyyy-MM-dd"/>
+    </td>
 </tr>
 </c:forEach>
 </tbody>

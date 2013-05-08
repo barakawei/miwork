@@ -107,7 +107,7 @@ public class Purchasing {
     //排料核准
     private String confirmName;
 
-    //确认日期
+    //核准日期
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date confirmDate;
@@ -474,11 +474,12 @@ public class Purchasing {
                 Goods goods = new Goods();
                 PurchasingDetail pd = new PurchasingDetail();
                 BeanUtils.copyProperties(goodses.get(i),goods);
-                goods.setActualConsume(goods.getConsume());
+                //goods.setActualConsume(goods.getConsume());
                 goods.setType(type);
                 pd.setGoods(goods);
                 pd.setPlanPurchasingCount(goods.getPurchasingCount());
                 pd.setOrderCount(goods.getOrderCount());
+                pd.setSpecialRequirements(goods.getDescription());
                 this.getPds().add(pd);
             }
 

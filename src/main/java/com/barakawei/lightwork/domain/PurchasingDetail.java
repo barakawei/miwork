@@ -2,8 +2,6 @@ package com.barakawei.lightwork.domain;
 
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.Map;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,14 +12,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -108,12 +99,38 @@ public class PurchasingDetail {
     //面辅料特殊要求
     private String specialRequirements;
 
+
+    //处理时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:ss")
+    private Date kuguanTime;
+
+    //处理时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:ss")
+    private Date caigouTime;
+
+    //处理时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:ss")
+    private Date zhijianTime;
+
+    //处理时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:ss")
+    private Date jishuTime;
+
+    //处理时间
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:ss")
+    private Date shengchanTime;
+
     //预入库时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date planEntryTime;
 
-    //实际入库时间
+     //实际入库时间
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date actualEntryTime;
@@ -122,29 +139,6 @@ public class PurchasingDetail {
 
     @Transient
     private Integer progress;
-
-    // 流程任务
-    @Transient
-    private Task task;
-
-    // 流程任务
-    @Transient
-    private String taskId;
-
-    @Transient
-    private Map<String, Object> variables;
-
-    // 运行中的流程实例
-    @Transient
-    private ProcessInstance processInstance;
-
-    // 历史的流程实例
-    @Transient
-    private HistoricProcessInstance historicProcessInstance;
-
-    // 流程定义
-    @Transient
-    private ProcessDefinition processDefinition;
 
     public String getCurrentUserName() {
         return currentUserName;
@@ -486,83 +480,44 @@ public class PurchasingDetail {
         this.actualEntryTime = actualEntryTime;
     }
 
-    /**
-     * @return the task
-     */
-    public Task getTask() {
-        return task;
+    public Date getKuguanTime() {
+        return kuguanTime;
     }
 
-    /**
-     * @param task the task to set
-     */
-    public void setTask(Task task) {
-        this.task = task;
+    public void setKuguanTime(Date kuguanTime) {
+        this.kuguanTime = kuguanTime;
     }
 
-    /**
-     * @return the variables
-     */
-    public Map<String, Object> getVariables() {
-        return variables;
+    public Date getCaigouTime() {
+        return caigouTime;
     }
 
-    /**
-     * @param variables the variables to set
-     */
-    public void setVariables(Map<String, Object> variables) {
-        this.variables = variables;
+    public void setCaigouTime(Date caigouTime) {
+        this.caigouTime = caigouTime;
     }
 
-    /**
-     * @return the processInstance
-     */
-    public ProcessInstance getProcessInstance() {
-        return processInstance;
+    public Date getZhijianTime() {
+        return zhijianTime;
     }
 
-    /**
-     * @param processInstance the processInstance to set
-     */
-    public void setProcessInstance(ProcessInstance processInstance) {
-        this.processInstance = processInstance;
+    public void setZhijianTime(Date zhijianTime) {
+        this.zhijianTime = zhijianTime;
     }
 
-    /**
-     * @return the historicProcessInstance
-     */
-    public HistoricProcessInstance getHistoricProcessInstance() {
-        return historicProcessInstance;
+    public Date getJishuTime() {
+        return jishuTime;
     }
 
-    /**
-     * @param historicProcessInstance the historicProcessInstance to set
-     */
-    public void setHistoricProcessInstance(
-            HistoricProcessInstance historicProcessInstance) {
-        this.historicProcessInstance = historicProcessInstance;
+    public void setJishuTime(Date jishuTime) {
+        this.jishuTime = jishuTime;
     }
 
-    /**
-     * @return the processDefinition
-     */
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public Date getShengchanTime() {
+        return shengchanTime;
     }
 
-    /**
-     * @param processDefinition the processDefinition to set
-     */
-    public void setProcessDefinition(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setShengchanTime(Date shengchanTime) {
+        this.shengchanTime = shengchanTime;
     }
 
     @Override

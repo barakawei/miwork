@@ -1,8 +1,36 @@
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ include file="../common/taglib.jsp" %>
-<h2 class="contentTitle">采购计划
+<h2 class="contentTitle" >采购计划
 </h2>
 <script>
+
+    $(document).ready(function(){
+        $("input").live("keyup",function(e){
+            if (e.which == 40){
+                var name = $(this).attr("name");
+                var rgExp = /[0-9]+/;
+                var row = name.match(rgExp)[0]*1;
+                if(row >= 0){
+                var key = name.replace(rgExp,row+1);
+                $(this).closest("table").find("input[name='"+key+"']").focus();
+                }
+
+            }
+            if (e.which == 38){
+                var name = $(this).attr("name");
+                var rgExp = /[0-9]+/;
+                var row = name.match(rgExp)[0]*1;
+                if(row >= -1){
+                    var key = name.replace(rgExp,row-1);
+                    $(this).closest("table").find("input[name='"+key+"']").focus();
+                }
+
+            }
+        });
+
+    });
+
+
     function convertJson(){
         var hidden = $('<input type="hidden" name="" value="">');
         var zipperCountJson = [];
@@ -121,17 +149,17 @@
     });
     var intervalName;
 
-    $("input").live("change",function(){
+    $("#data input").live("change",function(){
         $(".pageForm").submit();
     });
-    $("#calendar .days dd").live("click",function(){
+    $("#data #calendar .days dd").live("click",function(){
         intervalName = setInterval(handle,1000);
     });
-    $("#calendar button").live("click",function(){
+    $("#data #calendar button").live("click",function(){
         intervalName = setInterval(handle,1000);
     });
 
-    $("#suggest li").live("click",function(){
+    $("#data #suggest li").live("click",function(){
         $(".pageForm").submit();
     });
 
@@ -183,17 +211,17 @@
                                 <th >采购计划</th>
                                 <th STYLE="BACKGROUND-COLOR: #FFFF66">库存</th>
                                 <th >实需采购</th>
+                                <sec:authorize ifAnyGranted="role_leader,role_purchasing,role_warehouse,role_planning">
                                 <th STYLE="BACKGROUND-COLOR: #99CCCC">原单价</th>
                                 <th STYLE="BACKGROUND-COLOR: #99CCCC">采购单价</th>
+                                </sec:authorize>
                                 <th STYLE="BACKGROUND-COLOR: #99CCCC">计划入库时间</th>
+                                <th STYLE="BACKGROUND-COLOR: #FFFF66">预入库时间</th>
                                 <th STYLE="BACKGROUND-COLOR: #FFFF66">入库时间</th>
                                 <th STYLE="BACKGROUND-COLOR: #FFFF66">入库数量</th>
                                 <th STYLE="BACKGROUND-COLOR: #FC9">名称</th>
-                                <th STYLE="BACKGROUND-COLOR: #F66">实测缩率：经%/纬%</th>
+                                <th STYLE="BACKGROUND-COLOR: #F66">实测缩率：经%/纬%/门幅</th>
                                 <th >需追加</th>
-                                <sec:authorize ifAnyGranted="role_leader,role_quality">
-                                    <th>审批信息</th>
-                                </sec:authorize>
                                 <th STYLE="BACKGROUND-COLOR: #339933">排料规格</th>
                                 <th STYLE="BACKGROUND-COLOR: #339933">实际门幅</th>
                                 <th STYLE="BACKGROUND-COLOR: #339933">实排单耗</th>
@@ -252,7 +280,7 @@
                                     </td>
                                     <td>${pd.goods.unit}</td>
                                     <td class="loss">${pd.goods.loss}</td>
-                                    <td>${pd.specialRequirements}</td>
+                                    <td>${pd.goods.description}</td>
                                     <td class="planPurchasingCount">${pd.planPurchasingCount}</td>
 
                                     <!-- 库存-->
@@ -273,6 +301,8 @@
                                     </td>
 
                                     <!--原单价-->
+
+                                    <sec:authorize ifAnyGranted="role_leader,role_purchasing,role_warehouse,role_planning">
                                     <td>
 
                                     <sec:authorize ifAllGranted="role_purchasing">
@@ -297,6 +327,7 @@
 
                                     </td>
 
+                                    </sec:authorize>
 
                                     <!-- 计划入库时间-->
                                     <td>
@@ -311,17 +342,30 @@
                                             <fmt:formatDate value="${pd.expectedArrivalTime}" pattern="yyyy-MM-dd"/>
                                         </sec:authorize>
                                     </td>
+                                    <!-- 预入库时间-->
+                                    <td>
+                                        <sec:authorize ifAllGranted="role_warehouse">
+                                            <input type="text" name="pds[${status.index}].planEntryTime"
+                                                   value="<fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>"
+                                                   size="19"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
+                                            <a class="inputDateButton" href="javascript:;">选择</a>
+                                        </sec:authorize>
+                                        <sec:authorize ifNotGranted="role_warehouse">
+                                            <fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>
+                                        </sec:authorize>
+
+                                    </td>
 
                                     <!-- 入库时间-->
                                     <td>
                                         <sec:authorize ifAllGranted="role_warehouse">
-                                                <input type="text" name="pds[${status.index}].planEntryTime"
-                                                       value="<fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>"
+                                                <input type="text" name="pds[${status.index}].actualEntryTime"
+                                                       value="<fmt:formatDate value="${pd.actualEntryTime}" pattern="yyyy-MM-dd"/>"
                                                        size="19"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
                                                 <a class="inputDateButton" href="javascript:;">选择</a>
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_warehouse">
-                                            <fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>
+                                            <fmt:formatDate value="${pd.actualEntryTime}" pattern="yyyy-MM-dd"/>
                                         </sec:authorize>
 
                                     </td>
@@ -344,11 +388,9 @@
                                     <!-- 质检信息缩率-->
                                     <td>
                                         <sec:authorize ifAllGranted="role_quality">
-                                            <c:if test="${pd.planEntryTime != null}">
-                                            <input type="text" class="number"
+                                            <input type="text" class=""
                                                    name="pds[${status.index}].shrinkage" size="20"
                                                    value="${pd.shrinkage}">
-                                            </c:if>
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_quality">
                                             ${pd.shrinkage}
@@ -357,27 +399,12 @@
                                     <!-- 需追加-->
                                     <td class="needAdd">${pd.goods.needAdd}</td>
 
-                                    <!-- 审批信息-->
-                                    <sec:authorize ifAnyGranted="role_leader,role_quality">
-                                        <td>
-                                            <sec:authorize ifAllGranted="role_leader">
-                                                <c:if test="${pd.qualified == false}">
-                                                <textarea name="pds[${status.index}].reason" cols="20" rows="2"></textarea>
-                                                </c:if>
-                                            </sec:authorize>
-
-                                            <sec:authorize ifAllGranted="role_quality">
-                                                ${pd.reason}
-                                            </sec:authorize>
-
-                                        </td>
-                                    </sec:authorize>
                                     <!-- 排料规格-->
                                     <td>
 
                                         <sec:authorize ifAllGranted="role_technolog">
-                                            <input type="text" class="number"
-                                                   name="pds[${status.index}].goods.dischargeSpec" size="8"
+                                            <input type="text" class=""
+                                                   name="pds[${status.index}].goods.dischargeSpec" size="20"
                                                    value="${pd.goods.dischargeSpec}">
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_technolog">
@@ -390,8 +417,8 @@
                                     <td>
 
                                         <sec:authorize ifAllGranted="role_technolog">
-                                            <input type="text" class="number"
-                                                   name="pds[${status.index}].goods.actualWidth" size="8"
+                                            <input type="text" class=""
+                                                   name="pds[${status.index}].goods.actualWidth" size="20"
                                                    value="${pd.goods.actualWidth}">
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_technolog">
@@ -434,7 +461,6 @@
                                         <input type="hidden" name="pds[${status.index}].goods.id"
                                                value="${pd.goods.id}">
                                         <input type="hidden" name="pds[${status.index}].id" value="${pd.id}">
-                                        <input type="hidden" name="pds[${status.index}].taskId" value="${pd.taskId}">
                                         <input type="hidden" name="pds[${status.index}].purchasing.id"
                                                value="${purchasing.id}">
                                     </td>
@@ -487,7 +513,7 @@
                                 <c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
                                 <td><input type="text" class="zipperCount"  name="zipperCountList" size="6" value="${zc.value}"></td>
                                 </c:forEach>
-                                <td><a href="javascript:void(0)" class="btnDel ">删除</a></td>
+                                <td><a href="javascript:void(0)" class="btnDel">删除</a></td>
                                 <td style="display: none">
                                     <input type="hidden" name="zippers[${status.index}].id" value="${z.id}">
                                     <input type="hidden" name="zippers[${status.index}].purchasing.id" value="${purchasing.id}">
@@ -584,7 +610,7 @@
             </div>
         </div>
         <div class="formBar">
-            <ul>
+            <ul style="float: left;">
                 <sec:authorize ifNotGranted="role_planning">
                 <li>
                     <div class="buttonActive">
@@ -593,14 +619,8 @@
                         </div>
                     </div>
                 </li>
+                <span style="color: red;font-size: 25px;">(操作完成后点击“保存”按钮)</span>
                 </sec:authorize>
-                <li>
-                    <div class="button">
-                        <div class="buttonContent">
-                            <button class="close" type="button">关闭</button>
-                        </div>
-                    </div>
-                </li>
             </ul>
         </div>
     </div>

@@ -43,10 +43,6 @@
     <property name="minEvictableIdleTimeMillis" value="3600000" />
   </bean>
 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
   <!-- Jpa Entity Manager 配置 -->
   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="dataSource" />
@@ -72,33 +68,6 @@
 
   <!-- 配置Spring Data JPA扫描目录--> 
   <jpa:repositories base-package="com.barakawei.lightwork.dao"/>
-
-  <!-- Activiti begin -->
-  <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
-    <property name="dataSource" ref="dataSource" />
-    <property name="transactionManager" ref="transactionManager" />
-    <property name="databaseSchemaUpdate" value="true" />
-    <property name="jobExecutorActivate" value="false" />
-    <property name="history" value="full" />
-  </bean>
-
-  <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
-    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
-  </bean>
-
-  <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
-  <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
-  <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
-  <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
-  <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
-  <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
-  <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
-  <!-- Activiti end -->
-
-
-
-
-
 
 
 </beans>

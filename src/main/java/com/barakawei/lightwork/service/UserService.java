@@ -34,8 +34,6 @@ public interface UserService {
 	// @PreFilter("filterObject.account == principal.username")
 	Page<User> findUsers(SearchForm sf);
 
-	void synAllUserAndRoleToActiviti();
-
     List<User> findAll();
 
 }

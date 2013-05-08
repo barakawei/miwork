@@ -10,9 +10,8 @@ import com.barakawei.lightwork.service.DataDictService;
 import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
 import com.barakawei.lightwork.util.ExcelParseUtil;
+import com.barakawei.lightwork.util.UserContextUtil;
 import net.sf.jxls.transformer.XLSTransformer;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.barakawei.lightwork.service.PurchasingWorkflowService;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -45,15 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 public class PurchasingController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    protected RuntimeService runtimeService;
-
-    @Autowired
-    protected TaskService taskService;
-
-    @Autowired
-    protected PurchasingWorkflowService purchasingWorkflowService;
 
     @Autowired
     protected PurchasingService purchasingService;
@@ -79,6 +68,7 @@ public class PurchasingController extends BaseController {
         Map<String,ZipperGroups> map = new LinkedHashMap<String,ZipperGroups>();
         String type = "";
         GoodsGroups gg = null;
+        String role = UserContextUtil.getCurrentRole().getName();
         for(PurchasingDetail _pd : pds){
             if(!StringUtils.equals(type,_pd.getGoods().getType())){
                 type = _pd.getGoods().getType();
@@ -99,6 +89,10 @@ public class PurchasingController extends BaseController {
                 goods.setOrderCount(_pd.getGoods().getOrderCount());
                 goods.setPurchasingCount(_pd.getPlanPurchasingCount());
                 goods.setDescription(_pd.getSpecialRequirements());
+                if("role_technolog".equals(role) || "role_quality".equals(role)||"role_product".equals(role)||"role_normal".equals(role)){
+                    goods.setPrice("");
+                    goods.setOriPrice("");
+                }
                 gg.getGoods().add(goods);
             }
         }
@@ -293,6 +287,9 @@ public class PurchasingController extends BaseController {
     @RequestMapping(value = "/list", method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView list(SearchForm sf) {
         ModelAndView mav = new ModelAndView("purchasing/list");
+        if(!sf.getSearchMap().containsKey("ongoing")){
+            sf.getSearchMap().put("ongoing","1");
+        }
         Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
         mav.addObject("purchasings", purchasings);
         mav.addObject("searchForm", sf);

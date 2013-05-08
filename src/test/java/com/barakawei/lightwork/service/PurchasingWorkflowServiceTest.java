@@ -34,9 +34,6 @@ public class PurchasingWorkflowServiceTest {
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    protected PurchasingWorkflowService pwService;
-
-    @Autowired
     protected UserService userService;
     @Autowired
     protected GoodsDao goodsDao;
@@ -59,18 +56,6 @@ public class PurchasingWorkflowServiceTest {
         File excelFile = new File("/Users/baraka/Downloads/plan.xls");
 // Read the excel, with sheet name "Sheet3"
         List<Goods> testRows = null;
-        try {
-            testRows = annotationExcelParser.readExcelFile(excelFile, "Sheet1 - 1", Goods.class);
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InstantiationException e) {
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (RequiredFieldPoiParserException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ReadPoiParserException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
         System.out.println("11");
     }
 

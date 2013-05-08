@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 import nl.bstoi.poiparser.api.strategy.annotations.Cell;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -96,7 +97,7 @@ public class Goods {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date expectedArrivalTime;
 
-    //预入库时间
+    //入库时间
     @Cell(columnNumber = 16)
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -128,7 +129,7 @@ public class Goods {
     private String actualWidth;
 
     //实排单耗
-    //@Cell(columnNumber = 22)
+    @Cell(columnNumber = 22)
     private String actualConsume;
 
     //实际损耗

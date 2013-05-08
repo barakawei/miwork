@@ -45,7 +45,7 @@ $(function(){
     $("a[target=download]").live("click",function(){
         var obj = $("#data tr.selected");
         if(obj.length < 1){
-            alertMsg.error('请先选中一条采购计划！');
+            alertMsg.error('请先选中一条订单！');
             return false;
         }
         var id = obj.attr("rel");
@@ -147,7 +147,7 @@ $(function(){
         <div class="accordionContent">
           <ul class="tree treeFolder">
             <sec:authorize ifNotGranted="role_admin">
-            <li><a href="${ctx}/purchasing/list" target="navTab" id="list" rel="list">采购管理</a></li>
+            <li><a href="${ctx}/purchasing/list" target="navTab" id="list" rel="list">订单管理</a></li>
             </sec:authorize>
                 <sec:authorize ifAllGranted="role_admin">
               <li><a href="${ctx}/user/list" target="navTab" id="btn" rel="userList">用户管理</a></li>
@@ -263,7 +263,7 @@ $(function(){
 </div>
 
 
-<div id="footer">Copyright &copy; 2013 MiWork All Rights Reserved.</div>
+<div id="footer">version 1.0.1 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
 
 </body>
 

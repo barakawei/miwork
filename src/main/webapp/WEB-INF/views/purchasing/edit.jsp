@@ -3,26 +3,38 @@
 <h2 class="contentTitle">采购计划</h2>
 <script>
 
-    $("input").live("change",function(){
-        $(".pageForm").submit();
+    $(document).ready(function(){
+
+        $("input").live("keyup",function(e){
+            if (e.which == 40){
+                var name = $(this).attr("name");
+                var rgExp = /[0-9]+/;
+                var row = name.match(rgExp);
+                if(row != null){
+                    var key = name.replace(rgExp,row*1+1);
+                    $(this).closest("table").find("input[name='"+key+"']").focus();
+                }
+
+            }
+            if (e.which == 38){
+                var name = $(this).attr("name");
+                var rgExp = /[0-9]+/;
+                var row = name.match(rgExp);
+                if(row != null){
+                    var key = name.replace(rgExp,row*1-1);
+                    $(this).closest("table").find("input[name='"+key+"']").focus();
+                }
+
+            }
+        });
+
     });
 
-    var intervalName;
-
-    $("#calendar button").live("click",function(){
-        intervalName = setInterval(handle,1000);
-    });
-    $("#calendar .days dd").live("click",function(){
-        intervalName = setInterval(handle,1000);
-    });
-
-    function handle(){
-        $(".pageForm").submit();
-        clearInterval(intervalName);
-    }
     function done(json){
 
     }
+
+
 
 </script>
 
@@ -151,7 +163,7 @@
                                 <th type="text" name="pds[#index#].goods.consume" size="6">预排单耗</th>
                                 <th type="text" name="pds[#index#].goods.unit" size="3" fieldClass="">单位</th>
                                 <th type="text" name="pds[#index#].goods.loss" size="6">损耗1*%</th>
-                                <th type="text" name="pds[#index#].specialRequirements" size="20" fieldClass="">
+                                <th type="text" name="pds[#index#].goods.description" size="20" fieldClass="">
                                     面辅料特殊要求
                                 </th>
                                 <th type="date" format="yyyy-MM-dd" name="pds[#index#].expectedArrivalTime" size="18">计划入库时间</th>
@@ -184,8 +196,8 @@
                                                size="3" value="${pd.goods.unit}"></td>
                                     <td><input type="text" class="" name="pds[${status.index}].goods.loss"
                                                size="3" value="${pd.goods.loss}"></td>
-                                    <td><input type="text" name="pds[${status.index}].specialRequirements" size="20"
-                                               value="${pd.specialRequirements}"></td>
+                                    <td><input type="text" name="pds[${status.index}].goods.description" size="20"
+                                               value="${pd.goods.description}"></td>
                                     <td>
                                         <input type="text" name="pds[${status.index}].expectedArrivalTime" class="date" dateFmt="yyyy-MM-dd"
                                                readonly="true"
@@ -196,7 +208,7 @@
                                                size="3" value="${pd.goods.actualLoss}"></td>
 
 
-                                    <td><a href="javascript:void(0)" class="btnDel ">删除</a></td>
+                                    <td class="delete"><a href="javascript:void(0)" class="btnDel">删除</a></td>
                                     <td style="display: none">
                                         <input type="hidden" name="pds[${status.index}].goods.id"
                                                value="${pd.goods.id}">
@@ -218,7 +230,7 @@
             </div>
         </div>
         <div class="formBar">
-            <ul>
+            <ul style="float: left;">
                 <li>
                     <div class="buttonActive">
                         <div class="buttonContent">
@@ -226,13 +238,7 @@
                         </div>
                     </div>
                 </li>
-                <li>
-                    <div class="button">
-                        <div class="buttonContent">
-                            <button class="close" type="button">关闭</button>
-                        </div>
-                    </div>
-                </li>
+                <span style="color: red;font-size: 25px;">(操作完成后点击“保存”按钮)</span>
             </ul>
         </div>
     </div>
