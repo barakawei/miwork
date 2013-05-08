@@ -41,6 +41,8 @@ public class Purchasing {
         this.planningUserName = planningUserName;
     }
 
+    private String fileName;
+
     //排料确认
     private String dischargeRecognition;
 
@@ -178,6 +180,14 @@ public class Purchasing {
 
     public void setCountDetail(String countDetail) {
         this.countDetail = countDetail;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public List<Model> getCountDetailList() {

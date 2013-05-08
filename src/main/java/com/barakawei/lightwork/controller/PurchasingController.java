@@ -1,6 +1,7 @@
 package com.barakawei.lightwork.controller;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -210,7 +211,7 @@ public class PurchasingController extends BaseController {
         beans.put("zipperGroups", zgs);
         SimpleDateFormat sdf =new SimpleDateFormat("MM-dd");
         String date =sdf.format(new Date());
-        String fileName ="采购计划_"+date+".xls";
+        String fileName = purchasing.getFileName();
         String template ="purchasing.xls";
         String classpathResourceUrl = "classpath:/" + template;
         ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -219,6 +220,27 @@ public class PurchasingController extends BaseController {
 
         try {
             fileName = URLEncoder.encode(fileName, "UTF-8");
+            fileName = fileName.replaceAll("%2B","+");
+            fileName = fileName.replaceAll("%20"," ");
+            fileName = fileName.replaceAll("%2F","/");
+            fileName = fileName.replaceAll("%3F","?");
+            fileName = fileName.replaceAll("%25","%");
+            fileName = fileName.replaceAll("%23","#");
+            fileName = fileName.replaceAll("%26","&");
+            fileName = fileName.replaceAll("%3D","=");
+            fileName = fileName.replaceAll("%3B","；");
+            fileName = fileName.replaceAll("%28","(");
+            fileName = fileName.replaceAll("%29",")");
+            fileName = fileName.replaceAll("%2A","*");
+            fileName = fileName.replaceAll("%2D","-");
+            fileName = fileName.replaceAll("%2C",",");
+            fileName = fileName.replaceAll("%3A",":");
+            fileName = fileName.replaceAll("%5F","_");
+            fileName = fileName.replaceAll("%5C","\\");
+            fileName = fileName.replaceAll("%7E","~");
+            fileName = fileName.replaceAll("%5B","[");
+            fileName = fileName.replaceAll("%5D","]");
+            fileName = fileName.replaceAll("%7C","|");
             HSSFWorkbook workbook=(HSSFWorkbook)transformer.transformXLS(resource.getInputStream(), beans);
             response.setContentType("APPLICATION/OCTET-STREAM");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
@@ -241,6 +263,7 @@ public class PurchasingController extends BaseController {
         List<Goods> goodses = ExcelParseUtil.upload(file);
         Purchasing purchasing = new Purchasing();
         purchasing.convertFromExcel(goodses);
+        purchasing.setFileName(file.getOriginalFilename());
         purchasingService.createPurchasing(purchasing);
         return this.ajaxDoneClose("导入成功");
     }
