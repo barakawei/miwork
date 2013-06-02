@@ -1,10 +1,17 @@
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ include file="../common/taglib.jsp" %>
-<h2 class="contentTitle" >采购计划
+<h2 class="contentTitle" >采购计划(${purchasing.orderNumber} \ ${purchasing.serialNumber})
 </h2>
 <script>
 
+var oldShrinkage;
     $(document).ready(function(){
+        oldShrinkage = $(".zipperShrinkage").val();
+        if(oldShrinkage=="undefined" || oldShrinkage == null || $.trim(oldShrinkage)==""){
+            oldShrinkage = 1;
+        }else{
+            oldShrinkage = (1+oldShrinkage/100);
+        }
         $("input").live("keyup",function(e){
             if (e.which == 40){
                 var name = $(this).attr("name");
@@ -30,11 +37,69 @@
 
     });
 
+    $("input").live("change",function(){
+        var count = $(this).closest("td").attr("count");
+        var count = count * 1 +1;
+        $(this).closest("td").attr("count",count);
+    });
+
+    $(".checkvalue").live("click",function(){
+        var checked = $(this).attr('checked');
+        var shrinkage = $(".zipperShrinkage").val()*1;
+        if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
+            shrinkage = 1;
+        }else{
+            shrinkage = (1+shrinkage/100);
+        }
+            $(this).closest("tr").find(".zipperCount").each(function(){
+                var zipper = $(this);
+                var old =zipper.val();
+                if(old != ""){
+                    if(checked == "checked"){
+                        var s = old * shrinkage;
+                        zipper.val(s.toFixed(2));
+                    }else{
+                        var sh = old / shrinkage;
+                        zipper.val(sh.toFixed(2));
+
+                    }
+                }
+            });
+
+    });
+
+
+    $(".zipperShrinkage").live("change",function(){
+        var shrinkage = $(this).val();
+        if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
+            shrinkage = 1;
+        }else{
+            shrinkage = (1+shrinkage/100);
+        }
+        $('input:checked').each(function(){
+            $(this).closest("tr").find(".zipperCount").each(function(){
+                var zipper = $(this);
+                var old =zipper.attr("old");
+                if(old == "undefined" || old == null){
+                    old = zipper.val();
+                }
+                if(old != ""){
+                   var s = old * shrinkage;
+                   zipper.val(s.toFixed(2));
+                }
+            });
+
+        });
+
+    });
+
 
     function convertJson(){
         var hidden = $('<input type="hidden" name="" value="">');
         var zipperCountJson = [];
         var index = 0;
+        $(".hiddenInput").html("");
+
         $(".zipperCount").each(function(i){
             i = i+1;
             var json= {};
@@ -73,8 +138,15 @@
         var planPurchasingCount = tr.find(".planPurchasingCount").text();
         var planEntryCount = tr.find(".planEntryCount input").val();
         var confirmUse= tr.find(".confirmUse").text();
-        var actualPurchasingCount = planPurchasingCount*1 - warehouseCount *1;
+        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
         var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+        if(actualPurchasingCount<=0){
+            var date = new Date();
+            var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+            tr.find(".actualEntryTime").find("input").val(str);
+
+
+        }
         tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
         tr.find(".needAdd").text(needAdd.toFixed(2));
     });
@@ -82,9 +154,15 @@
     $(".planEntryCount input").live("change",function(){
         var planEntryCount = $(this).val();
         var tr = $(this).closest("tr");
+        var planPurchasingCount = tr.find(".planPurchasingCount").text();
         var warehouseCount = tr.find(".warehouseCount input").val();
         var confirmUse = tr.find(".confirmUse").text();
         var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
+            var date = new Date();
+            var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+            tr.find(".actualEntryTime").find("input").val(str);
+        tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
         tr.find(".needAdd").text(needAdd.toFixed(2));
     });
 
@@ -118,8 +196,9 @@
         var orderCount= tr.find(".orderCount").text();
         var loss = tr.find(".loss").text();
         var warehouseCount = tr.find(".warehouseCount").text();
+        var planEntryCount = tr.find(".planEntryCount").text();
         var planPurchasingCount= consume*orderCount*loss;
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1;
+        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
         tr.find(".planPurchasingCount").text(planPurchasingCount.toFixed(2));
         tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
     });
@@ -136,7 +215,7 @@
         var actualConsume = tr.find(".actualConsume").text();
         var actualUse = tr.find(".actualUse").text();
         var planPurchasingCount= consume*orderCount*loss;
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1;
+        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
         var confirmUse= actualConsume*orderCount*actualLoss;
         var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
         var exceedUse= actualUse*1-confirmUse*1;
@@ -149,17 +228,17 @@
     });
     var intervalName;
 
-    $("#data input").live("change",function(){
+    $(".pdData input").live("change",function(){
         $(".pageForm").submit();
     });
-    $("#data #calendar .days dd").live("click",function(){
+    $(".pdData #calendar .days dd").live("click",function(){
         intervalName = setInterval(handle,1000);
     });
-    $("#data #calendar button").live("click",function(){
+    $(".pdData #calendar button").live("click",function(){
         intervalName = setInterval(handle,1000);
     });
 
-    $("#data #suggest li").live("click",function(){
+    $(".pdData #suggest li").live("click",function(){
         $(".pageForm").submit();
     });
 
@@ -176,12 +255,143 @@
 
 <form action="${ctx}/purchasing/completePurchasing?navTabId=list" method="post" class="pageForm"
       onsubmit="convertJson();return validateCallback(this, done)">
-    <div class="hiddenInput">
     <input type="hidden" name="id" value="${purchasing.id}">
 
+    <div class="hiddenInput">
     </div>
     <div class="pageContent">
         <div class="pageFormContent"  layoutH="97" >
+
+<sec:authorize ifAllGranted="role_technolog">
+        <div class="panel collapse" style="margin:0">
+        <h1>订单信息</h1>
+
+        <div>
+        <dl>
+            <dt>裁剪组别</dt>
+            <dd>
+                <input type="text" name="cutGroup" maxlength="50" size="40" class=""
+                       value="${purchasing.cutGroup}"/>
+            </dd>
+        </dl>
+        <dl>
+            <dt>已裁完</dt>
+            <dd>
+                <input type="checkbox" name="finshCut" size="40" <c:if test="${purchasing.finshCut==1}"> checked="checked" </c:if>
+                       value="1"/>
+            </dd>
+        </dl>
+
+        </div>
+        </div>
+</sec:authorize>
+
+<sec:authorize ifAllGranted="role_product">
+    <div class="panel collapse" style="margin:0">
+        <h1>订单信息</h1>
+
+        <div>
+            <dl>
+                <dt>数据日期</dt>
+                <dd>
+
+                    <input type="text" name="dataDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                           value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.dataDate}' type='both'/>">
+                    <a class="inputDateButton" href="javascript:;">选择</a>
+                </dd>
+            </dl>
+
+        </div>
+    </div>
+</sec:authorize>
+
+<sec:authorize ifAllGranted="role_warehouse">
+    <div class="panel collapse" style="margin:0">
+        <h1>订单信息</h1>
+
+        <div>
+            <dl>
+                <dt>入库日期</dt>
+                <dd>
+
+                    <input type="text" name="finshDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                           value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.finshDate}' type='both'/>">
+                    <a class="inputDateButton" href="javascript:;">选择</a>
+                </dd>
+            </dl>
+
+        </div>
+    </div>
+</sec:authorize>
+
+<sec:authorize ifAllGranted="role_purchasing">
+    <div class="panel collapse" style="margin:0">
+        <h1>订单信息</h1>
+
+        <div>
+            <dl>
+                <dt>面料合同交期</dt>
+                <dd>
+
+                    <input type="text" name="contractDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                           value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.contractDate}' type='both'/>">
+                    <a class="inputDateButton" href="javascript:;">选择</a>
+                </dd>
+            </dl>
+
+        </div>
+    </div>
+</sec:authorize>
+
+<sec:authorize ifAllGranted="role_director">
+<div class="panel collapse" style="margin-bottom:20px;">
+<h1>订单信息</h1>
+
+<div style="height: 100px;">
+<dl>
+    <dt>生产班组</dt>
+    <dd>
+        <input type="text" name="productGroup" maxlength="50" size="40" class=""
+               value="${purchasing.productGroup}"/>
+    </dd>
+</dl>
+<dl>
+    <dt>预下线日期</dt>
+    <dd>
+
+        <input type="text" name="planUnderlineDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+               value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.planUnderlineDate}' type='both'/>">
+        <a class="inputDateButton" href="javascript:;">选择</a>
+    </dd>
+</dl>
+    <dl>
+        <dt>后整理</dt>
+        <dd>
+            <input type="radio" name="hou" <c:if test="${purchasing.hou==1}"> checked="checked" </c:if>
+                   value="1"/>
+            锁钉
+            <input type="radio" name="hou" <c:if test="${purchasing.hou==2}"> checked="checked" </c:if>
+                   value="2"/>
+            水洗
+            <input type="radio" name="hou" <c:if test="${purchasing.hou==3}"> checked="checked" </c:if>
+                   value="3"/>
+            后道包装
+        </dd>
+    </dl>
+    <dl>
+        <dt>备注</dt>
+        <dd>
+            <textarea name="remark" cols="40" rows="2" class="">${purchasing.remark}</textarea>
+        </dd>
+    </dl>
+    <br/>
+    <br/>
+    <br/>
+</div>
+</div>
+    <div class="divider"></div>
+</sec:authorize>
+
 
             <div class="tabs">
                 <div class="tabsHeader">
@@ -194,7 +404,7 @@
                 </div>
                 <div class="tabsContent" style="height: 430px;" >
 
-                    <div id="data">
+                    <div id="data" class="pdData">
                         <table class="list nowrap" width="100%" >
                             <thead>
                             <tr>
@@ -343,7 +553,7 @@
                                         </sec:authorize>
                                     </td>
                                     <!-- 预入库时间-->
-                                    <td>
+                                    <td class="planEntryTime">
                                         <sec:authorize ifAllGranted="role_warehouse">
                                             <input type="text" name="pds[${status.index}].planEntryTime"
                                                    value="<fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>"
@@ -357,7 +567,7 @@
                                     </td>
 
                                     <!-- 入库时间-->
-                                    <td>
+                                    <td class="actualEntryTime">
                                         <sec:authorize ifAllGranted="role_warehouse">
                                                 <input type="text" name="pds[${status.index}].actualEntryTime"
                                                        value="<fmt:formatDate value="${pd.actualEntryTime}" pattern="yyyy-MM-dd"/>"
@@ -484,6 +694,7 @@
                                 <th type="suggest" name="zippers[#index#].name" lookupPk ="value" postField ="value" lookupGroup="zippers[#index#]" fieldClass="" suggestUrl="${ctx}/dataDict/name" suggestFields="value" size="20">名称</th>
                                 <th type="suggest" name="zippers[#index#].material" lookupPk ="value" postField ="value" lookupGroup="zippers[#index#]" fieldClass="" suggestUrl="${ctx}/dataDict/material" suggestFields="value" size="20">材质</th>
                                 <th type="suggest" name="zippers[#index#].spec" lookupPk ="value" postField ="value" lookupGroup="zippers[#index#]" fieldClass="" suggestUrl="${ctx}/dataDict/spec" suggestFields="value" size="20">规格</th>
+                                <th type="checkbox" fieldClass="checkvalue" name="zippers[#index#].checkvalue" defaultVal="1"  value="1" width="60">已含缩率</th>
                                 <c:forEach items="${purchasing.countDetailList}" var="cd" end="10" varStatus="status">
                                 <th type="text" fieldClass="zipperCount" name="zipperCountList"  size="6">${cd.name}</th>
                                 </c:forEach>
@@ -497,7 +708,7 @@
                                 <c:if test="${type!=z.position}">
                                     <c:set var="type" value="${z.position}"/>
                                     <tr style="background-color: #FC9">
-                                        <td colspan="4">${z.position}(数量)</td>
+                                        <td colspan="5">${z.position}(数量)</td>
                                         <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
                                             <c:if test="${type==cd.position}">
                                                 <td>${cd.value}</td>
@@ -510,8 +721,9 @@
                                 <td><input type="text" class="" origin="true" lookupgroup="zippers[${status.index}]" suggesturl="${ctx}/dataDict/name" suggestfields="value" postfield="value" lookuppk="value" name="zippers[${status.index}].name" size="20" value="${z.name}"></td>
                                 <td><input type="text" class="" origin="true" lookupgroup="zippers[${status.index}]" suggesturl="${ctx}/dataDict/material" suggestfields="value" postfield="value" lookuppk="value" name="zippers[${status.index}].material" size="20" value="${z.material}"></td>
                                 <td><input type="text" class="" origin="true" lookupgroup="zippers[${status.index}]" suggesturl="${ctx}/dataDict/spec" suggestfields="value" postfield="value" lookuppk="value" name="zippers[${status.index}].spec" size="20" value="${z.spec}"></td>
+                                <td><input type="checkbox" class="checkvalue" name="zippers[${status.index}].checkvalue"  value="1" <c:if test="${z.checkvalue==1}"> checked="checked" </c:if> /></td>
                                 <c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
-                                <td><input type="text" class="zipperCount"  name="zipperCountList" size="6" value="${zc.value}"></td>
+                                <td><input type="text" class="zipperCount"  name="zipperCountList" size="6" old="${zc.value}" value="${zc.value}"></td>
                                 </c:forEach>
                                 <td><a href="javascript:void(0)" class="btnDel">删除</a></td>
                                 <td style="display: none">
@@ -529,7 +741,7 @@
                             </p>
                             <p>
                             <label>拉链已含缩率</label>
-                            <input type="text" size="10" class="" name="zipperShrinkage" value="${purchasing.zipperShrinkage}"/>
+                            <input type="text" size="10" class="zipperShrinkage" name="zipperShrinkage" value="${purchasing.zipperShrinkage}"/>
                             </p>
                         </div>
                         </sec:authorize>
@@ -542,6 +754,7 @@
                                 <th>名称</th>
                                 <th>材质</th>
                                 <th>规格</th>
+                                <th>已含缩率</th>
                                 <c:forEach items="${purchasing.countDetailList}" var="cd" end="10" varStatus="status">
                                  <th>${cd.name}</th>
                                 </c:forEach>
@@ -553,7 +766,7 @@
                                 <c:if test="${type!=z.position}">
                                     <c:set var="type" value="${z.position}"/>
                                     <tr class="unitBox" style="background-color: #FC9">
-                                        <td colspan="4">${z.position}(数量)</td>
+                                        <td colspan="5">${z.position}(数量)</td>
                                         <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
                                             <c:if test="${type==cd.position}">
                                             <sec:authorize ifAllGranted="role_product">
@@ -571,6 +784,7 @@
                                 <td>${z.name}</td>
                                 <td>${z.material}</td>
                                 <td>${z.spec}</td>
+                                <td><input type="checkbox" name="checkvalue" disabled="disabled" value="1" <c:if test="${z.checkvalue==1}"> checked="checked" </c:if> /></td>
                                 <c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
                                     <td>${zc.value}</td>
                                 </c:forEach>

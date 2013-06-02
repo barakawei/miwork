@@ -41,7 +41,7 @@ public class PurchasingServiceImpl implements PurchasingService {
 
     @Override
     public List<Purchasing> findAll() {
-        Sort s = new Sort(Sort.Direction.DESC, "startTime");
+        Sort s = new Sort(Sort.Direction.DESC, "complete");
         return purchasingDao.findAll(s);
     }
 
@@ -108,6 +108,7 @@ public class PurchasingServiceImpl implements PurchasingService {
                 oldPd.getGoods().setUnit(pd.getGoods().getUnit());
                 oldPd.getGoods().setActualLoss(pd.getGoods().getActualLoss());
                 oldPd.getGoods().setDescription(pd.getGoods().getDescription());
+                oldPd.getGoods().setConsume(pd.getGoods().getConsume());
                 oldPd.setExpectedArrivalTime(pd.getExpectedArrivalTime());
                 purchasingDetailDao.save(oldPd);
             }
@@ -123,6 +124,8 @@ public class PurchasingServiceImpl implements PurchasingService {
         p.setConfirmName(purchasing.getConfirmName());
         p.setTypeNumber(purchasing.getTypeNumber());
         p.setPlanningUserName(purchasing.getPlanningUserName());
+        p.setContractTime(purchasing.getContractTime());
+        p.setOrderDate(purchasing.getOrderDate());
         purchasingDao.save(p);
 
 
@@ -145,7 +148,99 @@ public class PurchasingServiceImpl implements PurchasingService {
     @Override
     public Page<Purchasing> findPurchasings(SearchForm sf) {
         Pageable pageable = new PageRequest(sf.getPageNum(), sf.getNumPerPage());
-        return purchasingDao.findAll(getWhereClause(sf), pageable);
+        Page<Purchasing> p = purchasingDao.findAll(getWhereClause(sf), pageable);
+
+        if (!CollectionUtils.isEmpty(p.getContent())) {
+            for(Purchasing pp : p.getContent()){
+                boolean kecaijian = true;
+                boolean keshengchan = true;
+                boolean mian = false;
+                boolean fu = false;
+                Date mianDate = null;
+                Date fuDate = null;
+                if(pp.getPds().size()==0){
+                    kecaijian = false;
+                    keshengchan = false;
+                }
+                for(PurchasingDetail pd:pp.getPds()){
+                        if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料")){
+                            mian = true;
+                        }
+                        if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("辅料")){
+                            fu = true;
+                        }
+                        float count;
+                        if(StringUtils.isBlank(pd.getActualPurchasingCount())){
+                            count = 0;
+                        }else{
+                            count = Float.valueOf(pd.getActualPurchasingCount());
+                        }
+                        if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料") ){
+                            Date aet = pd.getActualEntryTime();
+                            if(aet == null){
+                                kecaijian = false;
+                                keshengchan = false;
+                            }else{
+                                if(mianDate == null || aet.compareTo(mianDate) == 1){
+                                    mianDate =aet;
+                                }
+                            }
+                        }else if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("辅料")){
+                            Date aet = pd.getActualEntryTime();
+                            if(aet == null){
+                                keshengchan = false;
+                            }else{
+                                if(fuDate == null || aet.compareTo(fuDate) == 1){
+                                    fuDate =aet;
+                                }
+                            }
+                        }
+
+
+                }
+                if(!mian){
+                    kecaijian = false;
+                    keshengchan = false;
+                    mianDate = null;
+                }
+                if(!fu){
+                    keshengchan = false;
+                    fuDate = null;
+                }
+
+                if(keshengchan){//待生产
+                    pp.setMianDate(mianDate);
+                    pp.setFuDate(fuDate);
+                    pp.setComplete(2);
+                }else if(kecaijian){//待裁剪
+                    pp.setMianDate(mianDate);
+                    pp.setComplete(1);
+                }else if(pp.getContractDate() != null && new Date().compareTo(pp.getContractDate()) == 1 && !kecaijian){//逾期
+                    pp.setComplete(-1);
+                }else{
+                    pp.setComplete(0);
+                }
+
+                if(pp.getPlanUnderlineDate() != null){//生产中
+                    pp.setComplete(3);
+                }
+
+                if(pp.getHou() ==1 ){//锁钉
+                    pp.setComplete(4);
+                }else if(pp.getHou() == 2){//水洗
+                    pp.setComplete(5);
+                }else if(pp.getHou()==3){//后道包装
+                    pp.setComplete(6);
+                }
+
+                if(pp.getFinshDate() != null){//待发货
+                    pp.setComplete(7);
+                }
+
+            }
+        }
+
+        return p;
     }
 
     @Override
@@ -199,9 +294,18 @@ public class PurchasingServiceImpl implements PurchasingService {
                     dataDictService.saveDataDictByZipper(_zipper);
                 }
             }
+            _p.setCutGroup(purchasing.getCutGroup());
+            _p.setFinshCut(purchasing.getFinshCut());
             purchasingDao.save(_p);
 
-        } else if (StringUtils.equals(Role.ROLE_PRODUCT, role)) {
+        }else if(StringUtils.equals(Role.ROLE_DIRECTOR,role)){
+            _p.setProductGroup(purchasing.getProductGroup());
+            _p.setPlanUnderlineDate(purchasing.getPlanUnderlineDate());
+            _p.setRemark(purchasing.getRemark());
+            _p.setHou(purchasing.getHou());
+            purchasingDao.save(_p);
+        }
+        else if (StringUtils.equals(Role.ROLE_PRODUCT, role)) {
             int i=0;
             for(PurchasingDetail _pd : _p.getPds()){
                 _pd.getGoods().setOrderCount(purchasing.getPds().get(i).getGoods().getOrderCount());
@@ -211,17 +315,28 @@ public class PurchasingServiceImpl implements PurchasingService {
             if (CollectionUtils.isNotEmpty(zippers)) {
                 _p.setCountDetail(purchasing.getCountDetail());
             }
+            _p.setDataDate(purchasing.getDataDate());
+            purchasingDao.save(_p);
+        }
+        else if (StringUtils.equals(Role.ROLE_PURCHASING, role)) {
+            _p.setContractDate(purchasing.getContractDate());
+            purchasingDao.save(_p);
+
+        }
+        else if (StringUtils.equals(Role.ROLE_WAREHOUSE, role)) {
+            _p.setFinshDate(purchasing.getFinshDate());
             purchasingDao.save(_p);
         }
 
+        boolean ok = true;
         for (PurchasingDetail _pd : purchasing.getPds()) {
             PurchasingDetail pd = purchasingDetailDao.findOne(_pd.getId());
             //Assert.notNull(pd, "error");
             this.completeByRole(role, pd, _pd, purchasing);
         }
 
-
      if (StringUtils.equals(role, Role.ROLE_WAREHOUSE)) {
+         Purchasing pp = this.findPurchasingById(purchasing.getId());
         boolean end = true;
         if (CollectionUtils.isEmpty(_p.getPds())) {
             end = false;
@@ -229,23 +344,25 @@ public class PurchasingServiceImpl implements PurchasingService {
         for (PurchasingDetail pd : _p.getPds()) {
             if (StringUtils.isBlank(pd.getGoods().getActualUse())) {
                 end = false;
-                break;
             }
-        }
-        if (end) {
-            _p.setEndTime(new Date());
-            _p.setOngoing(false);
-            purchasingDao.save(_p);
-        }else{
-            _p.setOngoing(true);
-            purchasingDao.save(_p);
 
         }
+        if (end) {
+
+            pp.setEndTime(new Date());
+            pp.setOngoing(false);
+        }else{
+            pp.setOngoing(true);
+
+        }
+
+         purchasingDao.save(pp);
      }
 
     }
 
     private void completeByRole(String role, PurchasingDetail pd, PurchasingDetail _pd, Purchasing p) {
+
         if (StringUtils.equals(role, Role.ROLE_PURCHASING)) {
             pd.setExpectedArrivalTime(_pd.getExpectedArrivalTime());
             pd.getGoods().setOriPrice(_pd.getGoods().getOriPrice());
@@ -254,6 +371,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             //pd.setWarehouseCount(_pd.getWarehouseCount());
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_WAREHOUSE)) {
+
             pd.setWarehouseCount(_pd.getWarehouseCount());
             pd.setPlanEntryTime(_pd.getPlanEntryTime());
             pd.setPlanEntryCount(_pd.getPlanEntryCount());
@@ -262,13 +380,19 @@ public class PurchasingServiceImpl implements PurchasingService {
 
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_QUALITY)) {
+            if(StringUtils.isNotEmpty(_pd.getShrinkage())&&pd.getActualEntryTime() == null){
+                pd.setActualEntryTime(new Date());
+            }
             pd.setShrinkage(_pd.getShrinkage());
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_LEADER)) {
         } else if (StringUtils.equals(role, Role.ROLE_TECHNOLOG)) {
+
+
             pd.getGoods().setDischargeSpec(_pd.getGoods().getDischargeSpec());
             pd.getGoods().setActualWidth(_pd.getGoods().getActualWidth());
             pd.getGoods().setActualConsume((_pd.getGoods().getActualConsume()));
+            purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_PRODUCT)) {
 
         }

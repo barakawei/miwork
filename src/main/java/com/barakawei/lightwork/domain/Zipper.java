@@ -43,6 +43,17 @@ public class Zipper {
     //数量
     private String size;
 
+    //已含缩率
+    private int checkvalue;
+
+    public int getCheckvalue() {
+        return checkvalue;
+    }
+
+    public void setCheckvalue(int checkvalue) {
+        this.checkvalue = checkvalue;
+    }
+
     //套数
     private Integer number;
 

@@ -13,7 +13,7 @@
 <![endif]-->
 
 <script src="<c:url value='resources/js/jquery-1.7.2.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='resources/js/dwz.min.js'/>" type="text/javascript"></script>
+<script src="<c:url value='resources/js/dwz.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/speedup.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/jquery.cookie.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/jquery.validate.min.js'/>" type="text/javascript"></script>

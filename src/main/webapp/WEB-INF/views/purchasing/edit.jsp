@@ -87,6 +87,26 @@
                     </dl>
 
                     <dl>
+                        <dt>合同交期</dt>
+                        <dd>
+
+                            <input type="text" name="contractTime" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.contractTime}' type='both'/>">
+                            <a class="inputDateButton" href="javascript:;">选择</a>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>下单日期</dt>
+                        <dd>
+
+                            <input type="text" name="orderDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.orderDate}' type='both'/>">
+                            <a class="inputDateButton" href="javascript:;">选择</a>
+                        </dd>
+                    </dl>
+
+                    <dl>
                         <dt>面辅料供应时间</dt>
                         <dd>
 

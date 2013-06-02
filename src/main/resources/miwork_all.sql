@@ -305,7 +305,8 @@ VALUES
 	('6',NULL,'技术员',1,'role_technolog',NULL),
 	('7',NULL,'领导',1,'role_leader',NULL),
 	('8',NULL,'生产员',1,'role_product',NULL),
-	('9',NULL,'群众',1,'role_normal',NULL);
+	('9',NULL,'群众',1,'role_normal',NULL),
+	('10',NULL,'厂长',1,'role_director',NULL);
 
 /*!40000 ALTER TABLE `role` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -360,7 +361,8 @@ VALUES
 	('5','zhijian',NULL,'',0,'质检员','111111','','',NULL),
 	('6','jishu',NULL,'',0,'技术员','111111','','',NULL),
 	('7','lingdao',NULL,'',0,'领导','111111','','',NULL),
-	('8','shengchan',NULL,'',0,'生产员','111111','','',NULL);
+	('8','shengchan',NULL,'',0,'生产员','111111','','',NULL),
+	('9','changzhang',NULL,'',0,'厂长','111111','','',NULL);
 
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;

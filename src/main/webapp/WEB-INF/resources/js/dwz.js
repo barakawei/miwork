@@ -4043,6 +4043,9 @@ $.fn.extend({
                     case 'attach':
                         html = '<input type="hidden" name="' + field.lookupGroup + '.' + field.lookupPk + suffix + '"/>' + '<input type="text" name="' + field.name + '" size="' + field.size + '" readonly="readonly" class="' + field.fieldClass + '"/>' + '<a class="btnAttach" href="' + field.lookupUrl + '" lookupGroup="' + field.lookupGroup + '" ' + suggestFrag + ' lookupPk="' + field.lookupPk + '" width="560" height="300" title="查找带回">查找带回</a>';
                         break;
+                    case 'checkbox':
+                        html = '<input type="checkbox" name="' + field.name + '" value="' + field.defaultVal + '" size="' + field.size + '" class="' + field.fieldClass + '" ' + attrFrag + '/>';
+                        break;
                     case 'enum':
                         $.ajax({
                             type: "POST", dataType: "html", async: false,

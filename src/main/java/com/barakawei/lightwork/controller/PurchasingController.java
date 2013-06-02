@@ -13,6 +13,7 @@ import com.barakawei.lightwork.service.PurchasingService;
 import com.barakawei.lightwork.util.ExcelParseUtil;
 import com.barakawei.lightwork.util.UserContextUtil;
 import net.sf.jxls.transformer.XLSTransformer;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -212,6 +213,9 @@ public class PurchasingController extends BaseController {
         SimpleDateFormat sdf =new SimpleDateFormat("MM-dd");
         String date =sdf.format(new Date());
         String fileName = purchasing.getFileName();
+        if(StringUtils.isBlank(fileName)){
+            fileName = "采购计划_"+date+".xls";
+        }
         String template ="purchasing.xls";
         String classpathResourceUrl = "classpath:/" + template;
         ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -275,7 +279,7 @@ public class PurchasingController extends BaseController {
         List<ZipperExcel> data = ExcelParseUtil.parseZipper(file);
         List<Zipper> zippers = new ArrayList<Zipper>();
         ZipperExcel.convertFromExcel(purchasing,zippers,data);
-        zipperDao.deleteAll();
+        zipperDao.deleteByPurchasing(id);
         for (Zipper _zipper : zippers) {
             zipperDao.save(_zipper);
             dataDictService.saveDataDictByZipper(_zipper);
@@ -315,6 +319,33 @@ public class PurchasingController extends BaseController {
         }
         Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
         mav.addObject("purchasings", purchasings);
+        List<Purchasing> list0 = new ArrayList<>();
+        List<Purchasing> list1 = new ArrayList<>();
+        List<Purchasing> list2 = new ArrayList<>();
+        List<Purchasing> list3 = new ArrayList<>();
+        List<Purchasing> list4 = new ArrayList<>();
+        List<Purchasing> list = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(purchasings.getContent())) {
+            for(Purchasing p : purchasings.getContent()){
+                if(p.getComplete() == 2){
+                    list2.add(p);
+                }else if(p.getComplete() == 1){
+                    list1.add(p);
+                }else if(p.getComplete() == 3){
+                    list3.add(p);
+                }else if(p.getComplete() == 0){
+                    list0.add(p);
+                }else{
+                    list4.add(p);
+                }
+            }
+        }
+        list.addAll(list2);
+        list.addAll(list1);
+        list.addAll(list3);
+        list.addAll(list0);
+        list.addAll(list4);
+        mav.addObject("purchasingList", list);
         mav.addObject("searchForm", sf);
         return mav;
     }

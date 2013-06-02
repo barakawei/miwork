@@ -13,7 +13,7 @@ public class SearchForm {
 
     private int pageNum = 1;
 
-    private int numPerPage =20;
+    private int numPerPage = 500;
 
     public Map<String, String> getSearchMap() {
         return searchMap;

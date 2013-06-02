@@ -400,6 +400,7 @@ public class PurchasingDetail {
         float v = 0;
         float planPurchasingCount = 0;
         float warehouseCount = 0;
+        float planEntryCount = 0;
         try{
             if(StringUtils.isNotBlank(this.getPlanPurchasingCount())){
                 planPurchasingCount = Float.valueOf(this.getPlanPurchasingCount());
@@ -407,7 +408,10 @@ public class PurchasingDetail {
             if(StringUtils.isNotBlank(this.getWarehouseCount())){
                 warehouseCount = Float.valueOf(this.getWarehouseCount());
             }
-            v = planPurchasingCount-warehouseCount;
+            if(StringUtils.isNotBlank(this.getPlanEntryCount())){
+                planEntryCount = Float.valueOf(this.getPlanEntryCount());
+            }
+            v = planPurchasingCount-warehouseCount-planEntryCount;
         }catch (Exception e){
             return "0.00";
         }

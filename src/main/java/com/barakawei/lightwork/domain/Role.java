@@ -33,6 +33,7 @@ public class Role {
     public static final String ROLE_TECHNOLOG= "role_technolog";
     public static final String ROLE_LEADER= "role_leader";
     public static final String ROLE_PRODUCT = "role_product";
+    public static final String ROLE_DIRECTOR = "role_director";
 
 
 	@Id

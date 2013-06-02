@@ -43,6 +43,166 @@ public class Purchasing {
 
     private String fileName;
 
+    //裁剪组别
+    private String cutGroup;
+
+    //已裁完
+    private int finshCut;
+
+    //后整理
+    private int hou;
+
+    public int getHou() {
+        return hou;
+    }
+
+    public void setHou(int hou) {
+        this.hou = hou;
+    }
+
+    //生产班组
+    private String productGroup;
+
+    //合同交期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date contractTime;
+
+    //下单日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date orderDate;
+
+    public Date getContractTime() {
+        return contractTime;
+    }
+
+    public void setContractTime(Date contractTime) {
+        this.contractTime = contractTime;
+    }
+
+    public Date getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(Date orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    //数据日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dataDate;
+
+    //面料合同交期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date contractDate;
+
+    //面料到位日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date mianDate;
+
+    //辅料到位日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date fuDate;
+
+    //成品入库日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date finshDate;
+
+    //备注
+    private String remark;
+
+    public Date getDataDate() {
+        return dataDate;
+    }
+
+    public void setDataDate(Date dataDate) {
+        this.dataDate = dataDate;
+    }
+
+    public Date getContractDate() {
+        return contractDate;
+    }
+
+    public void setContractDate(Date contractDate) {
+        this.contractDate = contractDate;
+    }
+
+    public Date getMianDate() {
+        return mianDate;
+    }
+
+    public void setMianDate(Date mianDate) {
+        this.mianDate = mianDate;
+    }
+
+    public Date getFuDate() {
+        return fuDate;
+    }
+
+    public void setFuDate(Date fuDate) {
+        this.fuDate = fuDate;
+    }
+
+    public Date getFinshDate() {
+        return finshDate;
+    }
+
+    public void setFinshDate(Date finshDate) {
+        this.finshDate = finshDate;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    //预下线日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date planUnderlineDate;
+
+
+    public String getCutGroup() {
+        return cutGroup;
+    }
+
+    public void setCutGroup(String cutGroup) {
+        this.cutGroup = cutGroup;
+    }
+
+    public int getFinshCut() {
+        return finshCut;
+    }
+
+    public void setFinshCut(int finshCut) {
+        this.finshCut = finshCut;
+    }
+
+    public String getProductGroup() {
+        return productGroup;
+    }
+
+    public void setProductGroup(String productGroup) {
+        this.productGroup = productGroup;
+    }
+
+    public Date getPlanUnderlineDate() {
+        return planUnderlineDate;
+    }
+
+    public void setPlanUnderlineDate(Date planUnderlineDate) {
+        this.planUnderlineDate = planUnderlineDate;
+    }
+
     //排料确认
     private String dischargeRecognition;
 
@@ -168,10 +328,12 @@ public class Purchasing {
     @Transient
     List<PurchasingDetail> toDoList = new ArrayList<PurchasingDetail>();
 
+
+
+
     @Transient
     int pending;
 
-    @Transient
     int complete;
 
     public String getCountDetail() {
