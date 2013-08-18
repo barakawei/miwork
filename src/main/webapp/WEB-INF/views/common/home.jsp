@@ -13,7 +13,7 @@
 <![endif]-->
 
 <script src="<c:url value='resources/js/jquery-1.7.2.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='resources/js/dwz.js'/>" type="text/javascript"></script>
+<script src="<c:url value='resources/js/dwz.min-2.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/speedup.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/jquery.cookie.js'/>" type="text/javascript"></script>
 <script src="<c:url value='resources/js/jquery.validate.min.js'/>" type="text/javascript"></script>
@@ -263,7 +263,7 @@ $(function(){
 </div>
 
 
-<div id="footer">version 1.0.1 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
+<div id="footer">version 1.0.4 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
 
 </body>
 

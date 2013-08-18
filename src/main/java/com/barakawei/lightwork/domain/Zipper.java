@@ -160,6 +160,11 @@ public class Zipper {
     public List<Model> getZipperCountList() {
         this.zipperCountList = JsonUtil.json2GenericObject(this.zipperCount,new TypeReference<List<Model>>() {
         });
+        if(zipperCountList!=null && zipperCountList.size()==11){
+            zipperCountList.add(new Model("200","model_200","",zipperCountList.get(0).getPosition()));
+            zipperCountList.add(new Model("205","model_205","",zipperCountList.get(0).getPosition()));
+
+        }
         return zipperCountList;
     }
 

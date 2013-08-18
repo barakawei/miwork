@@ -2896,9 +2896,9 @@ var navTab = {
             var oldThs = $table.find("thead>tr:last-child").find("th");
             for (var i = 0, l = oldThs.size(); i < l; i++) {
                 var $th = $(oldThs[i]);
-                var style = [], width = $th.innerWidth() - (100 * $th.innerWidth() / tlength) - 2;
-                style[0] = parseInt(width);
-                style[1] = $th.attr("align");
+                var style = [], width = $th.innerWidth() - (100 * $th.innerWidth() / tlength) - 2+20;
+                //style[0] = "0";
+                style[0] = $th.attr("align");
                 aStyles[aStyles.length] = style;
             }
             $(this).wrap("<div class='grid'></div>");
@@ -2913,7 +2913,7 @@ var navTab = {
             });
             ths.each(function (i) {
                 var $th = $(this), style = aStyles[i];
-                $th.addClass(style[1]).hoverClass("hover").removeAttr("align").removeAttr("width").width(style[0]);
+                $th.hoverClass("hover");
             }).filter("[orderField]").orderBy({
                     targetType: $table.attr("targetType"),
                     rel: $table.attr("rel"),
@@ -2930,7 +2930,7 @@ var navTab = {
                 for (var i = 0; i < $ftds.size(); i++) {
                     var $ftd = $($ftds[i]);
                     if (nowrapTD != "false")$ftd.html("<div>" + $ftd.html() + "</div>");
-                    if (i < aStyles.length)$ftd.addClass(aStyles[i][1]);
+                    //if (i < aStyles.length)$ftd.addClass(aStyles[i][1]);
                 }
                 $tr.click(function () {
                     $trs.filter(".selected").removeClass("selected");
@@ -2945,7 +2945,7 @@ var navTab = {
                 });
             });
             $(">td", ftr).each(function (i) {
-                if (i < aStyles.length)$(this).width(aStyles[i][0]);
+                //if (i < aStyles.length)$(this).width(aStyles[i][0]);
             });
             $grid.append("<div class='resizeMarker' style='height:300px; left:57px;display:none;'></div><div class='resizeProxy' style='height:300px; left:377px;display:none;'></div>");
             var scroller = $(".gridScroller", $grid);

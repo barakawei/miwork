@@ -153,6 +153,12 @@ public class PurchasingController extends BaseController {
                 }else if("model_195".equals(_m.getType())){
                     zg.setModel_195(_m.getValue());
                     zipper.setModel_195(_m.getName());
+                }else if("model_200".equals(_m.getType())){
+                    zg.setModel_200(_m.getValue());
+                    zipper.setModel_200(_m.getName());
+                }else if("model_205".equals(_m.getType())){
+                    zg.setModel_205(_m.getValue());
+                    zipper.setModel_205(_m.getName());
                 }
 
             }
@@ -190,6 +196,10 @@ public class PurchasingController extends BaseController {
                     zx.setModel_190(_m.getValue());
                 }else if(j == 10){
                     zx.setModel_195(_m.getValue());
+                }else if(j == 11){
+                    zx.setModel_200(_m.getValue());
+                }else if(j == 12){
+                    zx.setModel_205(_m.getValue());
                 }
             }
             ZipperGroups _zg =  map.get(zx.getType());
@@ -318,34 +328,11 @@ public class PurchasingController extends BaseController {
             sf.getSearchMap().put("ongoing","1");
         }
         Page<Purchasing> purchasings = purchasingService.findPurchasings(sf);
+
+
+
         mav.addObject("purchasings", purchasings);
-        List<Purchasing> list0 = new ArrayList<>();
-        List<Purchasing> list1 = new ArrayList<>();
-        List<Purchasing> list2 = new ArrayList<>();
-        List<Purchasing> list3 = new ArrayList<>();
-        List<Purchasing> list4 = new ArrayList<>();
-        List<Purchasing> list = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(purchasings.getContent())) {
-            for(Purchasing p : purchasings.getContent()){
-                if(p.getComplete() == 2){
-                    list2.add(p);
-                }else if(p.getComplete() == 1){
-                    list1.add(p);
-                }else if(p.getComplete() == 3){
-                    list3.add(p);
-                }else if(p.getComplete() == 0){
-                    list0.add(p);
-                }else{
-                    list4.add(p);
-                }
-            }
-        }
-        list.addAll(list2);
-        list.addAll(list1);
-        list.addAll(list3);
-        list.addAll(list0);
-        list.addAll(list4);
-        mav.addObject("purchasingList", list);
+        mav.addObject("purchasingList", purchasings.getContent());
         mav.addObject("searchForm", sf);
         return mav;
     }

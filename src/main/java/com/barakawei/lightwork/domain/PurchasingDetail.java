@@ -351,7 +351,7 @@ public class PurchasingDetail {
         float loss = 0;
         try{
             if(StringUtils.isBlank(this.getGoods().getOrderCount())){
-                count = 1;
+                count = 0;
             }else{
                 count = Float.valueOf(this.getGoods().getOrderCount());
             }

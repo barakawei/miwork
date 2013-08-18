@@ -58,6 +58,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setPurchasing(purchasing);
             purchasingDetailDao.save(pd);
         }
+        //updateStatus(purchasing);
     }
 
     /* (non-Javadoc)
@@ -109,6 +110,7 @@ public class PurchasingServiceImpl implements PurchasingService {
                 oldPd.getGoods().setActualLoss(pd.getGoods().getActualLoss());
                 oldPd.getGoods().setDescription(pd.getGoods().getDescription());
                 oldPd.getGoods().setConsume(pd.getGoods().getConsume());
+                oldPd.getGoods().setActualConsume(pd.getGoods().getActualConsume());
                 oldPd.setExpectedArrivalTime(pd.getExpectedArrivalTime());
                 purchasingDetailDao.save(oldPd);
             }
@@ -124,13 +126,129 @@ public class PurchasingServiceImpl implements PurchasingService {
         p.setConfirmName(purchasing.getConfirmName());
         p.setTypeNumber(purchasing.getTypeNumber());
         p.setPlanningUserName(purchasing.getPlanningUserName());
-        p.setContractTime(purchasing.getContractTime());
-        p.setOrderDate(purchasing.getOrderDate());
         purchasingDao.save(p);
-
+        //updateStatus(p);
 
     }
 
+    private void updateStatus(Purchasing purchasing){
+        Purchasing pStatus = this.findPurchasingById(purchasing.getId());
+        boolean kecaijian = true;
+        boolean keshengchan = true;
+        boolean yiqi = false;
+        boolean mianTime = true;
+        boolean fuTime = true;
+        boolean mian = false;
+        boolean fu = false;
+        Date mianDate = null;
+        Date fuDate = null;
+        if(pStatus.getPds().size()==0){
+            kecaijian = false;
+            keshengchan = false;
+        }
+        Date dd = pStatus.getDataDate();
+        int cut = pStatus.getFinshCut();
+        for(PurchasingDetail pd:pStatus.getPds()){
+            if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料")){
+                mian = true;
+            }
+            if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("辅料")){
+                fu = true;
+            }
+            float count;
+            if(StringUtils.isBlank(pd.getActualPurchasingCount())){
+                count = 0;
+            }else{
+                count = Float.valueOf(pd.getActualPurchasingCount());
+            }
+            if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料") ){
+                Date aet = pd.getActualEntryTime();
+                if((aet == null && count > 0)|| StringUtils.isBlank(pd.getOrderCount())){
+                    mianTime = false;
+                    kecaijian = false;
+                    //keshengchan = false;
+                }else{
+                    if(mianDate == null || (aet!=null&&aet.compareTo(mianDate) == 1)){
+                        mianDate =aet;
+                    }
+                }
+
+            }else if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("辅料")){
+                Date aet = pd.getActualEntryTime();
+                if((aet == null && count > 0)||StringUtils.isBlank(pd.getOrderCount())){
+                    keshengchan = false;
+                    fuTime = false;
+                }else{
+                    if(fuDate == null || (aet!=null&&aet.compareTo(fuDate) == 1)){
+                        fuDate =aet;
+                    }
+                }
+            }
+
+
+        }
+        if(!mian){
+            kecaijian = false;
+            //keshengchan = false;
+            mianDate = null;
+        }
+        if(!fu){
+            keshengchan = false;
+            fuDate = null;
+        }
+        if(mianTime){
+            if(mianDate == null){
+                mianDate = pStatus.getStartTime();
+            }
+            pStatus.setMianDate(mianDate);
+        }
+        if(fuTime){
+            if(fuDate==null){
+                fuDate = pStatus.getStartTime();
+            }
+            pStatus.setFuDate(fuDate);
+        }
+        if(keshengchan && kecaijian ){
+            yiqi = true;
+        }
+        if(dd!=null&&cut==1&&yiqi){
+            pStatus.setComplete(4);//待生产;
+        }
+        else if(yiqi){//已齐
+            pStatus.setComplete(3);
+        }else if(kecaijian){//待裁剪
+            pStatus.setComplete(2);
+        }else if(pStatus.getContractDate() != null && new Date().compareTo(pStatus.getContractDate()) == 1 && !kecaijian){//逾期
+            pStatus.setComplete(0);
+        }else{
+            //待料
+            pStatus.setComplete(1);
+        }
+
+        if(pStatus.getPlanUnderlineDate() != null||pStatus.getLineDate() !=null){//生产中
+            pStatus.setComplete(5);
+        }
+
+        if(pStatus.getPlanUnderlineDate() != null && new Date().compareTo(pStatus.getPlanUnderlineDate())==1){//空白
+            pStatus.setComplete(6);
+        }
+
+        if(pStatus.getHou() ==1 ){//锁钉
+            pStatus.setComplete(7);
+        }else if(pStatus.getHou() == 2){//水洗
+            pStatus.setComplete(8);
+        }else if(pStatus.getHou()==3){//后道包装
+            pStatus.setComplete(9);
+        }
+
+        if(pStatus.getFinshDate() != null){//待发货
+            pStatus.setComplete(10);
+        }
+        if(!pStatus.getOngoing()){//已完成
+            pStatus.setComplete(11);
+        }
+        purchasingDao.save(pStatus);
+    }
     /* (non-Javadoc)
      * @see com.barakawei.lightwork.service.PurchasingService#deletePurchasingById(java.lang.String)
      */
@@ -147,13 +265,25 @@ public class PurchasingServiceImpl implements PurchasingService {
      */
     @Override
     public Page<Purchasing> findPurchasings(SearchForm sf) {
-        Pageable pageable = new PageRequest(sf.getPageNum(), sf.getNumPerPage());
+
+        if(StringUtils.isBlank(sf.getOrderField())){
+            sf.setOrderField("complete");
+            sf.setOrderDirection("asc");
+        }else if(sf.getOrderField().equals("cutGroup")||sf.getOrderField().equals("finshCut")||sf.getOrderField().equals("productGroup")||sf.getOrderField().equals("finshZipper")){
+            sf.setOrderDirection("desc");
+
+        }
+
+        Pageable pageable = new PageRequest(sf.getPageNum(), sf.getNumPerPage(),sf.getDirection(),sf.getOrderField());
         Page<Purchasing> p = purchasingDao.findAll(getWhereClause(sf), pageable);
 
         if (!CollectionUtils.isEmpty(p.getContent())) {
             for(Purchasing pp : p.getContent()){
                 boolean kecaijian = true;
                 boolean keshengchan = true;
+                boolean yiqi = false;
+                boolean mianTime = true;
+                boolean fuTime = true;
                 boolean mian = false;
                 boolean fu = false;
                 Date mianDate = null;
@@ -162,6 +292,8 @@ public class PurchasingServiceImpl implements PurchasingService {
                     kecaijian = false;
                     keshengchan = false;
                 }
+                Date dd = pp.getDataDate();
+                int cut = pp.getFinshCut();
                 for(PurchasingDetail pd:pp.getPds()){
                         if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料")){
                             mian = true;
@@ -177,20 +309,23 @@ public class PurchasingServiceImpl implements PurchasingService {
                         }
                         if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("面里料") ){
                             Date aet = pd.getActualEntryTime();
-                            if(aet == null){
+                            if((aet == null && count > 0)){
+                                mianTime = false;
                                 kecaijian = false;
-                                keshengchan = false;
+                                //keshengchan = false;
                             }else{
-                                if(mianDate == null || aet.compareTo(mianDate) == 1){
+                                if(mianDate == null || (aet!=null&&aet.compareTo(mianDate) == 1)){
                                     mianDate =aet;
                                 }
                             }
+
                         }else if(!StringUtils.isBlank(pd.getGoods().getType())&&pd.getGoods().getType().contains("辅料")){
                             Date aet = pd.getActualEntryTime();
-                            if(aet == null){
+                            if((aet == null && count > 0)){
                                 keshengchan = false;
+                                fuTime = false;
                             }else{
-                                if(fuDate == null || aet.compareTo(fuDate) == 1){
+                                if(fuDate == null || (aet!=null&&aet.compareTo(fuDate) == 1)){
                                     fuDate =aet;
                                 }
                             }
@@ -199,48 +334,72 @@ public class PurchasingServiceImpl implements PurchasingService {
 
                 }
                 if(!mian){
-                    kecaijian = false;
-                    keshengchan = false;
+                    kecaijian = true;
+                    //keshengchan = false;
                     mianDate = null;
                 }
                 if(!fu){
-                    keshengchan = false;
+                    keshengchan = true;
                     fuDate = null;
                 }
-
-                if(keshengchan){//待生产
+                if(mianTime){
+                    if(mianDate == null){
+                        mianDate = pp.getStartTime();
+                    }
                     pp.setMianDate(mianDate);
+                }
+                if(fuTime){
+                    if(fuDate==null){
+                        fuDate = pp.getStartTime();
+                    }
                     pp.setFuDate(fuDate);
-                    pp.setComplete(2);
-                }else if(kecaijian){//待裁剪
-                    pp.setMianDate(mianDate);
-                    pp.setComplete(1);
-                }else if(pp.getContractDate() != null && new Date().compareTo(pp.getContractDate()) == 1 && !kecaijian){//逾期
-                    pp.setComplete(-1);
-                }else{
-                    pp.setComplete(0);
                 }
-
-                if(pp.getPlanUnderlineDate() != null){//生产中
+                if(keshengchan && kecaijian ){
+                    yiqi = true;
+                }
+                if(dd!=null&&cut==1&&yiqi){
+                    pp.setComplete(4);//待生产;
+                }
+                else if(yiqi){//已齐
                     pp.setComplete(3);
+                }else if(kecaijian){//待裁剪
+                    pp.setComplete(2);
+                }else if(pp.getContractDate() != null && new Date().compareTo(pp.getContractDate()) == 1 && !kecaijian){//逾期
+                    pp.setComplete(0);
+                }else{
+                    //待料
+                    pp.setComplete(1);
                 }
 
-                if(pp.getHou() ==1 ){//锁钉
-                    pp.setComplete(4);
-                }else if(pp.getHou() == 2){//水洗
+                if(pp.getPlanUnderlineDate() != null||pp.getLineDate() !=null){//生产中
                     pp.setComplete(5);
-                }else if(pp.getHou()==3){//后道包装
+                }
+
+                if(pp.getPlanUnderlineDate() != null && new Date().compareTo(pp.getPlanUnderlineDate())==1){//空白
                     pp.setComplete(6);
                 }
 
-                if(pp.getFinshDate() != null){//待发货
+                if(pp.getHou() ==1 ){//锁钉
                     pp.setComplete(7);
+                }else if(pp.getHou() == 2){//水洗
+                    pp.setComplete(8);
+                }else if(pp.getHou()==3){//后道包装
+                    pp.setComplete(9);
                 }
+
+                if(pp.getFinshDate() != null){//待发货
+                    pp.setComplete(10);
+                }
+                if(!pp.getOngoing()){//已完成
+                    pp.setComplete(11);
+                }
+                purchasingDao.save(pp);
 
             }
         }
 
-        return p;
+        Page<Purchasing> pdata = purchasingDao.findAll(getWhereClause(sf), pageable);
+        return pdata;
     }
 
     @Override
@@ -286,6 +445,8 @@ public class PurchasingServiceImpl implements PurchasingService {
                        models.add(new Model("185", "model_185", "", type));
                        models.add(new Model("190", "model_190", "", type));
                        models.add(new Model("195", "model_195", "", type));
+                       models.add(new Model("200", "model_200", "", type));
+                       models.add(new Model("205", "model_205", "", type));
                        _p.setCountDetailList(models);
                        }
                    }
@@ -294,12 +455,21 @@ public class PurchasingServiceImpl implements PurchasingService {
                     dataDictService.saveDataDictByZipper(_zipper);
                 }
             }
+            _p.setPlanUnderlineDate(purchasing.getPlanUnderlineDate());
             _p.setCutGroup(purchasing.getCutGroup());
             _p.setFinshCut(purchasing.getFinshCut());
+            _p.setFinshZipper(purchasing.getFinshZipper());
+            _p.setZipperData(purchasing.getZipperData());
+            _p.setTypeNumber(purchasing.getTypeNumber());
             purchasingDao.save(_p);
 
         }else if(StringUtils.equals(Role.ROLE_DIRECTOR,role)){
             _p.setProductGroup(purchasing.getProductGroup());
+            if(StringUtils.isNotBlank(_p.getProductGroup()) && _p.getLineDate() == null){
+                _p.setLineDate(new Date());
+            }else{
+                _p.setLineDate(null);
+            }
             _p.setPlanUnderlineDate(purchasing.getPlanUnderlineDate());
             _p.setRemark(purchasing.getRemark());
             _p.setHou(purchasing.getHou());
@@ -348,7 +518,6 @@ public class PurchasingServiceImpl implements PurchasingService {
 
         }
         if (end) {
-
             pp.setEndTime(new Date());
             pp.setOngoing(false);
         }else{
@@ -358,7 +527,7 @@ public class PurchasingServiceImpl implements PurchasingService {
 
          purchasingDao.save(pp);
      }
-
+     //updateStatus(purchasing);
     }
 
     private void completeByRole(String role, PurchasingDetail pd, PurchasingDetail _pd, Purchasing p) {
@@ -377,12 +546,11 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.setPlanEntryCount(_pd.getPlanEntryCount());
             pd.setActualEntryTime(_pd.getActualEntryTime());
             pd.getGoods().setActualUse(_pd.getGoods().getActualUse());
+            pd.getGoods().setOriPrice(_pd.getGoods().getOriPrice());
+            pd.getGoods().setPrice(_pd.getGoods().getPrice());
 
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_QUALITY)) {
-            if(StringUtils.isNotEmpty(_pd.getShrinkage())&&pd.getActualEntryTime() == null){
-                pd.setActualEntryTime(new Date());
-            }
             pd.setShrinkage(_pd.getShrinkage());
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_LEADER)) {
@@ -392,6 +560,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             pd.getGoods().setDischargeSpec(_pd.getGoods().getDischargeSpec());
             pd.getGoods().setActualWidth(_pd.getGoods().getActualWidth());
             pd.getGoods().setActualConsume((_pd.getGoods().getActualConsume()));
+
             purchasingDetailDao.save(pd);
         } else if (StringUtils.equals(role, Role.ROLE_PRODUCT)) {
 
@@ -408,10 +577,9 @@ public class PurchasingServiceImpl implements PurchasingService {
         for (PurchasingDetail _pd : purchasing.getPds()) {
             _pd.getGoods().setPlanEntryCount(_pd.getPlanEntryCount());
             _pd.getGoods().setWarehouseCount(_pd.getWarehouseCount());
+
         }
         purchasing.getCountDetailList();
-        purchasing.setPending(pending);
-        purchasing.setComplete(complete);
         purchasing.sort();
         purchasing.sortZipper();
         return purchasing;
@@ -429,10 +597,16 @@ public class PurchasingServiceImpl implements PurchasingService {
                         boolean v = false;
                         if("1".equals(value)){
                             v =true;
-                        }else{
+                            predicate.getExpressions().add(cb.equal(root.<String>get(key),v));
+                        }else if("0".equals(value)){
                            v =false;
+                            predicate.getExpressions().add(cb.equal(root.<String>get(key),v));
+                        }else if("2".equals(value)){//预下
+                            value ="预下";
+                            predicate.getExpressions().add(cb.like(root.<String>get("orderNumber"), "%" + value + "%"));
+
                         }
-                        predicate.getExpressions().add(cb.equal(root.<String>get(key),v));
+
                     }else{
                         if (StringUtils.isNotBlank(value)) {
                             predicate.getExpressions().add(cb.like(root.<String>get(key), "%" + value + "%"));

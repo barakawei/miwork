@@ -87,27 +87,7 @@
                     </dl>
 
                     <dl>
-                        <dt>合同交期</dt>
-                        <dd>
-
-                            <input type="text" name="contractTime" class="date" dateFmt="yyyy-MM-dd" readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.contractTime}' type='both'/>">
-                            <a class="inputDateButton" href="javascript:;">选择</a>
-                        </dd>
-                    </dl>
-
-                    <dl>
-                        <dt>下单日期</dt>
-                        <dd>
-
-                            <input type="text" name="orderDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
-                                   value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.orderDate}' type='both'/>">
-                            <a class="inputDateButton" href="javascript:;">选择</a>
-                        </dd>
-                    </dl>
-
-                    <dl>
-                        <dt>面辅料供应时间</dt>
+                        <dt>订单合同交期</dt>
                         <dd>
 
                             <input type="text" name="applyTime" class="date" dateFmt="yyyy-MM-dd" readonly="true"
@@ -173,8 +153,7 @@
                                 <th type="text" name="pds[#index#].goods.type" size="12" fieldClass="">类型</th>
                                 <th type="text" name="pds[#index#].goods.specification" size="20">型号规格</th>
                                 <th type="text" name="pds[#index#].goods.composition" size="8">面辅料成分</th>
-                                <th type="text" name="pds[#index#].goods.width" size="6" defaultVal="0"
-                                    fieldClass="digits">净宽/CM
+                                <th type="text" name="pds[#index#].goods.width" size="6" defaultVal="0">净宽/CM
                                 </th>
                                 <th type="text" name="pds[#index#].goods.orderCount" size="6" defaultVal="0"
                                     fieldClass="digits">单量
@@ -186,8 +165,9 @@
                                 <th type="text" name="pds[#index#].goods.description" size="20" fieldClass="">
                                     面辅料特殊要求
                                 </th>
-                                <th type="date" format="yyyy-MM-dd" name="pds[#index#].expectedArrivalTime" size="18">计划入库时间</th>
+                                <th type="date" format="yyyy-MM-dd" name="pds[#index#].expectedArrivalTime" size="10">计划入库时间</th>
                                 <th type="text" name="pds[#index#].goods.actualLoss" size="6">实际损耗1*%</th>
+                                <th type="text" name="pds[#index#].goods.actualConsume" size="6">实排单耗</th>
 
                                 <th type="del" width="60">操作</th>
 
@@ -210,22 +190,25 @@
                                                size="6" value="${pd.goods.orderCount}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.color" size="6"
                                                value="${pd.goods.color}"></td>
-                                    <td><input type="text" name="pds[${status.index}].goods.consume" size="6"
+                                    <td><input type="text" style="width: 50px;" name="pds[${status.index}].goods.consume" size="6"
                                                value="${pd.goods.consume}"></td>
                                     <td><input type="text" class="" name="pds[${status.index}].goods.unit"
                                                size="3" value="${pd.goods.unit}"></td>
-                                    <td><input type="text" class="" name="pds[${status.index}].goods.loss"
+                                    <td><input type="text" style="width: 50px;" class="" name="pds[${status.index}].goods.loss"
                                                size="3" value="${pd.goods.loss}"></td>
                                     <td><input type="text" name="pds[${status.index}].goods.description" size="20"
                                                value="${pd.goods.description}"></td>
                                     <td>
                                         <input type="text" name="pds[${status.index}].expectedArrivalTime" class="date" dateFmt="yyyy-MM-dd"
-                                               readonly="true"
+                                               readonly="true" size="12"
                                                value="<fmt:formatDate pattern='yyyy-MM-dd' value='${pd.expectedArrivalTime}' type='both'/>">
                                         <a class="inputDateButton" href="javascript:;">选择</a>
                                     </td>
-                                    <td><input type="text" class="" name="pds[${status.index}].goods.actualLoss"
+                                    <td><input type="text" class="" style="width: 50px;" name="pds[${status.index}].goods.actualLoss"
                                                size="3" value="${pd.goods.actualLoss}"></td>
+
+                                    <td style="width: 50px"><input style="width: 50px;" type="text" class="" name="pds[${status.index}].goods.actualConsume"
+                                               size="3" value="${pd.goods.actualConsume}"></td>
 
 
                                     <td class="delete"><a href="javascript:void(0)" class="btnDel">删除</a></td>

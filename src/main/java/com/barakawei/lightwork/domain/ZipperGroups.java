@@ -35,6 +35,24 @@ public class ZipperGroups {
     private String model_190;
 
     private String model_195;
+    private String model_200;
+    private String model_205;
+
+    public String getModel_200() {
+        return model_200;
+    }
+
+    public void setModel_200(String model_200) {
+        this.model_200 = model_200;
+    }
+
+    public String getModel_205() {
+        return model_205;
+    }
+
+    public void setModel_205(String model_205) {
+        this.model_205 = model_205;
+    }
 
     public String getModel_145() {
         return model_145;

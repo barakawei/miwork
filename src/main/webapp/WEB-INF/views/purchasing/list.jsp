@@ -2,6 +2,8 @@
 <%@ include file="../common/taglib.jsp"%>
 <form id="pagerForm" method="post" action="${ctx}/purchasing/list">
     <input type="hidden" name="pageNum" value="${purchasings.number}" />
+    <input type="hidden" name="orderField" value="${searchForm.searchMap['orderField']}" />
+    <input type="hidden" name="orderDirection" value="${searchForm.searchMap['orderDirection']}" />
     <input type="hidden" name="numPerPage" value="${purchasings.size}" />
 </form>
 
@@ -35,6 +37,7 @@
                         订单状态:
                         <input type="radio" class="radio" name="searchMap['ongoing']" value="1" <c:if test="${searchForm.searchMap['ongoing'] == '1'}">checked='true'</c:if> />未完成
                         <input type="radio" class="radio" name="searchMap['ongoing']" value="0" <c:if test="${searchForm.searchMap['ongoing'] == '0'}">checked='true'</c:if> />已完成
+                        <input type="radio" class="radio" name="searchMap['ongoing']" value="2" <c:if test="${searchForm.searchMap['ongoing'] == '2'}">checked='true'</c:if> />预下
                     </td>
                 </tr>
             </table>
@@ -59,107 +62,124 @@
     </ul>
 </div>
 <div id="data">
-<table class="table" width="100%" layoutH="138">
+<table class="table" layoutH="138">
 <thead>
 <tr>
-    <th width="110">订单状态</th>
-    <th width="100">裁剪组别</th>
-    <th width="100">已裁完</th>
-    <th width="100">生产班组</th>
-    <th width="130">预下线日期</th>
-    <th width="100">客户名称</th>
-    <th width="100">订单编号</th>
-    <th width="50">序列号</th>
-    <th width="50">款号</th>
-    <th width="50">数量</th>
-    <th width="60">合同交期</th>
-    <th width="60">下单日期</th>
-    <th width="60">数据日期</th>
-    <th width="60">面料合同交期</th>
-    <th width="60">面料到位日期</th>
-    <th width="60">辅料到位日期</th>
-    <th width="60">上线日期</th>
-    <th width="60">入库日期</th>
-    <th width="50">备注</th>
+    <th style="width: 50px" width='50' orderField="complete" >订单状态</th>
+    <th style="width: 50px" width='50'orderField="cutGroup"  >裁剪组别</th>
+    <th style="width: 36px" width='50' orderField="finshCut" >已裁完</th>
+    <th style="width: 47px" width='50' orderField="productGroup">生产班组</th>
+    <th style="width: 63px" width='70'>预下线日期</th>
+    <th style="width: 150px" width='150' orderField="orderName">客户名称</th>
+    <th style="width: 116px" width='125'>订单编号</th>
+    <th style="width: 60px" width='60' orderField="serialNumber">序列号</th>
+    <th style="width: 110px" width='110'>款号</th>
+    <th style="width: 200px" width='200'>数量</th>
+    <th style="width: 75px" width='75'>订单合同交期</th>
+    <th style="width: 63px" width='70'>下单日期</th>
+    <th style="width: 63px" width='70'>数据日期</th>
+    <th style="width: 50px" width='50' orderField="finshZipper">拉链数据</th>
+    <th style="width: 75px" width='75'>面料合同交期</th>
+    <th style="width: 75px" width='75'>面料到位日期</th>
+    <th style="width: 75px" width='75'>辅料到位日期</th>
+    <th style="width: 70px" width='70'>上线日期</th>
+    <th style="width: 70px" width='70'>入库日期</th>
+    <th style="width:100px" width='100'>备注</th>
 
 </tr>
 </thead>
 <tbody>
 <c:forEach items="${purchasingList}" var="purchasing">
 <tr target="purchasing_id" rel="${purchasing.id}"
-    <c:if test="${purchasing.complete==-1}">style="color: red"</c:if>
-    <c:if test="${purchasing.complete==1}">style="color: blue"</c:if>
-    <c:if test="${purchasing.complete==2}">style="color: green"</c:if>
+    <c:if test="${purchasing.complete==0}">style="color: red"</c:if>
+    <c:if test="${purchasing.complete==2}">style="color: blue"</c:if>
     <c:if test="${purchasing.complete==3}">style="color: #32cd32"</c:if>
-    <c:if test="${purchasing.complete==4 || purchasing.complete==5 || purchasing.complete==6}">style="color: #FFA500"</c:if>
-    <c:if test="${purchasing.complete==7}">style="color: #9400d3"</c:if>
+    <c:if test="${purchasing.complete==4}">style="color: darkturquoise"</c:if>
+    <c:if test="${purchasing.complete==5}">style="color: green"</c:if>
+    <c:if test="${purchasing.complete==7 || purchasing.complete==8 || purchasing.complete==9}">style="color: #FFA500"</c:if>
+    <c:if test="${purchasing.complete==10}">style="color: #9400d3"</c:if>
+    <c:if test="${purchasing.complete==6}">style="color: #FFA500"</c:if>
 
 
         >
 
-    <td>
-    <c:if test="${purchasing.complete==-1}">
+    <td style="width: 50px">
+    <c:if test="${purchasing.complete==0}">
         逾期
     </c:if>
-        <c:if test="${purchasing.complete==0}">
+        <c:if test="${purchasing.complete==1}">
             待料
         </c:if>
-        <c:if test="${purchasing.complete==1}">
+        <c:if test="${purchasing.complete==2}">
             可裁剪
         </c:if>
-        <c:if test="${purchasing.complete==2}">
-            可生产
-        </c:if>
         <c:if test="${purchasing.complete==3}">
-            生产中
+            面辅料已齐
         </c:if>
         <c:if test="${purchasing.complete==4}">
-            锁钉
+            可生产
         </c:if>
         <c:if test="${purchasing.complete==5}">
-            水洗
-        </c:if>
-        <c:if test="${purchasing.complete==6}">
-            后道包装
+            生产中
         </c:if>
         <c:if test="${purchasing.complete==7}">
-            待发货
+            锁钉
         </c:if>
         <c:if test="${purchasing.complete==8}">
-            完成
+            水洗
+        </c:if>
+        <c:if test="${purchasing.complete==9}">
+            后道包装
+        </c:if>
+        <c:if test="${purchasing.complete==10}">
+            待发货
+        </c:if>
+        <c:if test="${purchasing.complete==11}">
+            已完成
         </c:if>
     </td>
-    <td>${purchasing.cutGroup}</td>
-    <td>
+    <td style="width: 50px">${purchasing.cutGroup}</td>
+    <td style="width: 36px">
 
         <c:if test="${purchasing.finshCut==1}">
-            是
+           已裁完
         </c:if>
         <c:if test="${purchasing.finshCut!=1}">
+
         </c:if>
 
     </td>
-    <td>${purchasing.productGroup}</td>
-    <td><fmt:formatDate value="${purchasing.planUnderlineDate}" pattern="yyyy-MM-dd"/></td>
+    <td style="width: 47px">${purchasing.productGroup}</td>
+    <td style="width: 63px"><fmt:formatDate value="${purchasing.planUnderlineDate}" pattern="yyyy-MM-dd"/></td>
 
-        <td>${purchasing.orderName}</td>
-        <td >${purchasing.orderNumber}</td>
-        <td>${purchasing.serialNumber}</td>
-        <td>${purchasing.typeNumber}</td>
-        <td>${purchasing.orderCount}</td>
-        <td>
-            <fmt:formatDate value="${purchasing.contractTime}" pattern="yyyy-MM-dd"/>
+        <td style="width: 150px">${purchasing.orderName}</td>
+        <td style="width: 116px">${purchasing.orderNumber}</td>
+        <td style="width: 60px">${purchasing.serialNumber}</td>
+        <td style="width: 110px">${purchasing.typeNumber}</td>
+        <td style="width: 200px">${purchasing.orderCount}</td>
+        <td style="width: 75px">
+            <fmt:formatDate value="${purchasing.applyTime}" pattern="yyyy-MM-dd"/>
         </td>
-        <td> <fmt:formatDate value="${purchasing.orderDate}" pattern="yyyy-MM-dd"/></td>
-        <td> <fmt:formatDate value="${purchasing.dataDate}" pattern="yyyy-MM-dd"/></td>
-        <td> <fmt:formatDate value="${purchasing.contractDate}" pattern="yyyy-MM-dd"/></td>
-        <td> <fmt:formatDate value="${purchasing.mianDate}" pattern="yyyy-MM-dd"/></td>
-        <td> <fmt:formatDate value="${purchasing.fuDate}" pattern="yyyy-MM-dd"/></td>
-        <td>
-            <fmt:formatDate value="${purchasing.startTime}" pattern="yyyy-MM-dd"/>
+        <td style="width: 63px"> <fmt:formatDate value="${purchasing.startTime}" pattern="yyyy-MM-dd"/></td>
+        <td style="width: 63px"> <fmt:formatDate value="${purchasing.dataDate}" pattern="yyyy-MM-dd"/></td>
+    <td style="width: 50px">
+
+        <c:if test="${purchasing.finshZipper==1}">
+            已填完
+        </c:if>
+        <c:if test="${purchasing.finshZipper!=1}">
+            ${purchasing.zipperData}
+        </c:if>
+
+    </td>
+        <td style="width: 75px"> <fmt:formatDate value="${purchasing.contractDate}" pattern="yyyy-MM-dd"/></td>
+        <td style="width: 75px">  <fmt:formatDate value="${purchasing.mianDate}" pattern="yyyy-MM-dd"/></td>
+        <td style="width: 75px"> <fmt:formatDate value="${purchasing.fuDate}" pattern="yyyy-MM-dd"/></td>
+        <td style="width: 70px">
+            <fmt:formatDate value="${purchasing.lineDate}" pattern="yyyy-MM-dd"/>
         </td>
-    <td> <fmt:formatDate value="${purchasing.finshDate}" pattern="yyyy-MM-dd"/></td>
-    <td>${purchasing.remark}</td>
+    <td style="width: 70px"> <fmt:formatDate value="${purchasing.finshDate}" pattern="yyyy-MM-dd"/></td>
+    <td style="width: 100px">${purchasing.remark}</td>
 
 </tr>
 </c:forEach>

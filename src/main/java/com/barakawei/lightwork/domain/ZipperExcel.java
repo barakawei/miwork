@@ -51,6 +51,10 @@ public class ZipperExcel {
     private String model_190;
     @Cell(columnNumber = 14)
     private String model_195;
+    @Cell(columnNumber = 15)
+    private String model_200;
+    @Cell(columnNumber = 16)
+    private String model_205;
 
     public String getType() {
         return type;
@@ -172,6 +176,22 @@ public class ZipperExcel {
         this.model_195 = model_195;
     }
 
+    public String getModel_200() {
+        return model_200;
+    }
+
+    public void setModel_200(String model_200) {
+        this.model_200 = model_200;
+    }
+
+    public String getModel_205() {
+        return model_205;
+    }
+
+    public void setModel_205(String model_205) {
+        this.model_205 = model_205;
+    }
+
     public static void convertFromExcel(Purchasing p, List<Zipper> zippers, List<ZipperExcel> zes) {
         String type = "";
         List<String> modelName = new ArrayList<String>();
@@ -190,6 +210,8 @@ public class ZipperExcel {
                 modelName.add(ze.getModel_185());
                 modelName.add(ze.getModel_190());
                 modelName.add(ze.getModel_195());
+                modelName.add(ze.getModel_200());
+                modelName.add(ze.getModel_205());
                 continue;
             }
             if (ze.getName() != null && ze.getMaterial() == null && ze.getSpec() == null) {
@@ -205,6 +227,8 @@ public class ZipperExcel {
                 models.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type));
                 models.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type));
                 models.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type));
+                models.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type));
+                models.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type));
                 continue;
             }
             if (i >= 3 && !StringUtils.contains(ze.getName(), "面料实际缩率")) {
@@ -226,6 +250,8 @@ public class ZipperExcel {
                 zipperCount.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type));
                 zipperCount.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type));
                 zipperCount.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type));
+                zipperCount.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type));
+                zipperCount.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type));
                 z.setZipperCountList(zipperCount);
                 zippers.add(z);
             }

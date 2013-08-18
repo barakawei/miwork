@@ -49,6 +49,28 @@ public class Purchasing {
     //已裁完
     private int finshCut;
 
+    //已填拉链数据
+    private int finshZipper;
+
+    //拉链数据
+    private String zipperData;
+
+    public String getZipperData() {
+        return zipperData;
+    }
+
+    public void setZipperData(String zipperData) {
+        this.zipperData = zipperData;
+    }
+
+    public int getFinshZipper() {
+        return finshZipper;
+    }
+
+    public void setFinshZipper(int finshZipper) {
+        this.finshZipper = finshZipper;
+    }
+
     //后整理
     private int hou;
 
@@ -68,7 +90,19 @@ public class Purchasing {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date contractTime;
 
-    //下单日期
+    //上线日期
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date lineDate;
+
+    public Date getLineDate() {
+        return lineDate;
+    }
+
+    public void setLineDate(Date lineDate) {
+        this.lineDate = lineDate;
+    }
+
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date orderDate;
@@ -116,6 +150,7 @@ public class Purchasing {
 
     //备注
     private String remark;
+
 
     public Date getDataDate() {
         return dataDate;
@@ -306,7 +341,7 @@ public class Purchasing {
         this.confirmDate = confirmDate;
     }
 
-    //开始时间
+    //下单日期
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startTime;
@@ -357,9 +392,23 @@ public class Purchasing {
         });
         if(this.countDetailList == null || this.countDetailList.isEmpty()){
             List<Model> l = new ArrayList<Model>();
-            for(int i=0;i<12;i++){
+            for(int i=0;i<14;i++){
                 l.add(new Model());
             }
+        }
+        if(this.countDetailList != null && countDetailList.size()%11==0){
+            List<Model> list = new ArrayList<Model>();
+            for(int i =0;i<countDetailList.size();i++){
+                if(i%10 == 0 && i>0){
+                    list.add(countDetailList.get(i));
+                    list.add(new Model("200","model_200","",countDetailList.get(i-1).getPosition()));
+                    list.add(new Model("205","model_205","",countDetailList.get(i-1).getPosition()));
+                }else{
+                    list.add(countDetailList.get(i));
+                }
+
+            }
+            return list;
         }
         return countDetailList;
     }
@@ -592,7 +641,7 @@ public class Purchasing {
                 continue;
             }
             String firstColumn = goodses.get(i).getName();
-            if(null != firstColumn && firstColumn.contains("面辅料供应时间") && i >= 4){
+            if(null != firstColumn && firstColumn.contains("订单合同交期") && i >= 4){
                 Date date = null;
                 try{
                     if(StringUtils.isNotBlank(goodses.get(i).getSpecification())){
@@ -629,7 +678,7 @@ public class Purchasing {
                 this.confirmDate=date;
                 break;
             }
-            if (null!=firstColumn && !firstColumn.contains("面辅料供应时间") && i >= 4) {
+            if (null!=firstColumn && !firstColumn.contains("订单合同交期") && i >= 4) {
                 if (goodses.get(i).getName() != null &&
                         goodses.get(i).getSpecification() == null &&
                         goodses.get(i).getColor() == null &&
@@ -647,6 +696,9 @@ public class Purchasing {
                 PurchasingDetail pd = new PurchasingDetail();
                 BeanUtils.copyProperties(goodses.get(i),goods);
                 //goods.setActualConsume(goods.getConsume());
+                if("0".equals(goods.getActualUse()) || "0.0".equals(goods.getActualUse()) ||"0.00".equals(goods.getActualUse())||"0.000".equals(goods.getActualUse())){
+                    goods.setActualUse("");
+                }
                 goods.setType(type);
                 pd.setGoods(goods);
                 pd.setPlanPurchasingCount(goods.getPurchasingCount());

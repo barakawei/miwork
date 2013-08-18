@@ -2,254 +2,312 @@
 <%@ include file="../common/taglib.jsp" %>
 <h2 class="contentTitle" >采购计划(${purchasing.orderNumber} \ ${purchasing.serialNumber})
 </h2>
+
 <script>
+/**
+ *
+ * Created with IntelliJ IDEA.
+ * User: baraka
+ * Date: 13-6-3
+ * Time: 下午10:26
+ * To change this template use File | Settings | File Templates.
+ */
 
 var oldShrinkage;
-    $(document).ready(function(){
-        oldShrinkage = $(".zipperShrinkage").val();
-        if(oldShrinkage=="undefined" || oldShrinkage == null || $.trim(oldShrinkage)==""){
-            oldShrinkage = 1;
-        }else{
-            oldShrinkage = (1+oldShrinkage/100);
-        }
-        $("input").live("keyup",function(e){
-            if (e.which == 40){
-                var name = $(this).attr("name");
-                var rgExp = /[0-9]+/;
-                var row = name.match(rgExp)[0]*1;
-                if(row >= 0){
+$(document).ready(function(){
+    oldShrinkage = $(".zipperShrinkage").val();
+    if(oldShrinkage=="undefined" || oldShrinkage == null || $.trim(oldShrinkage)==""){
+        oldShrinkage = 1;
+    }else{
+        oldShrinkage = (1+oldShrinkage/100);
+    }
+    $("input").die("keyup");
+    $("input").live("keyup",function(e){
+        if (e.which == 40){
+            var name = $(this).attr("name");
+            var rgExp = /[0-9]+/;
+            var row = name.match(rgExp)[0]*1;
+            if(row >= 0){
                 var key = name.replace(rgExp,row+1);
                 $(this).closest("table").find("input[name='"+key+"']").focus();
-                }
-
             }
-            if (e.which == 38){
-                var name = $(this).attr("name");
-                var rgExp = /[0-9]+/;
-                var row = name.match(rgExp)[0]*1;
-                if(row >= -1){
-                    var key = name.replace(rgExp,row-1);
-                    $(this).closest("table").find("input[name='"+key+"']").focus();
-                }
 
-            }
-        });
-
-    });
-
-    $("input").live("change",function(){
-        var count = $(this).closest("td").attr("count");
-        var count = count * 1 +1;
-        $(this).closest("td").attr("count",count);
-    });
-
-    $(".checkvalue").live("click",function(){
-        var checked = $(this).attr('checked');
-        var shrinkage = $(".zipperShrinkage").val()*1;
-        if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
-            shrinkage = 1;
-        }else{
-            shrinkage = (1+shrinkage/100);
         }
-            $(this).closest("tr").find(".zipperCount").each(function(){
-                var zipper = $(this);
-                var old =zipper.val();
-                if(old != ""){
-                    if(checked == "checked"){
-                        var s = old * shrinkage;
-                        zipper.val(s.toFixed(2));
+        if (e.which == 38){
+            var name = $(this).attr("name");
+            var rgExp = /[0-9]+/;
+            var row = name.match(rgExp)[0]*1;
+            if(row >= -1){
+                var key = name.replace(rgExp,row-1);
+                $(this).closest("table").find("input[name='"+key+"']").focus();
+            }
+
+        }
+    });
+
+});
+
+$(".checkvalue").die("click");
+$(".checkvalue").live("click",function(){
+    var checked = $(this).attr('checked');
+    var shrinkage = $(".zipperShrinkage").val()*1;
+    if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
+        shrinkage = 1;
+    }else{
+        shrinkage = (1+shrinkage/100);
+    }
+
+    $(this).closest("tr").find(".zipperCount").each(function(){
+        var zipper = $(this);
+        var old =zipper.val();
+        if(old != ""){
+            if(checked == "checked"){
+                var s = old * shrinkage;
+                zipper.attr("ori",s.toFixed(2));
+                var v = s.toFixed(2).split(".");
+                if(v.length == 2){
+                    var round = ("0."+v[1]) *1;
+                    if(0<=round&&round<0.25){
+                        round = 0;
+                    }else if(0.25<=round&&round<0.75){
+                        round = 0.5;
                     }else{
-                        var sh = old / shrinkage;
-                        zipper.val(sh.toFixed(2));
-
+                        round = 1;
                     }
+
+                    s = v[0]*1+round;
                 }
-            });
 
-    });
+                zipper.val(s.toFixed(1));
+            }else{
+                var ori = zipper.attr("ori");
+                if(ori=="undefined" || ori == null || ori == ""){
+                    ori = old
+                }
+                var sh = ori / shrinkage;
+                zipper.val(sh.toFixed(1));
 
-
-    $(".zipperShrinkage").live("change",function(){
-        var shrinkage = $(this).val();
-        if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
-            shrinkage = 1;
-        }else{
-            shrinkage = (1+shrinkage/100);
+            }
         }
-        $('input:checked').each(function(){
-            $(this).closest("tr").find(".zipperCount").each(function(){
-                var zipper = $(this);
-                var old =zipper.attr("old");
-                if(old == "undefined" || old == null){
-                    old = zipper.val();
-                }
-                if(old != ""){
-                   var s = old * shrinkage;
-                   zipper.val(s.toFixed(2));
-                }
-            });
-
-        });
-
     });
 
+});
+var oldshrinkage = "";
+$(".zipperShrinkage").die("focus");
+$(".zipperShrinkage").live("focus",function(){
+    oldshrinkage = (1+$(this).val()/100);
+});
+$(".zipperShrinkage").die("change");
+$(".zipperShrinkage").live("change",function(){
+    var shrinkage = $(this).val();
+    if(shrinkage=="undefined" || shrinkage == null || $.trim(shrinkage)==""){
+        shrinkage = 1;
+    }else{
+        shrinkage = (1+shrinkage/100);
+    }
+    $('input:checked').each(function(){
+        $(this).closest("tr").find(".zipperCount").each(function(){
+            var zipper = $(this);
+            //var old =zipper.attr("old");
+            //if(old == "undefined" || old == null){
+            var old = zipper.val();
+            var ori = zipper.attr("ori");
+            if(ori=="undefined" || ori == null || ori == ""){
+                ori = old
+            }
+            //}
+            if(ori != ""){
+                var s = (ori/oldshrinkage) * shrinkage;
+                zipper.attr("ori",s.toFixed(2));
+                var v = s.toFixed(2).split(".");
+                if(v.length == 2){
+                    var round = ("0."+v[1]) *1;
+                    if(0<=round&&round<0.25){
+                        round = 0;
+                    }else if(0.25<=round&&round<0.75){
+                        round = 0.5;
+                    }else{
+                        round = 1;
+                    }
 
-    function convertJson(){
-        var hidden = $('<input type="hidden" name="" value="">');
-        var zipperCountJson = [];
-        var index = 0;
-        $(".hiddenInput").html("");
+                    s = v[0]*1+round;
+                }
 
-        $(".zipperCount").each(function(i){
-            i = i+1;
-            var json= {};
-            json.value = $(this).val();
-            zipperCountJson.push(json);
-            if(i%11 == 0 && i != 1){
-                var input = hidden.clone();
-                input.attr("name","zippers["+index+"].zipperCount");
-                input.val(JSON.stringify(zipperCountJson));
-                $(".hiddenInput").append(input);
-                zipperCountJson=[];
-                index++;
+                zipper.val(s.toFixed(1));
             }
         });
 
-        var countDetailJson= [];
-        $(".countDetail").each(function(i){
-            var json= {};
-            json.value = $(this).val();
-            json.name = $(this).attr("nameStr");
-            json.type= $(this).attr("typeStr");
-            json.position= $(this).attr("positionStr");
-            countDetailJson.push(json);
-        });
-        if($(".countDetail").length > 0){
+    });
+
+});
+
+
+function convertJson(){
+    var hidden = $('<input type="hidden" name="" value="">');
+    var zipperCountJson = [];
+    var index = 0;
+    $(".hiddenInput").html("");
+
+    $(".zipperCount").each(function(i){
+        i = i+1;
+        var json= {};
+        json.value = $(this).val();
+        zipperCountJson.push(json);
+        if(i%13 == 0 && i != 1){
             var input = hidden.clone();
-            input.attr("name","countDetail");
-            input.val(JSON.stringify(countDetailJson));
+            input.attr("name","zippers["+index+"].zipperCount");
+            input.val(JSON.stringify(zipperCountJson));
             $(".hiddenInput").append(input);
+            zipperCountJson=[];
+            index++;
         }
+    });
+
+    var countDetailJson= [];
+    $(".countDetail").each(function(i){
+        var json= {};
+        json.value = $(this).val();
+        json.name = $(this).attr("nameStr");
+        json.type= $(this).attr("typeStr");
+        json.position= $(this).attr("positionStr");
+        countDetailJson.push(json);
+    });
+    if($(".countDetail").length > 0){
+        var input = hidden.clone();
+        input.attr("name","countDetail");
+        input.val(JSON.stringify(countDetailJson));
+        $(".hiddenInput").append(input);
     }
+}
+$(".warehouseCount input").die("blur");
+$(".warehouseCount input").live("blur",function(){
+    var warehouseCount = $(this).val();
+    var tr = $(this).closest("tr");
+    var planPurchasingCount = tr.find(".planPurchasingCount").text();
+    var planEntryCount = tr.find(".planEntryCount input").val();
+    var confirmUse= tr.find(".confirmUse").text();
+    var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
+    var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+    if(actualPurchasingCount<=0){
+        var date = new Date();
+        var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+        tr.find(".actualEntryTime").find("input").val(str);
 
-    $(".warehouseCount input").live("change",function(){
-        var warehouseCount = $(this).val();
-        var tr = $(this).closest("tr");
-        var planPurchasingCount = tr.find(".planPurchasingCount").text();
-        var planEntryCount = tr.find(".planEntryCount input").val();
-        var confirmUse= tr.find(".confirmUse").text();
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
-        var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
-        if(actualPurchasingCount<=0){
-            var date = new Date();
-            var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
-            tr.find(".actualEntryTime").find("input").val(str);
-
-
-        }
-        tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
-        tr.find(".needAdd").text(needAdd.toFixed(2));
-    });
-
-    $(".planEntryCount input").live("change",function(){
-        var planEntryCount = $(this).val();
-        var tr = $(this).closest("tr");
-        var planPurchasingCount = tr.find(".planPurchasingCount").text();
-        var warehouseCount = tr.find(".warehouseCount input").val();
-        var confirmUse = tr.find(".confirmUse").text();
-        var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
-            var date = new Date();
-            var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
-            tr.find(".actualEntryTime").find("input").val(str);
-        tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
-        tr.find(".needAdd").text(needAdd.toFixed(2));
-    });
-
-    $(".actualUse input").live("change",function(){
-        var actualUse = $(this).val();
-        var tr = $(this).closest("tr");
-        var confirmUse= tr.find(".confirmUse").text();
-        var exceedUse= actualUse*1-confirmUse*1;
-        tr.find(".exceedUse").text(exceedUse.toFixed(2));
-    });
-
-    $(".actualConsume input").live("change",function(){
-        var actualConsume = $(this).val();
-        var tr = $(this).closest("tr");
-        var orderCount= tr.find(".orderCount").text();
-        var actualLoss = tr.find(".actualLoss").text();
-        var actualUse = tr.find(".actualUse").text();
-        var warehouseCount = tr.find(".warehouseCount").text();
-        var planEntryCount = tr.find(".planEntryCount").text();
-        var confirmUse= actualConsume*orderCount*actualLoss;
-        var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
-        var exceedUse= actualUse*1-confirmUse*1;
-        tr.find(".confirmUse").text(confirmUse.toFixed(2));
-        tr.find(".needAdd").text(needAdd.toFixed(2));
-        tr.find(".exceedUse").text(exceedUse.toFixed(2));
-    });
-
-    $(".consume input").live("change",function(){
-        var consume = $(this).val();
-        var tr = $(this).closest("tr");
-        var orderCount= tr.find(".orderCount").text();
-        var loss = tr.find(".loss").text();
-        var warehouseCount = tr.find(".warehouseCount").text();
-        var planEntryCount = tr.find(".planEntryCount").text();
-        var planPurchasingCount= consume*orderCount*loss;
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
-        tr.find(".planPurchasingCount").text(planPurchasingCount.toFixed(2));
-        tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
-    });
-
-
-    $(".orderCount input").live("change",function(){
-        var orderCount = $(this).val();
-        var tr = $(this).closest("tr");
-        var consume= tr.find(".consume").text();
-        var loss = tr.find(".loss").text();
-        var warehouseCount = tr.find(".warehouseCount").text();
-        var planEntryCount = tr.find(".planEntryCount").text();
-        var actualLoss = tr.find(".actualLoss").text();
-        var actualConsume = tr.find(".actualConsume").text();
-        var actualUse = tr.find(".actualUse").text();
-        var planPurchasingCount= consume*orderCount*loss;
-        var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
-        var confirmUse= actualConsume*orderCount*actualLoss;
-        var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
-        var exceedUse= actualUse*1-confirmUse*1;
-        tr.find(".planPurchasingCount").text(planPurchasingCount.toFixed(2));
-        tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
-        tr.find(".confirmUse").text(confirmUse.toFixed(2));
-        tr.find(".needAdd").text(needAdd.toFixed(2));
-        tr.find(".exceedUse").text(exceedUse.toFixed(2));
-
-    });
-    var intervalName;
-
-    $(".pdData input").live("change",function(){
-        $(".pageForm").submit();
-    });
-    $(".pdData #calendar .days dd").live("click",function(){
-        intervalName = setInterval(handle,1000);
-    });
-    $(".pdData #calendar button").live("click",function(){
-        intervalName = setInterval(handle,1000);
-    });
-
-    $(".pdData #suggest li").live("click",function(){
-        $(".pageForm").submit();
-    });
-
-    function handle(){
-        $(".pageForm").submit();
-        clearInterval(intervalName);
-    }
-
-    function done(json){
 
     }
+    tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
+    tr.find(".needAdd").text(needAdd.toFixed(2));
+});
+$(".planEntryCount input").die("blur");
+$(".planEntryCount input").live("blur",function(){
+    var planEntryCount = $(this).val();
+    var tr = $(this).closest("tr");
+    var planPurchasingCount = tr.find(".planPurchasingCount").text();
+    var warehouseCount = tr.find(".warehouseCount input").val();
+    var confirmUse = tr.find(".confirmUse").text();
+    var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+    var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
+    var date = new Date();
+    if(actualPurchasingCount<=0){
+        var str = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+        tr.find(".actualEntryTime").find("input").val(str);
+    }
+    tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
+    tr.find(".needAdd").text(needAdd.toFixed(2));
+});
+$(".actualUse input").die("blur");
+$(".actualUse input").live("blur",function(){
+    var actualUse = $(this).val();
+    var tr = $(this).closest("tr");
+    var confirmUse= tr.find(".confirmUse").text();
+    var exceedUse= actualUse*1-confirmUse*1;
+    tr.find(".exceedUse").text(exceedUse.toFixed(2));
+});
+$(".actualConsume input").die("blur");
+$(".actualConsume input").live("blur",function(){
+    var actualConsume = $(this).val();
+    var tr = $(this).closest("tr");
+    var orderCount= tr.find(".orderCount").text();
+    var actualLoss = tr.find(".actualLoss").text();
+    var actualUse = tr.find(".actualUse").text();
+    var warehouseCount = tr.find(".warehouseCount").text();
+    var planEntryCount = tr.find(".planEntryCount").text();
+    var confirmUse= actualConsume*orderCount*actualLoss;
+    var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+    var exceedUse= actualUse*1-confirmUse*1;
+    tr.find(".confirmUse").text(confirmUse.toFixed(2));
+    tr.find(".needAdd").text(needAdd.toFixed(2));
+    tr.find(".exceedUse").text(exceedUse.toFixed(2));
+});
+$(".consume input").die("blur");
+$(".consume input").live("blur",function(){
+    var consume = $(this).val();
+    var tr = $(this).closest("tr");
+    var orderCount= tr.find(".orderCount").text();
+    var loss = tr.find(".loss").text();
+    var warehouseCount = tr.find(".warehouseCount").text();
+    var planEntryCount = tr.find(".planEntryCount").text();
+    var planPurchasingCount= consume*orderCount*loss;
+    var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
+    tr.find(".planPurchasingCount").text(planPurchasingCount.toFixed(2));
+    tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
+});
+
+$(".orderCount input").die("blur");
+$(".orderCount input").live("blur",function(){
+    var orderCount = $(this).val();
+    var tr = $(this).closest("tr");
+    var consume= tr.find(".consume").text();
+    var loss = tr.find(".loss").text();
+    var warehouseCount = tr.find(".warehouseCount").text();
+    var planEntryCount = tr.find(".planEntryCount").text();
+    var actualLoss = tr.find(".actualLoss").text();
+    var actualConsume = tr.find(".actualConsume").text();
+    var actualUse = tr.find(".actualUse").text();
+    var planPurchasingCount= consume*orderCount*loss;
+    var actualPurchasingCount = planPurchasingCount*1-warehouseCount*1-planEntryCount*1;
+    var confirmUse= actualConsume*orderCount*actualLoss;
+    var needAdd = confirmUse*1-planEntryCount*1-warehouseCount*1;
+    var exceedUse= actualUse*1-confirmUse*1;
+    tr.find(".planPurchasingCount").text(planPurchasingCount.toFixed(2));
+    tr.find(".actualPurchasingCount").text(actualPurchasingCount.toFixed(2));
+    tr.find(".confirmUse").text(confirmUse.toFixed(2));
+    tr.find(".needAdd").text(needAdd.toFixed(2));
+    tr.find(".exceedUse").text(exceedUse.toFixed(2));
+
+});
+var intervalName;
+
+$(".pdData input").die("change");
+$(".pdData input").live("change",function(){
+    $(".pageForm").submit();
+});
+
+$(".pdData #calendar .days dd").die("click");
+$(".pdData #calendar .days dd").live("click",function(){
+    intervalName = setInterval(handle,1000);
+});
+
+$(".pdData #calendar button").die("click");
+$(".pdData #calendar button").live("click",function(){
+    intervalName = setInterval(handle,1000);
+});
+
+$(".pdData #suggest li").die("click");
+$(".pdData #suggest li").live("click",function(){
+    $(".pageForm").submit();
+});
+
+function handle(){
+    $(".pageForm").submit();
+    clearInterval(intervalName);
+}
+
+function done(json){
+
+}
+
+
 
 </script>
 
@@ -270,17 +328,50 @@ var oldShrinkage;
         <dl>
             <dt>裁剪组别</dt>
             <dd>
-                <input type="text" name="cutGroup" maxlength="50" size="40" class=""
+                <input type="text" name="cutGroup" maxlength="30" size="30" class=""
                        value="${purchasing.cutGroup}"/>
             </dd>
         </dl>
+            <c:if test="${purchasing.cutGroup=='技术'}">
+            <dl>
+                <dt>预下线日期</dt>
+                <dd>
+
+                    <input type="text" name="planUnderlineDate" class="date" dateFmt="yyyy-MM-dd" readonly="true"
+                           value="<fmt:formatDate pattern='yyyy-MM-dd' value='${purchasing.planUnderlineDate}' type='both'/>">
+                    <a class="inputDateButton" href="javascript:;">选择</a>
+                </dd>
+            </dl>
+            </c:if>
         <dl>
             <dt>已裁完</dt>
             <dd>
-                <input type="checkbox" name="finshCut" size="40" <c:if test="${purchasing.finshCut==1}"> checked="checked" </c:if>
+                <input type="checkbox" name="finshCut" size="20" <c:if test="${purchasing.finshCut==1}"> checked="checked" </c:if>
                        value="1"/>
             </dd>
         </dl>
+            <dl>
+                <dt>已填拉链数据</dt>
+                <dd>
+                    <input type="checkbox" name="finshZipper" size="20" <c:if test="${purchasing.finshZipper==1}"> checked="checked" </c:if>
+                           value="1"/>
+                </dd>
+            </dl>
+            <dl>
+                <dt>拉链数据</dt>
+                <dd>
+                    <input type="text" name="zipperData" maxlength="30" size="30" class=""
+                           value="${purchasing.zipperData}"/>
+                </dd>
+            </dl>
+            <dl>
+                <dt>款号</dt>
+                <dd>
+                    <input type="text" name="typeNumber" maxlength="50" size="40" class=""
+                           value="${purchasing.typeNumber}"/>
+                </dd>
+            </dl>
+
 
         </div>
         </div>
@@ -402,10 +493,10 @@ var oldShrinkage;
                         </ul>
                     </div>
                 </div>
-                <div class="tabsContent" style="height: 430px;" >
+                <div class="tabsContent" style="height: 500px;" >
 
                     <div id="data" class="pdData">
-                        <table class="list nowrap" width="100%" >
+                        <table class="list nowrap" width="200%" >
                             <thead>
                             <tr>
                                 <th STYLE="BACKGROUND-COLOR: #FC9">名称</th>
@@ -426,8 +517,8 @@ var oldShrinkage;
                                 <th STYLE="BACKGROUND-COLOR: #99CCCC">采购单价</th>
                                 </sec:authorize>
                                 <th STYLE="BACKGROUND-COLOR: #99CCCC">计划入库时间</th>
-                                <th STYLE="BACKGROUND-COLOR: #FFFF66">预入库时间</th>
-                                <th STYLE="BACKGROUND-COLOR: #FFFF66">入库时间</th>
+                                <th   STYLE="BACKGROUND-COLOR: #FFFF66">预入库时间</th>
+                                <th  STYLE="BACKGROUND-COLOR: #FFFF66">入库时间</th>
                                 <th STYLE="BACKGROUND-COLOR: #FFFF66">入库数量</th>
                                 <th STYLE="BACKGROUND-COLOR: #FC9">名称</th>
                                 <th STYLE="BACKGROUND-COLOR: #F66">实测缩率：经%/纬%/门幅</th>
@@ -515,23 +606,23 @@ var oldShrinkage;
                                     <sec:authorize ifAnyGranted="role_leader,role_purchasing,role_warehouse,role_planning">
                                     <td>
 
-                                    <sec:authorize ifAllGranted="role_purchasing">
+                                    <sec:authorize ifAnyGranted="role_purchasing,role_warehouse">
                                         <input type="text" class="number "
                                                name="pds[${status.index}].goods.oriPrice" size="8"
                                                value="${pd.goods.oriPrice}">
                                     </sec:authorize>
-                                        <sec:authorize ifNotGranted="role_purchasing">
+                                        <sec:authorize ifNotGranted="role_purchasing,role_warehouse">
                                             ${pd.goods.oriPrice}
                                         </sec:authorize>
                                     </td>
                                     <!--采购单价-->
                                     <td>
-                                        <sec:authorize ifAllGranted="role_purchasing">
+                                        <sec:authorize ifAnyGranted="role_purchasing,role_warehouse">
                                             <input type="text" class="number "
                                                    name="pds[${status.index}].goods.price" size="8"
                                                    value="${pd.goods.price}">
                                         </sec:authorize>
-                                        <sec:authorize ifNotGranted="role_purchasing">
+                                        <sec:authorize ifNotGranted="role_purchasing,role_warehouse">
                                             ${pd.goods.price}
                                         </sec:authorize>
 
@@ -545,7 +636,7 @@ var oldShrinkage;
                                         <sec:authorize ifAllGranted="role_purchasing">
                                             <input type="text" name="pds[${status.index}].expectedArrivalTime"
                                                    value="<fmt:formatDate value="${pd.expectedArrivalTime}" pattern="yyyy-MM-dd"/>"
-                                                   size="19"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
+                                                   size="15"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
                                             <a class="inputDateButton" href="javascript:;">选择</a>
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_purchasing">
@@ -557,7 +648,7 @@ var oldShrinkage;
                                         <sec:authorize ifAllGranted="role_warehouse">
                                             <input type="text" name="pds[${status.index}].planEntryTime"
                                                    value="<fmt:formatDate value="${pd.planEntryTime}" pattern="yyyy-MM-dd"/>"
-                                                   size="19"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
+                                                   size="15"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
                                             <a class="inputDateButton" href="javascript:;">选择</a>
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_warehouse">
@@ -571,7 +662,7 @@ var oldShrinkage;
                                         <sec:authorize ifAllGranted="role_warehouse">
                                                 <input type="text" name="pds[${status.index}].actualEntryTime"
                                                        value="<fmt:formatDate value="${pd.actualEntryTime}" pattern="yyyy-MM-dd"/>"
-                                                       size="19"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
+                                                       size="15"  class="date" dateFmt="yyyy-MM-dd" readonly="true">
                                                 <a class="inputDateButton" href="javascript:;">选择</a>
                                         </sec:authorize>
                                         <sec:authorize ifNotGranted="role_warehouse">
@@ -695,7 +786,7 @@ var oldShrinkage;
                                 <th type="suggest" name="zippers[#index#].material" lookupPk ="value" postField ="value" lookupGroup="zippers[#index#]" fieldClass="" suggestUrl="${ctx}/dataDict/material" suggestFields="value" size="20">材质</th>
                                 <th type="suggest" name="zippers[#index#].spec" lookupPk ="value" postField ="value" lookupGroup="zippers[#index#]" fieldClass="" suggestUrl="${ctx}/dataDict/spec" suggestFields="value" size="20">规格</th>
                                 <th type="checkbox" fieldClass="checkvalue" name="zippers[#index#].checkvalue" defaultVal="1"  value="1" width="60">已含缩率</th>
-                                <c:forEach items="${purchasing.countDetailList}" var="cd" end="10" varStatus="status">
+                                <c:forEach items="${purchasing.countDetailList}" var="cd" end="12" varStatus="status">
                                 <th type="text" fieldClass="zipperCount" name="zipperCountList"  size="6">${cd.name}</th>
                                 </c:forEach>
                                 <th type="del" width="60">操作</th>
@@ -755,7 +846,7 @@ var oldShrinkage;
                                 <th>材质</th>
                                 <th>规格</th>
                                 <th>已含缩率</th>
-                                <c:forEach items="${purchasing.countDetailList}" var="cd" end="10" varStatus="status">
+                                <c:forEach items="${purchasing.countDetailList}" var="cd" end="12" varStatus="status">
                                  <th>${cd.name}</th>
                                 </c:forEach>
                             </tr>
