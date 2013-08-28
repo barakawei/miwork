@@ -180,81 +180,8 @@ $(function(){
                     <div class="pageContent sortDrag" selector="h1" layoutH="42">
 
 
-                        <c:if test="${purchasings.size() >0}">
-                        <div class="panel">
-                            <h1>待办工作</h1>
-                            <div>
-                                <table class="list" width="98%">
-                                    <thead>
-                                    <tr>
-                                        <th>工作流程</th>
-                                        <th>编号</th>
-                                        <th>名称</th>
-                                        <th>开始时间</th>
-                                        <th>待办任务数</th>
-                                        <th>当前进度</th>
-                                    </tr>
-                                    </thead>
 
-                                    <tbody>
-                                    <c:forEach items="${purchasings}" var="p">
-                                    <tr target="purchasing_id" rel="${p.id}">
-                                        <td>采购</td>
-                                        <td>
-                                        <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab" rel="pd"><span>${p.orderNumber}</span></a>
-                                        </td>
-                                        <td>${p.orderName}</td>
-                                        <td>
-                                          <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
-                                        </td>
-                                        <td>${p.pending}</td>
-                                        <td>${p.progress}%</td>
-                                    </tr>
-                                    </c:forEach>
-                                    </tbody>
-                                </table>
-                            </div>
-                            </div>
-                            </c:if>
 
-                        <c:if test="${otherPurchasings.size() >0}">
-                        <div class="panel" >
-                            <h1>进度跟踪</h1>
-                            <div>
-                                <table class="list" width="98%">
-                                    <thead>
-                                    <tr>
-                                        <th>工作流程</th>
-                                        <th>编号</th>
-                                        <th>名称</th>
-                                        <th>开始时间</th>
-                                        <th>总任务数</th>
-                                        <th>完成任务数</th>
-                                        <th>当前进度</th>
-                                    </tr>
-                                    </thead>
-
-                                    <tbody>
-                                    <c:forEach items="${otherPurchasings}" var="p">
-                                        <tr target="purchasing_id" rel="${p.id}">
-                                            <td>采购</td>
-                                            <td>
-                                                <a class="edit" href="${ctx}/purchasing/show/${p.id}" target="navTab" rel="pd" ><span>${p.orderNumber}</span></a>
-                                            </td>
-                                            <td>${p.orderName}</td>
-                                            <td>
-                                                <fmt:formatDate pattern='yyyy-MM-dd HH:mm' value='${p.startTime}' type='both'/>
-                                            </td>
-                                            <td>${p.pds.size()}</td>
-                                            <td>${p.complete}</td>
-                                            <td>${p.progress}%</td>
-                                        </tr>
-                                    </c:forEach>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                       </c:if>
                     </div>
                 </div>
             </div>
@@ -263,7 +190,7 @@ $(function(){
 </div>
 
 
-<div id="footer">version 1.0.4 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
+<div id="footer">version 1.0.5 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
 
 </body>
 

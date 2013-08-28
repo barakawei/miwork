@@ -1,8 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'jetty'
-apply plugin: 'maven'
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 version = '1.0'
 group = 'miwork'
 
@@ -15,59 +14,14 @@ tasks.withType(Compile) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "1.4-rc-2"
+    gradleVersion = "1.7"
 }
-
-
-task copyDeps << {
-    subprojects {subprj->
-        def allDeps = []
-        def sources = ['runtime', 'compile', 'providedRuntime', 'providedCompile']
-        subprj.configurations.asMap.each {k, v->
-            if (k in sources) {
-                allDeps.addAll v.allDependencies
-            }
-        }
-        copy{
-            from allDeps.collect { dep-> 
-                if (!(dep instanceof org.gradle.api.artifacts.ProjectDependency)) {//exclude project deps
-                    return subprj.configurations.compile.files (dep)
-                }
-                return[]
-            }
-            into "target/lib"
-        }
-    }
-}
-
-
-sourceSets.main {
-       output.classesDir='target/classes'
-       output.resourcesDir='target/classes'
-}
-
 
 repositories {
-  mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    compile 'org.springframework:spring-context:3.1.3.RELEASE'
-    compile 'org.springframework:spring-webmvc:3.1.3.RELEASE'
-    compile 'org.springframework.security:spring-security-core:3.1.3.RELEASE'
-    compile 'org.springframework.security:spring-security-config:3.1.3.RELEASE'
-    compile 'org.springframework.security:spring-security-taglibs:3.1.3.RELEASE'
-    compile 'org.springframework.security:spring-security-web:3.1.3.RELEASE'
-    compile 'org.springframework.data:spring-data-jpa:1.2.0.RELEASE'
-    compile 'org.hibernate:hibernate-core:4.1.9.Final'
-    compile 'org.hibernate:hibernate-entitymanager:4.1.9.Final'
-    compile 'org.hibernate:hibernate-validator:5.0.0.Alpha2'
-    compile 'org.sitemesh:sitemesh:3.0-alpha-2'
-    compile 'log4j:log4j:1.2.17'
-    compile 'javax.servlet:jstl:1.2'
-    providedCompile 'javax.servlet:servlet-api:2.5'
-    providedCompile 'javax.servlet.jsp:jsp-api:2.0'
-    runtime 'mysql:mysql-connector-java:5.1.22'
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.springframework:spring-test:3.1.3.RELEASE'
+    compile fileTree(dir: 'src/main/webapp/WEB-INF/lib', include: '*.jar')
+    providedCompile fileTree(dir: '~/Documents/java/apache-tomcat-8.0.0-RC1/lib', include: '*.jar')
 }

@@ -598,6 +598,8 @@ public class PurchasingServiceImpl implements PurchasingService {
                         if("1".equals(value)){
                             v =true;
                             predicate.getExpressions().add(cb.equal(root.<String>get(key),v));
+                            String str = "预下";
+                            predicate.getExpressions().add(cb.notLike(root.<String>get("orderNumber"), "%" + str + "%"));
                         }else if("0".equals(value)){
                            v =false;
                             predicate.getExpressions().add(cb.equal(root.<String>get(key),v));
