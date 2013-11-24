@@ -45,8 +45,19 @@ public class Zipper {
 
     //已含缩率
     private int checkvalue;
+    
+    //净胸围
+    private int chest;
 
-    public int getCheckvalue() {
+    public int getChest() {
+		return chest;
+	}
+
+	public void setChest(int chest) {
+		this.chest = chest;
+	}
+
+	public int getCheckvalue() {
         return checkvalue;
     }
 
@@ -161,8 +172,8 @@ public class Zipper {
         this.zipperCountList = JsonUtil.json2GenericObject(this.zipperCount,new TypeReference<List<Model>>() {
         });
         if(zipperCountList!=null && zipperCountList.size()==11){
-            zipperCountList.add(new Model("200","model_200","",zipperCountList.get(0).getPosition()));
-            zipperCountList.add(new Model("205","model_205","",zipperCountList.get(0).getPosition()));
+            zipperCountList.add(new Model("200","model_200","",zipperCountList.get(0).getPosition(),0));
+            zipperCountList.add(new Model("205","model_205","",zipperCountList.get(0).getPosition(),0));
 
         }
         return zipperCountList;

@@ -17,7 +17,17 @@ public class Model {
 
     private String value;
 
-    public String getPosition() {
+    private int chest;
+    
+    public int getChest() {
+		return chest;
+	}
+
+	public void setChest(int chest) {
+		this.chest = chest;
+	}
+
+	public String getPosition() {
         return position;
     }
 
@@ -29,11 +39,12 @@ public class Model {
     public Model() {
     }
 
-    public Model(String name, String type, String value, String position) {
+    public Model(String name, String type, String value, String position,int chest) {
         this.name = name;
         this.type = type;
         this.value = value;
         this.position = position;
+        this.chest = chest;
     }
 
     public String getName() {

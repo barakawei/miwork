@@ -190,7 +190,7 @@ $(function(){
 </div>
 
 
-<div id="footer">version 1.0.5 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
+<div id="footer">version 1.0.6 Copyright &copy; 2013 MiWork All Rights Reserved.</div>
 
 </body>
 

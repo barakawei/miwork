@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 import com.barakawei.lightwork.dao.ZipperDao;
 import com.barakawei.lightwork.domain.*;
 import com.barakawei.lightwork.service.DataDictService;
@@ -12,8 +13,11 @@ import com.barakawei.lightwork.service.PurchasingDetailService;
 import com.barakawei.lightwork.service.PurchasingService;
 import com.barakawei.lightwork.util.ExcelParseUtil;
 import com.barakawei.lightwork.util.UserContextUtil;
+
 import net.sf.jxls.transformer.XLSTransformer;
+
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -30,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -105,6 +108,7 @@ public class PurchasingController extends BaseController {
         //zipper
         String zipperType = "";
         ZipperGroups zg = null;
+        ZipperChest chest =null;
         ZipperGroups zipper = new ZipperGroups();
         if(countDetailList == null){
             countDetailList =new ArrayList<Model>();
@@ -120,46 +124,73 @@ public class PurchasingController extends BaseController {
                     zipper.setModel_145(_m.getName());
                 }
             }else{
-                if("model_145".equals(_m.getType())){
-                    zg.setModel_145(_m.getValue());
-                    zipper.setModel_145(_m.getName());
-                }else if("model_150".equals(_m.getType())){
-                    zg.setModel_150(_m.getValue());
-                    zipper.setModel_150(_m.getName());
-                }else if("model_155".equals(_m.getType())){
-                    zg.setModel_155(_m.getValue());
-                    zipper.setModel_155(_m.getName());
-                }else if("model_160".equals(_m.getType())){
-                    zg.setModel_160(_m.getValue());
-                    zipper.setModel_160(_m.getName());
-                }else if("model_165".equals(_m.getType())){
-                    zg.setModel_165(_m.getValue());
-                    zipper.setModel_165(_m.getName());
-                }else if("model_170".equals(_m.getType())){
-                    zg.setModel_170(_m.getValue());
-                    zipper.setModel_170(_m.getName());
-                }else if("model_175".equals(_m.getType())){
-                    zg.setModel_175(_m.getValue());
-                    zipper.setModel_175(_m.getName());
-                }else if("model_180".equals(_m.getType())){
-                    zg.setModel_180(_m.getValue());
-                    zipper.setModel_180(_m.getName());
-                }else if("model_185".equals(_m.getType())){
-                    zg.setModel_185(_m.getValue());
-                    zipper.setModel_185(_m.getName());
-                }else if("model_190".equals(_m.getType())){
-                    zg.setModel_190(_m.getValue());
-                    zipper.setModel_190(_m.getName());
-                }else if("model_195".equals(_m.getType())){
-                    zg.setModel_195(_m.getValue());
-                    zipper.setModel_195(_m.getName());
-                }else if("model_200".equals(_m.getType())){
-                    zg.setModel_200(_m.getValue());
-                    zipper.setModel_200(_m.getName());
-                }else if("model_205".equals(_m.getType())){
-                    zg.setModel_205(_m.getValue());
-                    zipper.setModel_205(_m.getName());
-                }
+            	if(_m.getChest()==1){
+            		chest = zg.getChest();
+            		chest.setName("净胸围");
+	                if("model_145".equals(_m.getType())){
+	                	chest.setModel_145(_m.getValue());
+	                }else if("model_155".equals(_m.getType())){
+	                	chest.setModel_155(_m.getValue());	                 
+	                }else if("model_165".equals(_m.getType())){
+	                	chest.setModel_165(_m.getValue());
+	                  
+	                }else if("model_175".equals(_m.getType())){
+	                	chest.setModel_175(_m.getValue());
+	                    
+	                }else if("model_185".equals(_m.getType())){
+	                	chest.setModel_185(_m.getValue());
+	                   
+	                }else if("model_195".equals(_m.getType())){
+	                	chest.setModel_195(_m.getValue());
+	                   
+	                }else if("model_205".equals(_m.getType())){
+	                	chest.setModel_205(_m.getValue());
+	                   
+	                }
+	                
+            		
+            	}else{
+	                if("model_145".equals(_m.getType())){
+	                    zg.setModel_145(_m.getValue());
+	                    zipper.setModel_145(_m.getName());
+	                }else if("model_150".equals(_m.getType())){
+	                    zg.setModel_150(_m.getValue());
+	                    zipper.setModel_150(_m.getName());
+	                }else if("model_155".equals(_m.getType())){
+	                    zg.setModel_155(_m.getValue());
+	                    zipper.setModel_155(_m.getName());
+	                }else if("model_160".equals(_m.getType())){
+	                    zg.setModel_160(_m.getValue());
+	                    zipper.setModel_160(_m.getName());
+	                }else if("model_165".equals(_m.getType())){
+	                    zg.setModel_165(_m.getValue());
+	                    zipper.setModel_165(_m.getName());
+	                }else if("model_170".equals(_m.getType())){
+	                    zg.setModel_170(_m.getValue());
+	                    zipper.setModel_170(_m.getName());
+	                }else if("model_175".equals(_m.getType())){
+	                    zg.setModel_175(_m.getValue());
+	                    zipper.setModel_175(_m.getName());
+	                }else if("model_180".equals(_m.getType())){
+	                    zg.setModel_180(_m.getValue());
+	                    zipper.setModel_180(_m.getName());
+	                }else if("model_185".equals(_m.getType())){
+	                    zg.setModel_185(_m.getValue());
+	                    zipper.setModel_185(_m.getName());
+	                }else if("model_190".equals(_m.getType())){
+	                    zg.setModel_190(_m.getValue());
+	                    zipper.setModel_190(_m.getName());
+	                }else if("model_195".equals(_m.getType())){
+	                    zg.setModel_195(_m.getValue());
+	                    zipper.setModel_195(_m.getName());
+	                }else if("model_200".equals(_m.getType())){
+	                    zg.setModel_200(_m.getValue());
+	                    zipper.setModel_200(_m.getName());
+	                }else if("model_205".equals(_m.getType())){
+	                    zg.setModel_205(_m.getValue());
+	                    zipper.setModel_205(_m.getName());
+	                }
+            	}
 
             }
         }
@@ -174,41 +205,69 @@ public class PurchasingController extends BaseController {
             List<Model> zipperCountList = z.getZipperCountList();
             for(int j=0;j<zipperCountList.size();j++){
                 Model _m = zipperCountList.get(j);
-                if(j == 0){
-                    zx.setModel_145(_m.getValue());
-                }else if(j == 1){
-                    zx.setModel_150(_m.getValue());
-                }else if(j == 2){
-                    zx.setModel_155(_m.getValue());
-                }else if(j == 3){
-                    zx.setModel_160(_m.getValue());
-                }else if(j == 4){
-                    zx.setModel_165(_m.getValue());
-                }else if(j == 5){
-                    zx.setModel_170(_m.getValue());
-                }else if(j == 6){
-                    zx.setModel_175(_m.getValue());
-                }else if(j == 7){
-                    zx.setModel_180(_m.getValue());
-                }else if(j == 8){
-                    zx.setModel_185(_m.getValue());
-                }else if(j == 9){
-                    zx.setModel_190(_m.getValue());
-                }else if(j == 10){
-                    zx.setModel_195(_m.getValue());
-                }else if(j == 11){
-                    zx.setModel_200(_m.getValue());
-                }else if(j == 12){
-                    zx.setModel_205(_m.getValue());
+                if(z.getChest()==1){
+	                if(j == 0){
+	                    zx.setModel_145(_m.getValue());
+	                }else if(j == 1){
+	                    zx.setModel_155(_m.getValue());
+	                }else if(j == 2){
+	                    zx.setModel_165(_m.getValue());
+	                }else if(j == 3){
+	                    zx.setModel_175(_m.getValue());
+	                }else if(j == 4){
+	                    zx.setModel_185(_m.getValue());
+	                }else if(j == 5){
+	                    zx.setModel_195(_m.getValue());
+	                }else if(j == 6){
+	                    zx.setModel_205(_m.getValue());
+	                }
+                }else{
+                	if(j == 0){
+	                    zx.setModel_145(_m.getValue());
+	                }else if(j == 1){
+	                    zx.setModel_150(_m.getValue());
+	                }else if(j == 2){
+	                    zx.setModel_155(_m.getValue());
+	                }else if(j == 3){
+	                    zx.setModel_160(_m.getValue());
+	                }else if(j == 4){
+	                    zx.setModel_165(_m.getValue());
+	                }else if(j == 5){
+	                    zx.setModel_170(_m.getValue());
+	                }else if(j == 6){
+	                    zx.setModel_175(_m.getValue());
+	                }else if(j == 7){
+	                    zx.setModel_180(_m.getValue());
+	                }else if(j == 8){
+	                    zx.setModel_185(_m.getValue());
+	                }else if(j == 9){
+	                    zx.setModel_190(_m.getValue());
+	                }else if(j == 10){
+	                    zx.setModel_195(_m.getValue());
+	                }else if(j == 11){
+	                    zx.setModel_200(_m.getValue());
+	                }else if(j == 12){
+	                    zx.setModel_205(_m.getValue());
+	                }
                 }
             }
             ZipperGroups _zg =  map.get(zx.getType());
             if(_zg != null){
-                _zg.getZipper().add(zx);
+            	if(z.getChest()==1){
+            		_zg.getChest().getZipper().add(zx);
+            	}else{
+            		_zg.getZipper().add(zx);
+            	}
             }else{
                 ZipperGroups newZg = new ZipperGroups();
                 newZg.setName(zx.getType());
-                newZg.getZipper().add(zx);
+                
+                if(z.getChest()==1){
+                	newZg.getChest().getZipper().add(zx);
+            	}else{
+            		newZg.getZipper().add(zx);
+            	}
+                
                 map.put(zx.getType(),newZg);
             }
         }
@@ -354,11 +413,48 @@ public class PurchasingController extends BaseController {
         mav.addObject("purchasing", purchasing);
         return mav;
     }
-
+    private Map group(List<Zipper> list){
+    	LinkedMap map = new LinkedMap();
+    	for(Zipper z:list){
+    		String key = z.getPosition();
+    		if(map.containsKey(key)){
+    			((List<Zipper>)map.get(key)).add(z);
+    		}else{
+    			List l =new ArrayList<Zipper>();
+    			l.add(z);
+    			map.put(key,l );
+    		}
+    	}
+    	return map;
+    }
     @RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
     public ModelAndView show(@PathVariable("id") String id) {
         ModelAndView mav = new ModelAndView("purchasing/show");
-        mav.addObject("purchasing", purchasingService.findTaskByCurrentUser(id));
+        Purchasing p =  purchasingService.findTaskByCurrentUser(id);
+        List<Zipper> zippers = p.getZippers();
+    	List<Zipper> chest = new ArrayList<Zipper>();
+    	List<Zipper> noChest = new ArrayList<Zipper>();
+    	for(Zipper z :zippers){
+    		if(z.getChest()==1){
+    			chest.add(z);
+    		}else{
+    			noChest.add(z);
+    		}
+    	}
+    	Map noChestMap = group(noChest);
+    	Map chestMap = group(chest);
+    	List<Zipper> all = new ArrayList();
+    	for(Object k : noChestMap.keySet()){
+    		all.addAll((List)noChestMap.get(k));
+    		Object o = chestMap.get(k);
+    		if(o!=null){
+    			all.addAll((List)o);
+    		}
+    		
+    	}
+        p.setZippers(all);
+
+        mav.addObject("purchasing",p);
         return mav;
     }
 

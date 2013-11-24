@@ -434,19 +434,19 @@ public class PurchasingServiceImpl implements PurchasingService {
                        List<Model> models= _p.getCountDetailList();
                        String type = _zipper.getPosition();
                        if(StringUtils.isNotBlank(type)){
-                       models.add(new Model("145", "model_145", "", type));
-                       models.add(new Model("150", "model_150", "", type));
-                       models.add(new Model("155", "model_155", "", type));
-                       models.add(new Model("160", "model_160", "", type));
-                       models.add(new Model("165", "model_165", "", type));
-                       models.add(new Model("170", "model_170", "", type));
-                       models.add(new Model("175", "model_175", "", type));
-                       models.add(new Model("180", "model_180", "", type));
-                       models.add(new Model("185", "model_185", "", type));
-                       models.add(new Model("190", "model_190", "", type));
-                       models.add(new Model("195", "model_195", "", type));
-                       models.add(new Model("200", "model_200", "", type));
-                       models.add(new Model("205", "model_205", "", type));
+                       models.add(new Model("145", "model_145", "", type,0));
+                       models.add(new Model("150", "model_150", "", type,0));
+                       models.add(new Model("155", "model_155", "", type,0));
+                       models.add(new Model("160", "model_160", "", type,0));
+                       models.add(new Model("165", "model_165", "", type,0));
+                       models.add(new Model("170", "model_170", "", type,0));
+                       models.add(new Model("175", "model_175", "", type,0));
+                       models.add(new Model("180", "model_180", "", type,0));
+                       models.add(new Model("185", "model_185", "", type,0));
+                       models.add(new Model("190", "model_190", "", type,0));
+                       models.add(new Model("195", "model_195", "", type,0));
+                       models.add(new Model("200", "model_200", "", type,0));
+                       models.add(new Model("205", "model_205", "", type,0));
                        _p.setCountDetailList(models);
                        }
                    }
@@ -483,6 +483,7 @@ public class PurchasingServiceImpl implements PurchasingService {
             }
             List<Zipper> zippers = purchasing.getZippers();
             if (CollectionUtils.isNotEmpty(zippers)) {
+            	//技术员保存数量，排除净胸围数据，不然会消失
                 _p.setCountDetail(purchasing.getCountDetail());
             }
             _p.setDataDate(purchasing.getDataDate());

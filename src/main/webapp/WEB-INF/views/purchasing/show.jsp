@@ -147,20 +147,42 @@ function convertJson(){
     var zipperCountJson = [];
     var index = 0;
     $(".hiddenInput").html("");
+    var chest = 0;
+    var j =0;
+    var i =0;
+    $(".zipperCount").each(function(){
+	if($(this).hasClass("chest")){
+	  chest = 1;
+	  j=j+1;
+	}else{
+	  chest =0;
+          i = i+1;
+	}
 
-    $(".zipperCount").each(function(i){
-        i = i+1;
         var json= {};
         json.value = $(this).val();
         zipperCountJson.push(json);
-        if(i%13 == 0 && i != 1){
+        if(chest!=1){
+          if(i%13 == 0 && i != 1){
             var input = hidden.clone();
             input.attr("name","zippers["+index+"].zipperCount");
             input.val(JSON.stringify(zipperCountJson));
             $(".hiddenInput").append(input);
             zipperCountJson=[];
             index++;
-        }
+          }
+	}else{
+          if(j%7 == 0 && j != 1){
+            var input = hidden.clone();
+            input.attr("name","zippers["+index+"].zipperCount");
+            input.val(JSON.stringify(zipperCountJson));
+            $(".hiddenInput").append(input);
+            zipperCountJson=[];
+            index++;
+          }
+
+	  
+	}
     });
 
     var countDetailJson= [];
@@ -169,6 +191,7 @@ function convertJson(){
         json.value = $(this).val();
         json.name = $(this).attr("nameStr");
         json.type= $(this).attr("typeStr");
+ 	json.chest= $(this).attr("chest");
         json.position= $(this).attr("positionStr");
         countDetailJson.push(json);
     });
@@ -795,14 +818,29 @@ function done(json){
                             <tbody>
 
                             <c:set var="type" value=""/>
+                            <c:set var="chest" value="0"/>
                             <c:forEach items="${purchasing.zippers}" var="z" varStatus="status">
-                                <c:if test="${type!=z.position}">
+				<!-- 不是净胸围-->
+                                <c:if test="${type!=z.position&&z.chest!=1}">
                                     <c:set var="type" value="${z.position}"/>
+				    <c:set var="chest" value="0"/>
                                     <tr style="background-color: #FC9">
                                         <td colspan="5">${z.position}(数量)</td>
                                         <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
-                                            <c:if test="${type==cd.position}">
+                                            <c:if test="${type==cd.position&&cd.chest!=1}">
                                                 <td>${cd.value}</td>
+                                            </c:if>
+                                        </c:forEach>
+                                    </tr>
+                                </c:if>
+				<!-- 是净胸-->
+                                <c:if test="${z.chest==1&&z.chest!=chest}">
+                                    <c:set var="chest" value="1"/>
+                                    <tr style="color: blue;">
+                                        <td colspan="5">净胸围</td>
+                                        <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
+                                            <c:if test="${type==cd.position&&cd.chest==1}">
+                                                <td colspan="2" align="center">${cd.value}</td>
                                             </c:if>
                                         </c:forEach>
                                     </tr>
@@ -813,12 +851,29 @@ function done(json){
                                 <td><input type="text" class="" origin="true" lookupgroup="zippers[${status.index}]" suggesturl="${ctx}/dataDict/material" suggestfields="value" postfield="value" lookuppk="value" name="zippers[${status.index}].material" size="20" value="${z.material}"></td>
                                 <td><input type="text" class="" origin="true" lookupgroup="zippers[${status.index}]" suggesturl="${ctx}/dataDict/spec" suggestfields="value" postfield="value" lookuppk="value" name="zippers[${status.index}].spec" size="20" value="${z.spec}"></td>
                                 <td><input type="checkbox" class="checkvalue" name="zippers[${status.index}].checkvalue"  value="1" <c:if test="${z.checkvalue==1}"> checked="checked" </c:if> /></td>
-                                <c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
-                                <td><input type="text" class="zipperCount"  name="zipperCountList" size="6" old="${zc.value}" value="${zc.value}"></td>
-                                </c:forEach>
+
+				<!--拉链具体数值-->
+				<c:if test="${z.chest!=1}">
+                                	<c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
+                                	<td><input type="text" class="zipperCount nochest"  name="zipperCountList" size="6" old="${zc.value}" value="${zc.value}"></td>
+                                	</c:forEach>
+                                </c:if>
+				<c:if test="${z.chest==1}">
+                                	<c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
+					<c:if test="${s.index+1 != z.zipperCountList.size()}">
+                                	<td colspan="2"><input type="text" class="zipperCount chest"  name="zipperCountList" size="12" old="${zc.value}" value="${zc.value}"></td>
+                                	</c:if>
+					<c:if test="${s.index+1 == z.zipperCountList.size()}">
+                                	<td><input type="text" class="zipperCount chest"  name="zipperCountList" size="12" old="${zc.value}" value="${zc.value}"></td>
+                                	</c:if>
+
+					</c:forEach>
+                                </c:if>
+
                                 <td><a href="javascript:void(0)" class="btnDel">删除</a></td>
                                 <td style="display: none">
                                     <input type="hidden" name="zippers[${status.index}].id" value="${z.id}">
+				    <input type="hidden" name="zippers[${status.index}].chest" value="${z.chest}">
                                     <input type="hidden" name="zippers[${status.index}].purchasing.id" value="${purchasing.id}">
                                 </td>
                             </tr>
@@ -826,6 +881,11 @@ function done(json){
                             </tbody>
                         </table>
                         <div>
+			<div style="color:blue;margin-top:5px;">
+				 ${purchasing.remark}
+
+                         </div>
+
                             <p>
                             <label>面料实际缩率</label>
                             <input type="text" size="10" class="" name="actualShrinkage" value="${purchasing.actualShrinkage}"/>
@@ -853,15 +913,17 @@ function done(json){
                             </thead>
                             <tbody>
                             <c:set var="type" value=""/>
+ 				<c:set var="chest" value="0"/>
                             <c:forEach items="${purchasing.zippers}" var="z" varStatus="status">
-                                <c:if test="${type!=z.position}">
+                                <c:if test="${type!=z.position&&z.chest!=1}">
                                     <c:set var="type" value="${z.position}"/>
+					 <c:set var="chest" value="0"/>
                                     <tr class="unitBox" style="background-color: #FC9">
                                         <td colspan="5">${z.position}(数量)</td>
                                         <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
-                                            <c:if test="${type==cd.position}">
+                                            <c:if test="${type==cd.position&&cd.chest!=1}">
                                             <sec:authorize ifAllGranted="role_product">
-                                            <td><input nameStr="${cd.name}" typeStr="${cd.type}" positionStr="${cd.position}" type="text" class="countDetail"  name="zipperCountList" size="6" value="${cd.value}"></td>
+                                            <td><input nameStr="${cd.name}" typeStr="${cd.type}" chest="0" positionStr="${cd.position}" type="text" class="countDetail"  name="zipperCountList" size="6" value="${cd.value}"></td>
                                                 </sec:authorize>
                                                 <sec:authorize ifNotGranted=" role_product">
                                                         <td>${cd.value}</td>
@@ -870,6 +932,21 @@ function done(json){
                                         </c:forEach>
                                     </tr>
                                 </c:if>
+	<!-- 是净胸-->
+                                <c:if test="${z.chest==1&&z.chest!=chest}">
+                                    <c:set var="chest" value="1"/>
+                                    <tr style="color: blue;">
+                                        <td colspan="5">净胸围</td>
+                                        <c:forEach items="${purchasing.countDetailList}" var="cd" varStatus="s">
+                                            <c:if test="${type==cd.position&&cd.chest==1}">
+                                                <td colspan="2" align="center">${cd.value}</td>
+</td>
+							<input nameStr="${cd.name}" typeStr="${cd.type}" chest="1" positionStr="${cd.position}" class="countDetail"  type="hidden" name="zipperCountList" value="${cd.value}">
+                                	</c:if>
+                                        </c:forEach>
+                                    </tr>
+                                </c:if>
+
                             <tr class="unitBox">
                                 <td>${z.position}</td>
                                 <td>${z.name}</td>
@@ -877,8 +954,22 @@ function done(json){
                                 <td>${z.spec}</td>
                                 <td><input type="checkbox" name="checkvalue" disabled="disabled" value="1" <c:if test="${z.checkvalue==1}"> checked="checked" </c:if> /></td>
                                 <c:forEach items="${z.zipperCountList}" var="zc" varStatus="s">
-                                    <td>${zc.value}</td>
+				<c:if test="${z.chest!=1}">
+				  <td>${zc.value}</td>
+				</c:if>
+
+
+                                  <c:if test="${z.chest==1}">
+	<c:if test="${s.index+1 != z.zipperCountList.size()}">
+                                	<td colspan="2"  align="center">${zc.value}</td>
+                                	</c:if>
+					<c:if test="${s.index+1 == z.zipperCountList.size()}">
+                                	<td>${zc.value}</td>
+                                	</c:if>
+                                </c:if>
+
                                 </c:forEach>
+				
 
                                 <sec:authorize ifAllGranted="role_product">
                                 <td style="display: none">
@@ -893,6 +984,10 @@ function done(json){
                             </tbody>
 
                         </table>
+			<div style="color:blue;margin-top:5px;">
+				 ${purchasing.remark}
+
+                         </div>
                             <div>
                                 <p>
                                     <label>面料实际缩率</label>

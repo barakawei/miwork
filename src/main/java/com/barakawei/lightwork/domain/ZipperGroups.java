@@ -37,6 +37,8 @@ public class ZipperGroups {
     private String model_195;
     private String model_200;
     private String model_205;
+    
+    private ZipperChest chest = new ZipperChest();
 
     public String getModel_200() {
         return model_200;
@@ -159,4 +161,17 @@ public class ZipperGroups {
     public void setZipper(List<ZipperExcel> zipper) {
         this.zipper = zipper;
     }
+
+	public ZipperChest getChest() {
+		return chest;
+	}
+
+	public void setChest(ZipperChest chest) {
+		this.chest = chest;
+	}
+
+
+
+
+ 
 }

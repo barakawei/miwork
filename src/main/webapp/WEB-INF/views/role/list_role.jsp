@@ -25,10 +25,7 @@ $(function () {
     label: 'createDate',
     sortable: true
   }];
-
   $(".datagrid-table").datatable({columns:columns});
-
-
 });
 </script>
 

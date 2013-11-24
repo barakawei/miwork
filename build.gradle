@@ -14,7 +14,7 @@ tasks.withType(Compile) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "1.7"
+    gradleVersion = "1.9-rc-3"
 }
 
 repositories {
@@ -23,5 +23,5 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'src/main/webapp/WEB-INF/lib', include: '*.jar')
-    providedCompile fileTree(dir: '~/Documents/java/apache-tomcat-8.0.0-RC1/lib', include: '*.jar')
+    providedCompile fileTree(dir: '~/Documents/java/apache-tomcat-7.0.47/lib', include: '*.jar')
 }

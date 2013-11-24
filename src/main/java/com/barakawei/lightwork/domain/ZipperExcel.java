@@ -194,6 +194,7 @@ public class ZipperExcel {
 
     public static void convertFromExcel(Purchasing p, List<Zipper> zippers, List<ZipperExcel> zes) {
         String type = "";
+        String chest ="";
         List<String> modelName = new ArrayList<String>();
         List<Model> models = new ArrayList<Model>();
         for (int i = 0; i < zes.size(); i++) {
@@ -214,46 +215,84 @@ public class ZipperExcel {
                 modelName.add(ze.getModel_205());
                 continue;
             }
-            if (ze.getName() != null && ze.getMaterial() == null && ze.getSpec() == null) {
+            
+            if (ze.getName() != null && ze.getMaterial() == null && ze.getSpec() == null&&!StringUtils.contains(ze.getName(),"净胸围")&&!StringUtils.contains(ze.getName(),"备注")) {
                 type = ze.getName();
-                models.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type));
-                models.add(new Model(modelName.get(1), "model_150", ze.getModel_150() == null ? "" : ze.getModel_150(), type));
-                models.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type));
-                models.add(new Model(modelName.get(3), "model_160", ze.getModel_160() == null ? "" : ze.getModel_160(), type));
-                models.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type));
-                models.add(new Model(modelName.get(5), "model_170", ze.getModel_170() == null ? "" : ze.getModel_170(), type));
-                models.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type));
-                models.add(new Model(modelName.get(7), "model_180", ze.getModel_180() == null ? "" : ze.getModel_180(), type));
-                models.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type));
-                models.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type));
-                models.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type));
-                models.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type));
-                models.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type));
+                chest ="";
+                models.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type,0));
+                models.add(new Model(modelName.get(1), "model_150", ze.getModel_150() == null ? "" : ze.getModel_150(), type,0));
+                models.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type,0));
+                models.add(new Model(modelName.get(3), "model_160", ze.getModel_160() == null ? "" : ze.getModel_160(), type,0));
+                models.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type,0));
+                models.add(new Model(modelName.get(5), "model_170", ze.getModel_170() == null ? "" : ze.getModel_170(), type,0));
+                models.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type,0));
+                models.add(new Model(modelName.get(7), "model_180", ze.getModel_180() == null ? "" : ze.getModel_180(), type,0));
+                models.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type,0));
+                models.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type,0));
+                models.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type,0));
+                models.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type,0));
+                models.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type,0));
                 continue;
             }
-            if (i >= 3 && !StringUtils.contains(ze.getName(), "面料实际缩率")) {
+            
+            if(StringUtils.contains(ze.getName(),"净胸围")&&StringUtils.contains(ze.getType(),"是")){
+            	chest = ze.getName();
+            	models.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type,1));
+                //models.add(new Model(modelName.get(1), "model_150", ze.getModel_150() == null ? "" : ze.getModel_150(), type,1));
+                models.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type,1));
+                //models.add(new Model(modelName.get(3), "model_160", ze.getModel_160() == null ? "" : ze.getModel_160(), type,1));
+                models.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type,1));
+                //models.add(new Model(modelName.get(5), "model_170", ze.getModel_170() == null ? "" : ze.getModel_170(), type,1));
+                models.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type,1));
+                //models.add(new Model(modelName.get(7), "model_180", ze.getModel_180() == null ? "" : ze.getModel_180(), type,1));
+                models.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type,1));
+                //models.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type,1));
+                models.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type,1));
+                //models.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type,1));
+                models.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type,1));
+                continue;
+            }
+            if (i >= 3&& !StringUtils.contains(ze.getName(), "备注") && !StringUtils.contains(ze.getName(), "面料实际缩率")&&!StringUtils.contains(ze.getName(),"净胸围")) {
                 Zipper z = new Zipper();
+                if(StringUtils.contains(chest,"净胸围")){
+                	z.setChest(1);
+                }else{
+                	z.setChest(0);
+                }
                 z.setPosition(type);
                 z.setName(ze.getName());
                 z.setPurchasing(p);
                 z.setMaterial(ze.getMaterial());
                 z.setSpec(ze.getSpec());
                 List<Model> zipperCount = new ArrayList<Model>();
-                zipperCount.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type));
-                zipperCount.add(new Model(modelName.get(1), "model_150", ze.getModel_150() == null ? "" : ze.getModel_150(), type));
-                zipperCount.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type));
-                zipperCount.add(new Model(modelName.get(3), "model_160", ze.getModel_160() == null ? "" : ze.getModel_160(), type));
-                zipperCount.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type));
-                zipperCount.add(new Model(modelName.get(5), "model_170", ze.getModel_170() == null ? "" : ze.getModel_170(), type));
-                zipperCount.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type));
-                zipperCount.add(new Model(modelName.get(7), "model_180", ze.getModel_180() == null ? "" : ze.getModel_180(), type));
-                zipperCount.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type));
-                zipperCount.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type));
-                zipperCount.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type));
-                zipperCount.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type));
-                zipperCount.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type));
+                if(z.getChest()!=1){
+                zipperCount.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(1), "model_150", ze.getModel_150() == null ? "" : ze.getModel_150(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(3), "model_160", ze.getModel_160() == null ? "" : ze.getModel_160(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(5), "model_170", ze.getModel_170() == null ? "" : ze.getModel_170(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(7), "model_180", ze.getModel_180() == null ? "" : ze.getModel_180(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(9), "model_190", ze.getModel_190() == null ? "" : ze.getModel_190(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(11), "model_200", ze.getModel_200() == null ? "" : ze.getModel_200(), type,z.getChest()));
+                zipperCount.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type,z.getChest()));
+                }else{
+                	zipperCount.add(new Model(modelName.get(0), "model_145", ze.getModel_145() == null ? "" : ze.getModel_145(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(2), "model_155", ze.getModel_155() == null ? "" : ze.getModel_155(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(4), "model_165", ze.getModel_165() == null ? "" : ze.getModel_165(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(6), "model_175", ze.getModel_175() == null ? "" : ze.getModel_175(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(8), "model_185", ze.getModel_185() == null ? "" : ze.getModel_185(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(10), "model_195", ze.getModel_195() == null ? "" : ze.getModel_195(), type,z.getChest()));
+                    zipperCount.add(new Model(modelName.get(12), "model_205", ze.getModel_205() == null ? "" : ze.getModel_205(), type,z.getChest()));
+                }
                 z.setZipperCountList(zipperCount);
                 zippers.add(z);
+            }
+            if (StringUtils.contains(ze.getName(), "备注")) {
+            	p.setRemark(ze.getName());
             }
             if (StringUtils.contains(ze.getName(), "面料实际缩率")) {
                 p.setActualShrinkage(ze.getMaterial());

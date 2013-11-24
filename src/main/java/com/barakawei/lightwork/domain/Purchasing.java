@@ -1,14 +1,33 @@
 package com.barakawei.lightwork.domain;
 
-import java.util.*;
-import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.barakawei.lightwork.util.JsonUtil;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.type.TypeReference;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.barakawei.lightwork.util.JsonUtil;
 
 /**
  * @author qianxiaowei
@@ -399,12 +418,13 @@ public class Purchasing {
         if(this.countDetailList != null && countDetailList.size()%11==0){
             List<Model> list = new ArrayList<Model>();
             for(int i =0;i<countDetailList.size();i++){
+            	Model m = countDetailList.get(i);
                 if(i%10 == 0 && i>0){
-                    list.add(countDetailList.get(i));
-                    list.add(new Model("200","model_200","",countDetailList.get(i-1).getPosition()));
-                    list.add(new Model("205","model_205","",countDetailList.get(i-1).getPosition()));
+                    list.add(m);
+                    //list.add(new Model("200","model_200","",m.getPosition(),m.getChest()));
+                    //list.add(new Model("205","model_205","",m.getPosition(),m.getChest()));
                 }else{
-                    list.add(countDetailList.get(i));
+                    list.add(m);
                 }
 
             }
@@ -453,6 +473,8 @@ public class Purchasing {
     public List<Zipper> getZippers() {
         return zippers;
     }
+    
+
 
     public void setZippers(List<Zipper> zippers) {
         this.zippers = zippers;
